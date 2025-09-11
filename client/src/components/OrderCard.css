@@ -1,0 +1,94 @@
+.order-card {
+    background-color: var(--white);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow);
+    border-left: 5px solid var(--primary-color);
+}
+
+@media (max-width: 768px) {
+    .order-card {
+        padding: 0.75rem; /* Slightly reduce padding on smaller screens */
+    }
+
+    .card-header h4 {
+        font-size: 1.1rem; /* Slightly smaller font for table number */
+    }
+
+    .time-elapsed {
+        font-size: 0.8rem; /* Slightly smaller font for time elapsed */
+    }
+
+    .action-btn {
+        padding: 0.5rem 0.8rem; /* Adjust button padding */
+        font-size: 0.9rem; /* Adjust button font size */
+    }
+}
+
+.order-card.status-in-progress {
+    border-left-color: var(--secondary-color);
+}
+
+.order-card.status-ready {
+    border-left-color: #28a745; /* Green */
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.card-header h4 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.time-elapsed {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.item-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem 0;
+}
+
+.item-list li {
+    padding: 0.25rem 0;
+}
+
+.card-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.action-btn {
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 5px;
+    color: var(--white);
+    font-weight: bold;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.action-btn:hover {
+    opacity: 0.85;
+}
+
+.progress-btn {
+    background-color: var(--secondary-color);
+}
+
+.ready-btn {
+    background-color: #28a745;
+}
+
+.collected-btn {
+    background-color: #007bff;
+}

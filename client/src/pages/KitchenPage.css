@@ -1,0 +1,37 @@
+.kds-container {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+@media (max-width: 768px) {
+    .kds-container {
+        flex-direction: column; /* Stack columns vertically on smaller screens */
+        gap: 1.5rem; /* Adjust gap for mobile */
+    }
+}
+
+.kds-column {
+    flex: 1;
+    background-color: var(--gray);
+    border-radius: 8px;
+    padding: 1rem;
+    min-height: 80vh;
+}
+
+@media (max-width: 768px) {
+    .kds-column {
+        width: 100%; /* Take full width when stacked */
+        min-height: auto; /* Adjust min-height for mobile */
+        padding: 0.75rem; /* Adjust padding for mobile */
+    }
+}
+
+.kds-column h2 {
+    text-align: center;
+    margin-top: 0;
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--dark-gray);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}

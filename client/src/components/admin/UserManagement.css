@@ -1,0 +1,56 @@
+.user-management-container {
+    background-color: var(--white);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+}
+
+.user-form {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    align-items: center;
+}
+
+.user-form input,
+.user-form select {
+    padding: 0.5rem;
+    border: 1px solid var(--dark-gray);
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.user-form button {
+    padding: 0.6rem 1rem;
+    background-color: var(--primary-color);
+    color: var(--white);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.users-table th, .users-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--gray);
+}
+
+.users-table th {
+    background-color: var(--background-color);
+    font-weight: 600;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+    color: var(--white);
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 5px;
+    cursor: pointer;
+}
