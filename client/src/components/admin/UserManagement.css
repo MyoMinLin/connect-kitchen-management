@@ -53,4 +53,34 @@
     padding: 0.4rem 0.8rem;
     border-radius: 5px;
     cursor: pointer;
+    margin-right: 5px;
+}
+
+.edit-btn {
+    background-color: #007bff;
+    color: var(--white);
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.update-btn {
+    background-color: #28a745;
+    color: var(--white);
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.cancel-btn {
+    background-color: #6c757d;
+    color: var(--white);
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 5px;
+    cursor: pointer;
 }

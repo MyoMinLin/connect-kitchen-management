@@ -2,17 +2,18 @@ import mongoose, { Document, Schema } from 'mongoose';
 import { IMenuItem } from './MenuItem';
 
 export interface IOrder extends Document {
-    tableNumber: number;
+    orderNumber: string;
     isPreOrder: boolean;
     items: { menuItem: IMenuItem['_id']; quantity: number }[];
     status: 'New' | 'Preparing' | 'Ready' | 'Collected';
     preparingStartedAt?: Date;
     readyAt?: Date;
     collectedAt?: Date;
+    isActive: boolean;
 }
 
 const OrderSchema: Schema = new Schema({
-    tableNumber: { type: Number, required: true },
+    orderNumber: { type: String, unique: true },
     isPreOrder: { type: Boolean, default: false },
     customerName: { type: String }, // New field for customer name
     items: [{
@@ -28,6 +29,8 @@ const OrderSchema: Schema = new Schema({
     preparingStartedAt: { type: Date },
     readyAt: { type: Date },
     collectedAt: { type: Date },
+    isActive: { type: Boolean, default: true },
 }, { timestamps: true });
 
 export default mongoose.model<IOrder>('Order', OrderSchema);
+

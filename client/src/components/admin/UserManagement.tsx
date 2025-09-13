@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { API_BASE_URL } from '../../utils/apiConfig';
 import './UserManagement.css';
 
 // This interface should match the IUser from the backend

@@ -109,3 +109,25 @@
    - add an option to mark as Pre-Order
    - save the pre-order option value to database
 - Show pre-order indicator in the All Orders table's first column - Table using a circle icon with text "Pre" and relevant icon color
+
+
+# Orders entity improvement
+- add the isActive flags to Orders entity
+- set true to isActive as Default
+- set false when record is deleted and exclude in orders retrieving
+
+# New Order page management
+- apply the same styling of Customer Name to the Remarks input of selected item in New Order
+- show the price of each item between the item and remarks input
+- calculate total amount of order by suming all item prices and show it beside the Table number input by making Table number input a bit smaller
+
+# Order Number improvement
+- change TableNumber to OrderNumber 
+- add LastOrderCount column to Orders entity
+- set new OrderNumber using the format CN[YYYYMM]001, CN[YYYYMM]002 in New Order page by getting the LastOrderCount and plus 1
+- add the new order record together with the LastOrderCount value
+
+- Show Order Number in New Order page below Active Event
+- Show Total Amount above the Submit Order button
+
+- Improve frontend to configure server endpoints to remove hard-coded endpoints

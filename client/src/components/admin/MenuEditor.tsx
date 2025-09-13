@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { API_BASE_URL } from '../../utils/apiConfig';
 import './UserManagement.css'; // Reusing styles
 
 // Interfaces
@@ -26,9 +27,31 @@ const MenuEditor = () => {
 
     // Form state
     const [name, setName] = useState('');
-    const [price, setPrice] = useState(0);
+    const [price, setPrice] = useState('');
     const [category, setCategory] = useState('Main');
     const [requiresPrep, setRequiresPrep] = useState(true);
+
+    // Edit state
+    const [editingItemId, setEditingItemId] = useState<string | null>(null);
+    const [editedName, setEditedName] = useState('');
+    const [editedPrice, setEditedPrice] = useState('');
+    const [editedCategory, setEditedCategory] = useState('');
+    const [editedRequiresPrep, setEditedRequiresPrep] = useState(false);
+
+    const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        // Allow only digits and a single decimal point
+        if (/^\d*\.?\d*$/.test(value)) {
+            setPrice(value);
+        }
+    };
+
+    const handleEditedPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        if (/^\d*\.?\d*$/.test(value)) {
+            setEditedPrice(value);
+        }
+    };
 
     // Generic API handler
     const api = (url: string, method: string, body?: any) => {
@@ -76,12 +99,12 @@ const MenuEditor = () => {
 
     const handleCreateItem = (e: React.FormEvent) => {
         e.preventDefault();
-        const newItem = { name, price, category, requiresPrep, eventId: selectedEvent };
+        const newItem = { name, price: parseFloat(price), category, requiresPrep, eventId: selectedEvent };
         api('/menu-items', 'POST', newItem).then(() => {
             // Refresh list
             api(`/menu-items/event/${selectedEvent}`, 'GET').then(setMenuItems);
             // Reset form
-            setName(''); setPrice(0); setCategory('Main'); setRequiresPrep(true);
+            setName(''); setPrice(''); setCategory('Main'); setRequiresPrep(true);
         }).catch(err => setError(err.message));
     };
 
@@ -94,8 +117,36 @@ const MenuEditor = () => {
         }
     };
 
+    const handleEditItem = (item: IMenuItem) => {
+        setEditingItemId(item._id);
+        setEditedName(item.name);
+        setEditedPrice(item.price.toString());
+        setEditedCategory(item.category);
+        setEditedRequiresPrep(item.requiresPrep);
+    };
+
+    const handleCancelEdit = () => {
+        setEditingItemId(null);
+    };
+
+    const handleUpdateItem = (itemId: string) => {
+        const updatedItem = {
+            name: editedName,
+            price: parseFloat(editedPrice),
+            category: editedCategory,
+            requiresPrep: editedRequiresPrep,
+        };
+        api(`/menu-items/${itemId}`, 'PUT', updatedItem).then(() => {
+            // Refresh list
+            api(`/menu-items/event/${selectedEvent}`, 'GET').then(setMenuItems);
+            // Exit editing mode
+            setEditingItemId(null);
+        }).catch(err => setError(err.message));
+    };
+
+
     return (
-        <div className="user-management-container"> 
+        <div className="user-management-container">
             <h3>Menu Editor</h3>
             {error && <p className="error-message">{error}</p>}
 
@@ -111,7 +162,7 @@ const MenuEditor = () => {
             <h4>Add New Menu Item</h4>
             <form onSubmit={handleCreateItem} className="user-form" style={{ flexWrap: 'wrap' }}>
                 <input type="text" placeholder="Name" value={name} onChange={e => setName(e.target.value)} required />
-                <input type="number" placeholder="Price" value={price} onChange={e => setPrice(Number(e.target.value))} required />
+                <input type="text" inputMode="decimal" placeholder="Price (¥)" value={price} onChange={handlePriceChange} required />
                 <input type="text" placeholder="Category" value={category} onChange={e => setCategory(e.target.value)} required />
                 <label><input type="checkbox" checked={requiresPrep} onChange={e => setRequiresPrep(e.target.checked)} /> Requires Prep?</label>
                 <button type="submit">Add Item</button>
@@ -126,11 +177,29 @@ const MenuEditor = () => {
                     <tbody>
                         {menuItems.map(item => (
                             <tr key={item._id}>
-                                <td>{item.name}</td>
-                                <td>{item.price}</td>
-                                <td>{item.category}</td>
-                                <td>{item.requiresPrep ? 'Yes' : 'No'}</td>
-                                <td><button onClick={() => handleDeleteItem(item._id)} className="delete-btn">Delete</button></td>
+                                {editingItemId === item._id ? (
+                                    <>
+                                        <td><input type="text" value={editedName} onChange={e => setEditedName(e.target.value)} /></td>
+                                        <td><input type="text" inputMode="decimal" value={editedPrice} onChange={handleEditedPriceChange} /></td>
+                                        <td><input type="text" value={editedCategory} onChange={e => setEditedCategory(e.target.value)} /></td>
+                                        <td><input type="checkbox" checked={editedRequiresPrep} onChange={e => setEditedRequiresPrep(e.target.checked)} /></td>
+                                        <td>
+                                            <button onClick={() => handleUpdateItem(item._id)} className="update-btn">Update</button>
+                                            <button onClick={handleCancelEdit} className="cancel-btn">Cancel</button>
+                                        </td>
+                                    </>
+                                ) : (
+                                    <>
+                                        <td>{item.name}</td>
+                                        <td>¥{item.price}</td>
+                                        <td>{item.category}</td>
+                                        <td>{item.requiresPrep ? 'Yes' : 'No'}</td>
+                                        <td>
+                                            <button onClick={() => handleEditItem(item)} className="edit-btn">Edit</button>
+                                            <button onClick={() => handleDeleteItem(item._id)} className="delete-btn">Delete</button>
+                                        </td>
+                                    </>
+                                )}
                             </tr>
                         ))}
                     </tbody>

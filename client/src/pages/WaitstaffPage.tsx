@@ -4,6 +4,7 @@ import OrderForm from '../components/OrderForm';
 import ReadyNotification from '../components/ReadyNotification';
 import { useAuth } from '../context/AuthContext';
 import { format } from 'date-fns-tz';
+import { API_BASE_URL } from '../utils/apiConfig';
 
 // --- Data Models ---
 export interface MenuItem {
@@ -22,7 +23,7 @@ export interface OrderItem {
 
 export interface Order {
     _id: string;
-    tableNumber: number;
+    orderNumber: string;
     customerName?: string; // New field for customer name
     isPreOrder: boolean;
     items: { menuItem: MenuItem; quantity: number; remarks?: string }[]; // Added remarks
@@ -43,14 +44,14 @@ export interface Event {
 const WaitstaffPage = () => {
     const socket = useSocket();
     const { token, user } = useAuth();
-    const [readyOrder, setReadyOrder] = useState<{ tableNumber: number; orderId: string } | null>(null);
+    const [readyOrder, setReadyOrder] = useState<{ orderNumber: string; orderId: string } | null>(null);
     const [orders, setOrders] = useState<Order[]>([]);
     const [error, setError] = useState('');
 
     // Fetch initial orders via HTTP
     useEffect(() => {
         if (token) {
-            fetch('http://localhost:4000/api/orders', {
+            fetch(`${API_BASE_URL}/api/orders`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
             .then(res => res.json())
@@ -65,7 +66,7 @@ const WaitstaffPage = () => {
     useEffect(() => {
         if (!socket) return;
 
-        const handleReadyNotification = (data: { tableNumber: number; orderId: string }) => {
+        const handleReadyNotification = (data: { orderNumber: string; orderId: string }) => {
             console.log('Order is ready for pickup:', data);
             setReadyOrder(data);
             // Optional: Play a sound
@@ -95,7 +96,7 @@ const WaitstaffPage = () => {
         };
     }, [socket]);
 
-    const handleCreateOrder = (order: { tableNumber: number; items: OrderItem[]; isPreOrder: boolean }) => {
+    const handleCreateOrder = (order: { customerName?: string; items: OrderItem[]; isPreOrder: boolean }) => {
         if (socket) {
             socket.emit('new_order', order);
         }
@@ -125,7 +126,7 @@ const WaitstaffPage = () => {
             <OrderForm onSubmit={handleCreateOrder} />
             {readyOrder && (
                 <ReadyNotification
-                    tableNumber={readyOrder.tableNumber}
+                    orderNumber={readyOrder.orderNumber}
                     onClear={handleClearNotification}
                 />
             )}
@@ -133,7 +134,7 @@ const WaitstaffPage = () => {
                 <table className="orders-table">
                     <thead>
                         <tr>
-                            <th>Table</th>
+                            <th>Order Number</th>
                             <th>Customer</th>
                             <th>Items</th>
                             <th>Status</th>
@@ -144,7 +145,7 @@ const WaitstaffPage = () => {
                     <tbody>
                         {sortedOrders.map(order => (
                             <tr key={order._id} className={`status-${order.status.toLowerCase().replace(' ', '-')}`}>
-                                <td data-label="Table">{order.tableNumber}</td>
+                                <td data-label="Order Number">{order.orderNumber}</td>
                                 <td data-label="Customer">{order.customerName || 'N/A'}</td>
                                 <td data-label="Items">
                                     <ul>

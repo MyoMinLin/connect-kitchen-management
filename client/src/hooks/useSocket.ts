@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../utils/apiConfig';
 
-const SOCKET_SERVER_URL = process.env.REACT_APP_SOCKET_SERVER_URL || 'http://localhost:4000';
+const SOCKET_SERVER_URL = process.env.REACT_APP_SOCKET_SERVER_URL || API_BASE_URL;
 
 export const useSocket = () => {
     const [socket, setSocket] = useState<Socket | null>(null);

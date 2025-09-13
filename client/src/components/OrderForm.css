@@ -143,3 +143,49 @@ input:checked + .slider:before {
 .menu-item-btn:hover {
     background-color: #d8901a;
 }
+
+.last-order-number {
+    text-align: center;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.item-remark-input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--dark-gray);
+    border-radius: 5px;
+    font-size: 1rem;
+    margin-top: 5px;
+}
+
+.form-row {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-end;
+}
+
+.table-number-input {
+    width: 80px; /* Smaller width for table number */
+}
+
+.total-amount-display {
+    font-weight: bold;
+}
+
+.total-amount-display label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.total-amount-display span {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+}
+
+.item-price {
+    font-weight: bold;
+    margin: 0 10px;
+}

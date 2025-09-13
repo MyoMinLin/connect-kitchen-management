@@ -2,20 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MenuItem, OrderItem, Event } from '../pages/WaitstaffPage';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../utils/apiConfig';
 import './OrderForm.css';
 
 interface OrderFormProps {
-    onSubmit: (order: { tableNumber: number; customerName?: string; items: OrderItem[]; isPreOrder: boolean }) => void;
+    onSubmit: (order: { customerName?: string; items: OrderItem[]; isPreOrder: boolean }) => void;
 }
 
 const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-    const [tableNumber, setTableNumber] = useState<number>(1);
     const [customerName, setCustomerName] = useState<string>('');
     const [isPreOrder, setIsPreOrder] = useState<boolean>(false);
     const [currentOrderItems, setCurrentOrderItems] = useState<OrderItem[]>([]);
-        const [events, setEvents] = useState<Event[]>([]); // New state for events
+    const [events, setEvents] = useState<Event[]>([]); // New state for events
     const [activeEvent, setActiveEvent] = useState<Event | null>(null); // New state for active event
+    const [lastOrderNumber, setLastOrderNumber] = useState<string>('');
 
     const { token, logout } = useAuth();
     const navigate = useNavigate();
@@ -23,7 +24,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
     // Effect to fetch events and determine the active event
     useEffect(() => {
         if (token) {
-            fetch('http://localhost:4000/api/events/active', {
+            fetch(`${API_BASE_URL}/api/events/active`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -42,6 +43,23 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                 .catch(err => console.error("Failed to fetch events:", err));
         }
     }, [token, logout]);
+
+    useEffect(() => {
+        if (token) {
+            fetch(`${API_BASE_URL}/api/orders/last`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.orderNumber) {
+                        setLastOrderNumber(data.orderNumber);
+                    }
+                })
+                .catch(err => console.error("Failed to fetch last order number:", err));
+        }
+    }, [token]);
 
     // Effect to determine the active event from fetched events
     useEffect(() => {
@@ -76,7 +94,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
     // Effect to fetch menu items for the active event
     useEffect(() => {
         if (token && activeEvent) {
-            fetch(`http://localhost:4000/api/menu-items/event/${activeEvent._id}`, { // Fetch menu items by event ID
+            fetch(`${API_BASE_URL}/api/menu-items/event/${activeEvent._id}`, { // Fetch menu items by event ID
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -112,9 +130,18 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
         );
     };
 
-    const getMenuItemName = (menuItemId: string) => {
-        const menuItem = menuItems.find(mi => mi._id === menuItemId);
-        return menuItem ? menuItem.name : 'Unknown Item';
+    const getMenuItem = (menuItemId: string): MenuItem | undefined => {
+        return menuItems.find(mi => mi._id === menuItemId);
+    };
+
+    const calculateTotal = () => {
+        return currentOrderItems.reduce((total, currentItem) => {
+            const menuItem = getMenuItem(currentItem.menuItem);
+            if (menuItem) {
+                return total + (menuItem.price * currentItem.quantity);
+            }
+            return total;
+        }, 0);
     };
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -123,7 +150,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
             alert('Please add items to the order.');
             return;
         }
-        onSubmit({ tableNumber, customerName, items: currentOrderItems, isPreOrder }); // Pass customerName
+        onSubmit({ customerName, items: currentOrderItems, isPreOrder });
         setCurrentOrderItems([]); // Reset form
         setCustomerName(''); // Reset customer name
         navigate('/orders'); // Redirect to all orders page
@@ -138,17 +165,9 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                 ) : (
                     <p className="no-active-event">No active event found for this month.</p>
                 )}
-                <div className="form-group">
-                    <label htmlFor="tableNumber">Table Number</label>
-                    <input
-                        id="tableNumber"
-                        type="number"
-                        value={tableNumber}
-                        onChange={(e) => setTableNumber(parseInt(e.target.value, 10))}
-                        min="1"
-                        required
-                    />
-                </div>
+                {lastOrderNumber && (
+                    <p className="last-order-number">Last Order: <strong>{lastOrderNumber}</strong></p>
+                )}
                 <div className="form-group">
                     <label htmlFor="customerName">Customer Name (Optional)</label>
                     <input
@@ -177,20 +196,28 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                         <p>No items added yet.</p>
                     ) : (
                         <ul>
-                            {currentOrderItems.map((item, index) => (
-                                <li key={index}>
-                                    {getMenuItemName(item.menuItem)} x {item.quantity}
-                                    <input
-                                        type="text"
-                                        placeholder="Remarks (e.g., no onions)"
-                                        value={item.remarks || ''}
-                                        onChange={(e) => handleRemarkChange(index, e.target.value)}
-                                        className="item-remark-input"
-                                    />
-                                </li>
-                            ))}
+                            {currentOrderItems.map((item, index) => {
+                                const menuItem = getMenuItem(item.menuItem);
+                                return (
+                                    <li key={index}>
+                                        {menuItem ? menuItem.name : 'Unknown Item'} x {item.quantity}
+                                        {menuItem && <span className="item-price">¥{menuItem.price.toFixed(2)}</span>}
+                                        <input
+                                            type="text"
+                                            placeholder="Remarks (e.g., no onions)"
+                                            value={item.remarks || ''}
+                                            onChange={(e) => handleRemarkChange(index, e.target.value)}
+                                            className="item-remark-input"
+                                        />
+                                    </li>
+                                );
+                            })}
                         </ul>
                     )}
+                </div>
+                <div className="total-amount-display">
+                    <label>Total Amount</label>
+                    <span>¥{calculateTotal().toFixed(2)}</span>
                 </div>
                 <button type="submit" className="submit-btn">Submit Order</button>
             </form>
@@ -200,7 +227,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                 <div className="menu-grid">
                     {menuItems.map(item => (
                         <button key={item._id} onClick={() => handleAddItem(item._id)} className="menu-item-btn">
-                            {item.name} (${item.price})
+                            {item.name} (¥{item.price})
                         </button>
                     ))}
                 </div>

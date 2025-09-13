@@ -2,16 +2,16 @@ import React from 'react';
 import './ReadyNotification.css';
 
 interface ReadyNotificationProps {
-    tableNumber: number;
+    orderNumber: string;
     onClear: () => void;
 }
 
-const ReadyNotification: React.FC<ReadyNotificationProps> = ({ tableNumber, onClear }) => {
+const ReadyNotification: React.FC<ReadyNotificationProps> = ({ orderNumber, onClear }) => {
     return (
         <div className="notification-overlay">
             <div className="notification-modal">
                 <h2>Order Ready!</h2>
-                <p>The order for <strong>Table {tableNumber}</strong> is ready for pickup.</p>
+                <p>The order for <strong>{orderNumber}</strong> is ready for pickup.</p>
                 <button onClick={onClear} className="clear-btn">Clear Notification</button>
             </div>
         </div>

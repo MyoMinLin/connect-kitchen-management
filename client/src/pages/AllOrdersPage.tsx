@@ -74,12 +74,12 @@ const AllOrdersPage: React.FC = () => {
 
     return (
         <div className="all-orders-page">
-            <h1>All Active Orders</h1>
+            <h1>လက်ရှိအော်ဒါများ</h1>
             <div className="orders-list-container">
                 <table className="orders-table">
                     <thead>
                         <tr>
-                            <th>Table</th>
+                            <th>Order Number</th>
                             <th>Customer</th>
                             <th>Item</th>
                             <th>Ordered At</th>
@@ -90,9 +90,9 @@ const AllOrdersPage: React.FC = () => {
                     <tbody>
                         {activeOrders.map(order => (
                             <tr key={order._id} className={`status-${order.status.toLowerCase()}`}>
-                                <td data-label="Table">
+                                <td data-label="Order Number">
                                     {order.isPreOrder && <span className="pre-order-indicator">Pre</span>}
-                                    {order.tableNumber}
+                                    {order.orderNumber}
                                 </td>
                                 <td data-label="Customer">{order.customerName || '-'}</td>
                                 <td data-label="Item">
@@ -132,7 +132,7 @@ const AllOrdersPage: React.FC = () => {
                         <table className="orders-table">
                             <thead>
                                 <tr>
-                                    <th>Table</th>
+                                    <th>Order Number</th>
                                     <th>Customer</th>
                                     <th>Item</th>
                                     <th>Ordered At</th>

@@ -48,16 +48,16 @@ const MainApp = () => {
             {user && (
                 <nav className="navbar">
                     <div className="container">
-                        <Link to={getHomeRoute()} className="nav-brand">Connect Kitchen</Link>
+                        <Link to={getHomeRoute()} className="nav-brand">ကွန်နက် မီးဖိုချောင်</Link>
                         <button className="hamburger-menu" onClick={toggleMobileMenu}>
                             <span className="bar"></span>
                             <span className="bar"></span>
                             <span className="bar"></span>
                         </button>
                         <div className={`nav-links ${isMobileMenuOpen ? 'open' : ''}`}> {/* Add 'open' class */}
-                            {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>New Order</Link>}
-                            {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/orders" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>All Orders</Link>}
-                            {(user.role === 'Admin' || user.role === 'Kitchen') && <Link to="/kds" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Kitchen Display</Link>}
+                            {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>အော်ဒါအသစ်</Link>}
+                            {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/orders" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>အော်ဒါများ</Link>}
+                            {(user.role === 'Admin' || user.role === 'Kitchen') && <Link to="/kds" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>မီးဖိုချောင်</Link>}
                             {user.role === 'Admin' && <Link to="/admin" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Admin</Link>}
                             <button onClick={logout} className="nav-link logout-btn">Logout</button>
                         </div>

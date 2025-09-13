@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { API_BASE_URL } from '../../utils/apiConfig';
 import './UserManagement.css'; // Reusing styles
 
 interface IEvent {
@@ -17,7 +18,7 @@ const EventManagement = () => {
     const { token } = useAuth();
 
     const api = (endpoint: string, method: string, body?: any) => {
-        return fetch(`http://localhost:4000/api/events${endpoint}`,
+        return fetch(`${API_BASE_URL}/api/events${endpoint}`,
             {
                 method,
                 headers: {

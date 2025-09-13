@@ -54,7 +54,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onStatusUpdate, userRole }
     return (
         <div className={`order-card status-${order.status.toLowerCase().replace(' ', '-')}`}>
             <div className="card-header">
-                <h4>Table {order.tableNumber}</h4>
+                <h4>Order #{order.orderNumber}</h4>
                 <span className="time-elapsed">{getTimestampForStatus()}</span>
             </div>
             {order.customerName && <p className="customer-name">Customer: {order.customerName}</p>}
