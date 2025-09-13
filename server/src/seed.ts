@@ -7,7 +7,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/kitchen_management';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://connect_db_admin:2OR6oQlrsrJhVMrj@connect.kueg6y4.mongodb.net/?retryWrites=true&w=majority&appName=Connect';
+ //'mongodb://localhost:27017/kitchen_management';
 
 const seedDatabase = async () => {
     try {
