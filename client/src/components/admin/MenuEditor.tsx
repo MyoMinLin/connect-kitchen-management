@@ -55,7 +55,7 @@ const MenuEditor = () => {
 
     // Generic API handler
     const api = (url: string, method: string, body?: any) => {
-        return fetch(`http://localhost:4000/api${url}`,
+        return fetch(`${API_BASE_URL}/api${url}`,
             {
                 method,
                 headers: {

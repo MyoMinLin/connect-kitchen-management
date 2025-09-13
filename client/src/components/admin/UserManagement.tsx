@@ -22,7 +22,7 @@ const UserManagement = () => {
     const [role, setRole] = useState<'Waiter' | 'Kitchen'>('Waiter');
 
     const api = (endpoint: string, method: string, body?: any) => {
-        return fetch(`http://localhost:4000/api/users${endpoint}`,
+        return fetch(`${API_BASE_URL}/api/users${endpoint}`,
             {
                 method,
                 headers: {
