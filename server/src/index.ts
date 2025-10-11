@@ -11,7 +11,11 @@ import Counter from './models/Counter';
 dotenv.config();
 
 const app = express();
-app.use(cors());
+const corsOptions = {
+    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 const server = http.createServer(app);
