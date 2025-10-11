@@ -190,6 +190,16 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                         <span className="slider"></span>
                     </label>
                 </div>
+                <div className="menu-items-list">
+                    <h3>Menu</h3>
+                    <div className="menu-grid">
+                        {menuItems.map(item => (
+                            <button type="button" key={item._id} onClick={() => handleAddItem(item._id)} className="menu-item-btn">
+                                {item.name} (¥{item.price})
+                            </button>
+                        ))}
+                    </div>
+                </div>
                 <div className="order-summary">
                     <h4>Current Order</h4>
                     {currentOrderItems.length === 0 ? (
@@ -221,17 +231,6 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                 </div>
                 <button type="submit" className="submit-btn">Submit Order</button>
             </form>
-
-            <div className="menu-items-list">
-                <h3>Menu</h3>
-                <div className="menu-grid">
-                    {menuItems.map(item => (
-                        <button key={item._id} onClick={() => handleAddItem(item._id)} className="menu-item-btn">
-                            {item.name} (¥{item.price})
-                        </button>
-                    ))}
-                </div>
-            </div>
         </div>
     );
 };

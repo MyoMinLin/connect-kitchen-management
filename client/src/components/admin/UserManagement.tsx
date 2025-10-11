@@ -83,6 +83,7 @@ const UserManagement = () => {
                 <select value={role} onChange={e => setRole(e.target.value as any)}>
                     <option value="Waiter">Waiter</option>
                     <option value="Kitchen">Kitchen</option>
+                    <option value="Admin">Admin</option>
                 </select>
                 <button type="submit">Create User</button>
             </form>

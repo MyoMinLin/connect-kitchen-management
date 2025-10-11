@@ -7,7 +7,7 @@ import './AdminPage.css';
 const AdminPage = () => {
     return (
         <div>
-            <h1 className="page-title">Admin Dashboard</h1>
+            <h1>Admin Dashboard</h1>
             
             <div className="admin-dashboard-nav">
                 <Link to="/" className="dashboard-link">

@@ -1,6 +1,5 @@
 .order-form-container {
-    display: grid;
-    grid-template-columns: 1fr 2fr; /* Default for larger screens */
+    display: flex; /* Changed from grid to flex */
     gap: 2rem;
     background-color: var(--white);
     padding: 1.5rem;
@@ -8,11 +7,36 @@
     box-shadow: var(--shadow);
 }
 
+.order-form, .menu-items-list {
+    flex: 1; /* Make both columns take equal space */
+}
+
 @media (max-width: 768px) {
     .order-form-container {
         grid-template-columns: 1fr; /* Stack columns on smaller screens */
         gap: 1.5rem; /* Adjust gap for mobile */
         padding: 1rem; /* Adjust padding for mobile */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .order-form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .menu-items-list {
+        /* The following properties have been removed to allow the menu to fit its content height */
+        /* flex-grow: 1; */
+        /* overflow-y: auto; */
+        /* padding-bottom: 80px; */
+    }
+
+    .submit-btn {
+        position: sticky;
+        bottom: 0;
+        width: 100%;
+        margin-top: auto; /* Push to the bottom */
     }
 }
 
@@ -127,6 +151,20 @@ input:checked + .slider:before {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 0.75rem;
+}
+
+@media (max-width: 768px) {
+    .menu-grid {
+        display: flex;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch; /* for smooth scrolling on iOS */
+    }
+
+    .menu-item-btn {
+        flex: 0 0 auto; /* prevent buttons from shrinking */
+        width: 120px; /* fixed width for each button */
+    }
 }
 
 .menu-item-btn {

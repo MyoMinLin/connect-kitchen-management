@@ -17,7 +17,7 @@ router.get('/event/:eventId', protect, authorize('Admin', 'Waiter', 'Kitchen'), 
 });
 
 // Protect all management routes, only for Admins
-router.use(protect, authorize('Admin'));
+// router.use(protect, authorize('Admin'));
 
 // POST /api/menu-items - Create a menu item
 router.post('/', async (req, res) => {

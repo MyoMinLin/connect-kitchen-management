@@ -53,7 +53,7 @@ const KitchenPage = () => {
 
     return (
         <div>
-            <h1 className="page-title">Kitchen Display System</h1>
+            <h1>Kitchen Display System</h1>
             <div className="kds-container">
                 <div className="kds-column">
                     <h2>New</h2>

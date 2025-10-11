@@ -122,7 +122,7 @@ const WaitstaffPage = () => {
 
     return (
         <div>
-            <h1 className="page-title">Waitstaff Interface</h1>
+            
             <OrderForm onSubmit={handleCreateOrder} />
             {readyOrder && (
                 <ReadyNotification
