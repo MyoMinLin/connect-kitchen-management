@@ -13,6 +13,7 @@ dotenv.config();
 const app = express();
 const corsOptions = {
     origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    methods: ["GET", "POST"]
 };
 
 app.use(cors(corsOptions));
@@ -20,10 +21,7 @@ app.use(express.json());
 
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: {
-    origin: "*", // In production, restrict this to your client's URL
-    methods: ["GET", "POST"]
-  }
+  cors: corsOptions
 });
 
 const PORT = process.env.PORT || 4000;
