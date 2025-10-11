@@ -11,24 +11,30 @@ import Counter from './models/Counter';
 dotenv.config();
 
 const app = express();
-const corsOptions = {
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
-    methods: ["GET", "POST"]
-};
+const corsOptions = [
+  cors({
+    origin: '*',
+    methods: '*',
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  })
+];
 
-app.use(cors(corsOptions));
+app.use(corsOptions);
 app.use(express.json());
 
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: corsOptions
+  cors: {
+    origin: "*", // In production, restrict this to your client's URL
+    methods: ["GET", "POST"]
+  }
 });
 
 const PORT = process.env.PORT || 4000;
 
 // --- MongoDB Connection ---
-const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://connect_db_admin:2OR6oQlrsrJhVMrj@connect.kueg6y4.mongodb.net/?retryWrites=true&w=majority&appName=Connect';
-//'mongodb://localhost:27017/kitchen_management';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/kitchen_management';
 
 mongoose.connect(MONGO_URI)
   .then(() => console.log('MongoDB connected successfully.'))
