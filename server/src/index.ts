@@ -156,6 +156,7 @@ io.on('connection', (socket) => {
                 items: orderData.items,
                 status: 'New',
             });
+            console.log('New order:', newOrder);
             await newOrder.save();
             const populatedOrder = await Order.findById(newOrder._id).populate('items.menuItem');
 

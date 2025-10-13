@@ -14,10 +14,6 @@ router.post('/login', async (req, res) => {
     }
 
     try {
-        console.log('Username: ', username, ' Password: ', password);
-        // Find user and explicitly select the password field
-        const tempUser = await User.findOne({ username });
-        console.log(tempUser);
         const user = await User.findOne({ username }).select('+password');
 
         if (!user || !user.password) {
