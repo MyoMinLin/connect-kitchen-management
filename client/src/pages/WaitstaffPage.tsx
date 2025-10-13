@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSocket } from '../hooks/useSocket';
 import OrderForm from '../components/OrderForm';
-import ReadyNotification from '../components/ReadyNotification';
 import { useAuth } from '../context/AuthContext';
 import { format } from 'date-fns-tz';
 import { API_BASE_URL } from '../utils/apiConfig';
@@ -44,7 +43,6 @@ export interface Event {
 const WaitstaffPage = () => {
     const socket = useSocket();
     const { token, user } = useAuth();
-    const [readyOrder, setReadyOrder] = useState<{ orderNumber: string; orderId: string } | null>(null);
     const [orders, setOrders] = useState<Order[]>([]);
     const [error, setError] = useState('');
 
@@ -66,14 +64,6 @@ const WaitstaffPage = () => {
     useEffect(() => {
         if (!socket) return;
 
-        const handleReadyNotification = (data: { orderNumber: string; orderId: string }) => {
-            console.log('Order is ready for pickup:', data);
-            setReadyOrder(data);
-            // Optional: Play a sound
-            const audio = new Audio('/notification.mp3'); // Make sure you have this file in /public
-            audio.play();
-        };
-
         const handleOrderUpdate = (updatedOrder: Order) => {
             setOrders(prevOrders => {
                 const existingOrderIndex = prevOrders.findIndex(o => o._id === updatedOrder._id);
@@ -87,11 +77,9 @@ const WaitstaffPage = () => {
             });
         };
 
-        socket.on('order_ready_notification', handleReadyNotification);
         socket.on('order_update', handleOrderUpdate);
 
         return () => {
-            socket.off('order_ready_notification', handleReadyNotification);
             socket.off('order_update', handleOrderUpdate);
         };
     }, [socket]);
@@ -108,28 +96,12 @@ const WaitstaffPage = () => {
         }
     };
 
-    const handleClearNotification = () => {
-        if (socket && readyOrder) {
-            // Mark the order as "Collected"
-            handleUpdateStatus(readyOrder.orderId, 'Collected');
-        }
-        setReadyOrder(null);
-    };
-
     const sortedOrders = orders.filter(o => o.status !== 'Collected').sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-
     return (
         <div>
-            
             <OrderForm onSubmit={handleCreateOrder} />
-            {readyOrder && (
-                <ReadyNotification
-                    orderNumber={readyOrder.orderNumber}
-                    onClear={handleClearNotification}
-                />
-            )}
             <div className="orders-list-container">
                 <table className="orders-table">
                     <thead>

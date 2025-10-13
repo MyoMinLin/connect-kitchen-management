@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import WaitstaffPage from './pages/WaitstaffPage';
 import KitchenPage from './pages/KitchenPage';
@@ -9,21 +9,50 @@ import MenuManagementPage from './pages/MenuManagementPage';
 import AllOrdersPage from './pages/AllOrdersPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { NotificationProvider, useNotification } from './context/NotificationContext';
+import ReadyNotification from './components/ReadyNotification';
+import { useSocket } from './hooks/useSocket';
 import './App.css';
 
 const App = () => {
     return (
         <AuthProvider>
-            <Router>
-                <MainApp />
-            </Router>
+            <NotificationProvider>
+                <Router>
+                    <MainApp />
+                </Router>
+            </NotificationProvider>
         </AuthProvider>
     );
 }
 
 const MainApp = () => {
     const { user, logout } = useAuth();
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // New state for mobile menu
+    const { readyOrder, setReadyOrder } = useNotification();
+    const socket = useSocket();
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleReadyNotification = (data: { orderNumber: string; orderId: string; triggeredBy: string }) => {
+            if (user && user.id === data.triggeredBy) {
+                return; // Don't show notification to the user who triggered it
+            }
+            console.log('Order is ready for pickup:', data);
+            setReadyOrder(data);
+        };
+
+        socket.on('order_ready_notification', handleReadyNotification);
+
+        return () => {
+            socket.off('order_ready_notification', handleReadyNotification);
+        };
+    }, [socket, setReadyOrder]);
+
+    const handleClearNotification = () => {
+        setReadyOrder(null);
+    };
 
     const getHomeRoute = () => {
         if (!user) return '/login';
@@ -54,7 +83,7 @@ const MainApp = () => {
                             <span className="bar"></span>
                             <span className="bar"></span>
                         </button>
-                        <div className={`nav-links ${isMobileMenuOpen ? 'open' : ''}`}> {/* Add 'open' class */}
+                        <div className={`nav-links ${isMobileMenuOpen ? 'open' : ''}`}>
                             {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>အော်ဒါအသစ်</Link>}
                             {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/orders" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>အော်ဒါများ</Link>}
                             {(user.role === 'Admin' || user.role === 'Kitchen') && <Link to="/kds" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>မီးဖိုချောင်</Link>}
@@ -63,6 +92,13 @@ const MainApp = () => {
                         </div>
                     </div>
                 </nav>
+            )}
+
+            {readyOrder && (
+                <ReadyNotification
+                    orderNumber={readyOrder.orderNumber}
+                    onClear={handleClearNotification}
+                />
             )}
 
             <div className="container">

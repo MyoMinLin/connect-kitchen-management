@@ -204,7 +204,8 @@ io.on('connection', (socket) => {
                 if (status === 'Ready') {
                     io.to('Waiter').to('Admin').emit('order_ready_notification', {
                         orderNumber: updatedOrder.orderNumber,
-                        orderId: updatedOrder._id
+                        orderId: updatedOrder._id,
+                        triggeredBy: user.id // Add the user who triggered the event
                     });
                 }
             }
