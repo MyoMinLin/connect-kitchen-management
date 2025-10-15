@@ -2,6 +2,7 @@ import express from 'express';
 import User from '../models/User';
 import bcrypt from 'bcryptjs';
 import { protect, authorize } from '../middleware/auth';
+import dbConnect from '../utils/db';
 
 const router = express.Router();
 
@@ -11,6 +12,7 @@ const router = express.Router();
 // GET /api/users - Get all users
 router.get('/', async (req, res) => {
     try {
+        await dbConnect();
         const users = await User.find().select('-password');
         res.json(users);
     } catch (error) {
@@ -30,6 +32,7 @@ router.post('/', async (req, res) => {
     }
 
     try {
+        await dbConnect();
         let user = await User.findOne({ username });
         if (user) {
             return res.status(400).json({ message: 'User already exists' });
@@ -56,6 +59,7 @@ router.put('/:id', async (req, res) => {
     const { username, password, role } = req.body;
     
     try {
+        await dbConnect();
         const user = await User.findById(req.params.id);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
@@ -82,6 +86,7 @@ router.put('/:id', async (req, res) => {
 // DELETE /api/users/:id - Delete a user
 router.delete('/:id', async (req, res) => {
     try {
+        await dbConnect();
         const user = await User.findById(req.params.id);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });

@@ -2,6 +2,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
+import dbConnect from '../utils/db';
 
 const router = express.Router();
 
@@ -14,6 +15,7 @@ router.post('/login', async (req, res) => {
     }
 
     try {
+        await dbConnect();
         const user = await User.findOne({ username }).select('+password');
 
         if (!user || !user.password) {

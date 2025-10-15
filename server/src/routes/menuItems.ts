@@ -1,6 +1,7 @@
 import express from 'express';
 import MenuItem from '../models/MenuItem';
 import { protect, authorize } from '../middleware/auth';
+import dbConnect from '../utils/db';
 
 const router = express.Router();
 
@@ -9,6 +10,7 @@ const router = express.Router();
 // GET /api/menu-items/event/:eventId - Get all menu items for a specific event (for Waitstaff/Kitchen/Admin)
 router.get('/event/:eventId', protect, authorize('Admin', 'Waiter', 'Kitchen'), async (req, res) => {
     try {
+        await dbConnect();
         const menuItems = await MenuItem.find({ eventId: req.params.eventId, isDeleted: false });
         res.json(menuItems);
     } catch (error) {
@@ -22,6 +24,7 @@ router.get('/event/:eventId', protect, authorize('Admin', 'Waiter', 'Kitchen'), 
 // POST /api/menu-items - Create a menu item
 router.post('/', async (req, res) => {
     try {
+        await dbConnect();
         const newItem = new MenuItem(req.body);
         const item = await newItem.save();
         res.status(201).json(item);
@@ -33,6 +36,7 @@ router.post('/', async (req, res) => {
 // PUT /api/menu-items/:id - Update a menu item
 router.put('/:id', async (req, res) => {
     try {
+        await dbConnect();
         const item = await MenuItem.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!item) {
             return res.status(404).json({ message: 'Menu item not found' });
@@ -46,6 +50,7 @@ router.put('/:id', async (req, res) => {
 // DELETE /api/menu-items/:id - Soft delete a menu item
 router.delete('/:id', async (req, res) => {
     try {
+        await dbConnect();
         const item = await MenuItem.findByIdAndUpdate(req.params.id, { isDeleted: true }, { new: true });
         if (!item) {
             return res.status(404).json({ message: 'Menu item not found' });

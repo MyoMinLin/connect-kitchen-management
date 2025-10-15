@@ -7,6 +7,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import Counter from './models/Counter';
+import dbConnect from './utils/db';
 
 dotenv.config();
 
@@ -34,11 +35,7 @@ const io = new Server(server, {
 const PORT = process.env.PORT || 4000;
 
 // --- MongoDB Connection ---
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/kitchen_management';
-
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('MongoDB connected successfully.'))
-  .catch(err => console.error('MongoDB connection error:', err));
+dbConnect();
 
 import MenuItem from './models/MenuItem';
 import Order from './models/Order';
@@ -59,6 +56,7 @@ app.use('/api/menu-items', menuItemRoutes);
 
 app.get('/api/orders/last', protect, authorize('Admin', 'Waiter'), async (req, res) => {
     try {
+        await dbConnect();
         const lastOrder = await Order.findOne().sort({ createdAt: -1 });
         if (lastOrder) {
             res.json({ orderNumber: lastOrder.orderNumber });
@@ -72,6 +70,7 @@ app.get('/api/orders/last', protect, authorize('Admin', 'Waiter'), async (req, r
 
 app.get('/api/orders', protect, authorize('Admin', 'Waiter', 'Kitchen'), async (req, res) => {
     try {
+        await dbConnect();
         const orders = await Order.find({ isActive: true }).populate('items.menuItem');
         res.json(orders);
     } catch (error) {
@@ -83,6 +82,7 @@ app.get('/api/orders', protect, authorize('Admin', 'Waiter', 'Kitchen'), async (
 import { UserRole } from './models/User';
 
 async function getNextOrderNumber() {
+    await dbConnect();
     const today = new Date();
     const year = today.getFullYear();
     const month = today.getMonth() + 1;
@@ -124,7 +124,7 @@ io.use((socket, next) => {
 
 
 // --- Socket.IO Logic ---
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
     console.log('A user connected:', socket.id, 'as', (socket as any).user.username);
 
     // Join rooms based on role
@@ -132,9 +132,14 @@ io.on('connection', (socket) => {
     socket.join(userRole); // Waiter, Kitchen, Admin
 
     // Send all current orders to the newly connected client
-    Order.find({ isActive: true }).populate('items.menuItem').then(orders => {
+    await dbConnect();
+    try {
+        const orders = await Order.find({ isActive: true }).populate('items.menuItem');
         socket.emit('initial_orders', orders);
-    });
+    } catch (error) {
+        console.error('Error fetching initial orders:', error);
+        socket.emit('error', { message: 'Failed to fetch initial orders' });
+    }
 
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
@@ -148,6 +153,7 @@ io.on('connection', (socket) => {
         }
 
         try {
+            await dbConnect();
             const orderNumber = await getNextOrderNumber();
             const newOrder = new Order({
                 orderNumber,
@@ -181,6 +187,7 @@ io.on('connection', (socket) => {
         }
 
         try {
+            await dbConnect();
             const update: any = { status };
             if (status === 'Preparing') {
                 update.preparingStartedAt = new Date();
@@ -223,6 +230,7 @@ io.on('connection', (socket) => {
         }
 
         try {
+            await dbConnect();
             await Order.findByIdAndUpdate(orderId, { isActive: false });
             io.emit('order_deleted', orderId); // Notify clients to remove the order
         } catch (error) {

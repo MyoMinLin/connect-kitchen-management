@@ -5,6 +5,13 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "esModuleInterop": true,
-    "strict": true
-  }
+    "strict": true,
+    "typeRoots": [
+      "./src/types",
+      "./node_modules/@types"
+    ]
+  },
+  "files": [
+    "./src/types/global.d.ts"
+  ]
 }
