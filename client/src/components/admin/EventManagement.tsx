@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { API_BASE_URL } from '../../utils/apiConfig';
-import './UserManagement.css'; // Reusing styles
-
-interface IEvent {
-    _id: string;
-    name: string;
-    description?: string;
-    eventDate: string;
-}
-
 import { fetchWithLoader } from '../../utils/api';
+import './UserManagement.css'; // Reusing styles
 
 interface IEvent {
     _id: string;

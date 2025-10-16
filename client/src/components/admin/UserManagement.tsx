@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { API_BASE_URL } from '../../utils/apiConfig';
-import './UserManagement.css';
-
-// This interface should match the IUser from the backend
-interface User {
-    _id: string;
-    username: string;
-    role: 'Admin' | 'Kitchen' | 'Waiter';
-}
-
 import { fetchWithLoader } from '../../utils/api';
+import './UserManagement.css';
 
 // This interface should match the IUser from the backend
 interface User {

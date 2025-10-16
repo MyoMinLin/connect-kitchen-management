@@ -1,23 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { API_BASE_URL } from '../../utils/apiConfig';
-import './UserManagement.css'; // Reusing styles
-
-// Interfaces
-interface IEvent {
-    _id: string;
-    name: string;
-}
-
-interface IMenuItem {
-    _id: string;
-    name: string;
-    price: number;
-    category: string;
-    requiresPrep: boolean;
-}
-
 import { fetchWithLoader } from '../../utils/api';
+import './UserManagement.css'; // Reusing styles
 
 // Interfaces
 interface IEvent {
