@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { MenuItem, OrderItem, Event } from '../pages/WaitstaffPage';
 import { useAuth } from '../context/AuthContext';
 import { API_BASE_URL } from '../utils/apiConfig';
+import { fetchWithLoader } from '../utils/api';
 import './OrderForm.css';
 
 interface OrderFormProps {
@@ -24,7 +25,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
     // Effect to fetch events and determine the active event
     useEffect(() => {
         if (token) {
-            fetch(`${API_BASE_URL}/api/events/active`, {
+            fetchWithLoader(`${API_BASE_URL}/api/events/active`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -46,7 +47,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
 
     useEffect(() => {
         if (token) {
-            fetch(`${API_BASE_URL}/api/orders/last`, {
+            fetchWithLoader(`${API_BASE_URL}/api/orders/last`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -94,7 +95,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
     // Effect to fetch menu items for the active event
     useEffect(() => {
         if (token && activeEvent) {
-            fetch(`${API_BASE_URL}/api/menu-items/event/${activeEvent._id}`, { // Fetch menu items by event ID
+            fetchWithLoader(`${API_BASE_URL}/api/menu-items/event/${activeEvent._id}`, { // Fetch menu items by event ID
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

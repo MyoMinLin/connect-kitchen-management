@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { API_BASE_URL } from '../utils/apiConfig';
 import './LoginPage.css';
 
+import { fetchWithLoader } from '../utils/api';
+
 const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -35,7 +37,7 @@ const LoginPage = () => {
         setError('');
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+            const response = await fetchWithLoader(`${API_BASE_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password }),

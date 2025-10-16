@@ -10,9 +10,17 @@ interface User {
     role: 'Admin' | 'Kitchen' | 'Waiter';
 }
 
+import { fetchWithLoader } from '../../utils/api';
+
+// This interface should match the IUser from the backend
+interface User {
+    _id: string;
+    username: string;
+    role: 'Admin' | 'Kitchen' | 'Waiter';
+}
+
 const UserManagement = () => {
     const [users, setUsers] = useState<User[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const { token } = useAuth();
 
@@ -22,7 +30,7 @@ const UserManagement = () => {
     const [role, setRole] = useState<'Waiter' | 'Kitchen'>('Waiter');
 
     const api = (endpoint: string, method: string, body?: any) => {
-        return fetch(`${API_BASE_URL}/api/users${endpoint}`,
+        return fetchWithLoader(`${API_BASE_URL}/api/users${endpoint}`,
             {
                 method,
                 headers: {
@@ -41,11 +49,9 @@ const UserManagement = () => {
     }
 
     const fetchUsers = () => {
-        setIsLoading(true);
         api('/', 'GET')
             .then(data => setUsers(data))
-            .catch(err => setError(err.message))
-            .finally(() => setIsLoading(false));
+            .catch(err => setError(err.message));
     };
 
     useEffect(() => {
@@ -88,32 +94,30 @@ const UserManagement = () => {
                 <button type="submit">Create User</button>
             </form>
 
-            {isLoading ? <p>Loading users...</p> : (
-                <table className="users-table">
-                    <thead>
-                        <tr>
-                            <th>Username</th>
-                            <th>Role</th>
-                            <th>Actions</th>
+            <table className="users-table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {users.map(user => (
+                        <tr key={user._id}>
+                            <td>{user.username}</td>
+                            <td>{user.role}</td>
+                            <td>
+                                {user.username !== 'admin' && (
+                                    <button onClick={() => handleDeleteUser(user._id)} className="delete-btn">
+                                        Delete
+                                    </button>
+                                )}
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {users.map(user => (
-                            <tr key={user._id}>
-                                <td>{user.username}</td>
-                                <td>{user.role}</td>
-                                <td>
-                                    {user.username !== 'admin' && (
-                                        <button onClick={() => handleDeleteUser(user._id)} className="delete-btn">
-                                            Delete
-                                        </button>
-                                    )}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            )}
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
 };

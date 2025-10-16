@@ -7,17 +7,17 @@ import { API_BASE_URL } from '../utils/apiConfig';
 import './AllOrdersPage.css';
 import { format } from 'date-fns';
 
+import { fetchWithLoader } from '../utils/api';
+
 const AllOrdersPage: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
     const { user } = useAuth();
     const socket = useSocket();
 
     const fetchOrders = async () => {
-        setLoading(true);
         try {
             // TODO: Fetch orders for the current event
-            const response = await fetch(`${API_BASE_URL}/api/orders`, {
+            const response = await fetchWithLoader(`${API_BASE_URL}/api/orders`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
@@ -29,8 +29,6 @@ const AllOrdersPage: React.FC = () => {
             setOrders(data);
         } catch (error) {
             console.error('Error fetching orders:', error);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -67,10 +65,6 @@ const AllOrdersPage: React.FC = () => {
 
     const activeOrders = orders.filter(order => order.status !== 'Collected');
     const collectedOrders = orders.filter(order => order.status === 'Collected');
-
-    if (loading) {
-        return <div>Loading...</div>;
-    }
 
     return (
         <div className="all-orders-page">

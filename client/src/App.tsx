@@ -14,13 +14,18 @@ import ReadyNotification from './components/ReadyNotification';
 import { useSocket } from './hooks/useSocket';
 import './App.css';
 
+import { LoaderProvider, useLoader } from './context/LoaderContext';
+import Loader from './components/Loader';
+
 const App = () => {
     return (
         <AuthProvider>
             <NotificationProvider>
-                <Router>
-                    <MainApp />
-                </Router>
+                <LoaderProvider>
+                    <Router>
+                        <MainApp />
+                    </Router>
+                </LoaderProvider>
             </NotificationProvider>
         </AuthProvider>
     );
@@ -29,8 +34,22 @@ const App = () => {
 const MainApp = () => {
     const { user, logout } = useAuth();
     const { readyOrder, setReadyOrder } = useNotification();
+    const { isLoading, showLoader, hideLoader } = useLoader();
     const socket = useSocket();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    useEffect(() => {
+        const handleShowLoader = () => showLoader();
+        const handleHideLoader = () => hideLoader();
+
+        window.addEventListener('showLoader', handleShowLoader);
+        window.addEventListener('hideLoader', handleHideLoader);
+
+        return () => {
+            window.removeEventListener('showLoader', handleShowLoader);
+            window.removeEventListener('hideLoader', handleHideLoader);
+        };
+    }, [showLoader, hideLoader]);
 
     useEffect(() => {
         if (!socket) return;
@@ -74,6 +93,7 @@ const MainApp = () => {
 
     return (
         <div>
+            {isLoading && <Loader />}
             {user && (
                 <nav className="navbar">
                     <div className="container">

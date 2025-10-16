@@ -5,6 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import { format } from 'date-fns-tz';
 import { API_BASE_URL } from '../utils/apiConfig';
 
+import { fetchWithLoader } from '../utils/api';
+
 // --- Data Models ---
 export interface MenuItem {
     _id: string;
@@ -49,7 +51,7 @@ const WaitstaffPage = () => {
     // Fetch initial orders via HTTP
     useEffect(() => {
         if (token) {
-            fetch(`${API_BASE_URL}/api/orders`, {
+            fetchWithLoader(`${API_BASE_URL}/api/orders`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
             .then(res => res.json())

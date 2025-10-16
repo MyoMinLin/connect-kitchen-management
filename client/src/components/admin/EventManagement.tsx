@@ -10,6 +10,15 @@ interface IEvent {
     eventDate: string;
 }
 
+import { fetchWithLoader } from '../../utils/api';
+
+interface IEvent {
+    _id: string;
+    name: string;
+    description?: string;
+    eventDate: string;
+}
+
 const EventManagement = () => {
     const [events, setEvents] = useState<IEvent[]>([]);
     const [eventName, setEventName] = useState('');
@@ -18,7 +27,7 @@ const EventManagement = () => {
     const { token } = useAuth();
 
     const api = (endpoint: string, method: string, body?: any) => {
-        return fetch(`${API_BASE_URL}/api/events${endpoint}`,
+        return fetchWithLoader(`${API_BASE_URL}/api/events${endpoint}`,
             {
                 method,
                 headers: {

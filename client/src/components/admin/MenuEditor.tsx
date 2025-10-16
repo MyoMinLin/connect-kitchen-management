@@ -17,11 +17,26 @@ interface IMenuItem {
     requiresPrep: boolean;
 }
 
+import { fetchWithLoader } from '../../utils/api';
+
+// Interfaces
+interface IEvent {
+    _id: string;
+    name: string;
+}
+
+interface IMenuItem {
+    _id: string;
+    name: string;
+    price: number;
+    category: string;
+    requiresPrep: boolean;
+}
+
 const MenuEditor = () => {
     const [events, setEvents] = useState<IEvent[]>([]);
     const [selectedEvent, setSelectedEvent] = useState<string>('');
     const [menuItems, setMenuItems] = useState<IMenuItem[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const { token } = useAuth();
 
@@ -55,7 +70,7 @@ const MenuEditor = () => {
 
     // Generic API handler
     const api = (url: string, method: string, body?: any) => {
-        return fetch(`${API_BASE_URL}/api${url}`,
+        return fetchWithLoader(`${API_BASE_URL}/api${url}`,
             {
                 method,
                 headers: {
@@ -86,14 +101,12 @@ const MenuEditor = () => {
     // Fetch menu items when an event is selected
     useEffect(() => {
         if (selectedEvent) {
-            setIsLoading(true);
             api(`/menu-items/event/${selectedEvent}`, 'GET')
                 .then(setMenuItems)
                 .catch(err => {
                     setError(err.message);
                     setMenuItems([]);
-                })
-                .finally(() => setIsLoading(false));
+                });
         }
     }, [selectedEvent]);
 
@@ -171,40 +184,38 @@ const MenuEditor = () => {
             <hr />
 
             <h4>Existing Menu Items</h4>
-            {isLoading ? <p>Loading...</p> : (
-                <table className="users-table">
-                    <thead><tr><th>Name</th><th>Price</th><th>Category</th><th>Prep?</th><th>Actions</th></tr></thead>
-                    <tbody>
-                        {menuItems.map(item => (
-                            <tr key={item._id}>
-                                {editingItemId === item._id ? (
-                                    <>
-                                        <td><input type="text" value={editedName} onChange={e => setEditedName(e.target.value)} /></td>
-                                        <td><input type="text" inputMode="decimal" value={editedPrice} onChange={handleEditedPriceChange} /></td>
-                                        <td><input type="text" value={editedCategory} onChange={e => setEditedCategory(e.target.value)} /></td>
-                                        <td><input type="checkbox" checked={editedRequiresPrep} onChange={e => setEditedRequiresPrep(e.target.checked)} /></td>
-                                        <td>
-                                            <button onClick={() => handleUpdateItem(item._id)} className="update-btn">Update</button>
-                                            <button onClick={handleCancelEdit} className="cancel-btn">Cancel</button>
-                                        </td>
-                                    </>
-                                ) : (
-                                    <>
-                                        <td>{item.name}</td>
-                                        <td>¥{item.price}</td>
-                                        <td>{item.category}</td>
-                                        <td>{item.requiresPrep ? 'Yes' : 'No'}</td>
-                                        <td>
-                                            <button onClick={() => handleEditItem(item)} className="edit-btn">Edit</button>
-                                            <button onClick={() => handleDeleteItem(item._id)} className="delete-btn">Delete</button>
-                                        </td>
-                                    </>
-                                )}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            )}
+            <table className="users-table">
+                <thead><tr><th>Name</th><th>Price</th><th>Category</th><th>Prep?</th><th>Actions</th></tr></thead>
+                <tbody>
+                    {menuItems.map(item => (
+                        <tr key={item._id}>
+                            {editingItemId === item._id ? (
+                                <>
+                                    <td><input type="text" value={editedName} onChange={e => setEditedName(e.target.value)} /></td>
+                                    <td><input type="text" inputMode="decimal" value={editedPrice} onChange={handleEditedPriceChange} /></td>
+                                    <td><input type="text" value={editedCategory} onChange={e => setEditedCategory(e.target.value)} /></td>
+                                    <td><input type="checkbox" checked={editedRequiresPrep} onChange={e => setEditedRequiresPrep(e.target.checked)} /></td>
+                                    <td>
+                                        <button onClick={() => handleUpdateItem(item._id)} className="update-btn">Update</button>
+                                        <button onClick={handleCancelEdit} className="cancel-btn">Cancel</button>
+                                    </td>
+                                </> 
+                            ) : (
+                                <>
+                                    <td>{item.name}</td>
+                                    <td>¥{item.price}</td>
+                                    <td>{item.category}</td>
+                                    <td>{item.requiresPrep ? 'Yes' : 'No'}</td>
+                                    <td>
+                                        <button onClick={() => handleEditItem(item)} className="edit-btn">Edit</button>
+                                        <button onClick={() => handleDeleteItem(item._id)} className="delete-btn">Delete</button>
+                                    </td>
+                                </>
+                            )}
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
 };
