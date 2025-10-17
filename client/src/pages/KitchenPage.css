@@ -17,6 +17,7 @@
     border-radius: 8px;
     padding: 1rem;
     min-height: 80vh;
+    overflow-y: auto;
 }
 
 @media (max-width: 768px) {
@@ -27,7 +28,7 @@
     }
 }
 
-.kds-column h2 {
+.kds-column h3 {
     text-align: center;
     margin-top: 0;
     color: var(--primary-color);

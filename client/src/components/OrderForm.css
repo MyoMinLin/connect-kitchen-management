@@ -230,6 +230,7 @@ input:checked + .slider:before {
 
 .remove-item-btn {
     background-color: red !important;
+    margin-top: 5px !important;
 }
 
 .item-price {

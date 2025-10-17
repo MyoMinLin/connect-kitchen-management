@@ -53,28 +53,28 @@ const KitchenPage = () => {
 
     return (
         <div>
-            <h1>Kitchen Display System</h1>
+            <h2>Kitchen Display System</h2>
             <div className="kds-container">
                 <div className="kds-column">
-                    <h2>New</h2>
+                    <h3>New</h3>
                     {filterOrdersByStatus('New').map(order => (
                         <OrderCard key={order._id} order={order} onStatusUpdate={handleStatusUpdate} userRole="Kitchen" />
                     ))}
                 </div>
                 <div className="kds-column">
-                    <h2>Preparing</h2>
+                    <h3>Preparing</h3>
                     {filterOrdersByStatus('Preparing').map(order => (
                         <OrderCard key={order._id} order={order} onStatusUpdate={handleStatusUpdate} userRole="Kitchen" />
                     ))}
                 </div>
                 <div className="kds-column">
-                    <h2>Ready</h2>
+                    <h3>Ready</h3>
                     {filterOrdersByStatus('Ready').map(order => (
                         <OrderCard key={order._id} order={order} onStatusUpdate={handleStatusUpdate} userRole="Kitchen" />
                     ))}
                 </div>
                 <div className="kds-column">
-                    <h2>Collected</h2>
+                    <h3>Collected</h3>
                     {filterOrdersByStatus('Collected').map(order => (
                         <OrderCard key={order._id} order={order} onStatusUpdate={handleStatusUpdate} userRole="Kitchen" />
                     ))}
