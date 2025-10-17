@@ -71,7 +71,7 @@ app.get('/api/orders/last', protect, authorize('Admin', 'Waiter'), async (req, r
 app.get('/api/orders', protect, authorize('Admin', 'Waiter', 'Kitchen'), async (req, res) => {
     try {
         await dbConnect();
-        const orders = await Order.find({ isActive: true }).populate('items.menuItem');
+        const orders = await Order.find({ isActive: true }).populate('items.menuItem', 'name price');
         res.json(orders);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching orders' });
@@ -134,7 +134,7 @@ io.on('connection', async (socket) => {
     // Send all current orders to the newly connected client
     await dbConnect();
     try {
-        const orders = await Order.find({ isActive: true }).populate('items.menuItem');
+        const orders = await Order.find({ isActive: true }).populate('items.menuItem', 'name price');
         socket.emit('initial_orders', orders);
     } catch (error) {
         console.error('Error fetching initial orders:', error);

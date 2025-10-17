@@ -8,6 +8,7 @@ export interface Order {
         menuItem: {
             _id: string;
             name: string;
+            price: number;
             requiresPrep: boolean;
         };
         quantity: number;

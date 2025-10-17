@@ -66,6 +66,11 @@ const AllOrdersPage: React.FC = () => {
     const activeOrders = orders.filter(order => order.status !== 'Collected');
     const collectedOrders = orders.filter(order => order.status === 'Collected');
 
+    const calculateOrderTotal = (order: Order) => {
+        const total = order.items.reduce((sum, item) => sum + (item.quantity * (item.menuItem.price || 0)), 0);
+        return new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY' }).format(total);
+    };
+
     return (
         <div className="all-orders-page">
             <h1>လက်ရှိအော်ဒါများ</h1>
@@ -77,6 +82,7 @@ const AllOrdersPage: React.FC = () => {
                             <th>Table</th>
                             <th>Customer</th>
                             <th>Item</th>
+                            <th>Total Amount</th>
                             <th>Ordered At</th>
                             <th>Status</th>
                             <th>Action</th>
@@ -101,6 +107,7 @@ const AllOrdersPage: React.FC = () => {
                                         ))}
                                     </ul>
                                 </td>
+                                <td data-label="Total Amount">{calculateOrderTotal(order)}</td>
                                 <td data-label="Ordered At">{format(new Date(order.createdAt), 'p')}</td>
                                 <td data-label="Status">
                                     <span className="status-badge">{order.status}</span>
@@ -133,35 +140,38 @@ const AllOrdersPage: React.FC = () => {
                                     <th>Customer</th>
                                     <th>Item</th>
                                     <th>Ordered At</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {collectedOrders.map(order => (
-                                    <tr key={order._id} className={`status-${order.status.toLowerCase()}`}>
-                                        <td data-label="Order Number">
-                                            {order.isPreOrder && <span className="pre-order-indicator">Pre</span>}
-                                            {order.orderNumber}
-                                        </td>
-                                        <td data-label="Table">{order.tableNumber || '-'}</td>
-                                        <td data-label="Customer">{order.customerName || '-'}</td>
-                                        <td data-label="Item">
-                                            <ul>
-                                                {order.items.map((item, index) => (
-                                                    <li key={index}>
-                                                        {item.quantity}x {item.menuItem.name}
-                                                        {item.remarks && <span className="item-remarks"> ({item.remarks})</span>}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </td>
-                                        <td data-label="Ordered At">{format(new Date(order.createdAt), 'p')}</td>
-                                        <td data-label="Status">
-                                            <span className="status-badge">{order.status}</span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
+                                    <th>Total Amount</th>
+                                                                <th>Total Amount</th>
+                                                                <th>Status</th>
+                                                            </tr>
+                                                        </thead>
+                                                                <tbody>
+                                                                    {collectedOrders.map(order => (
+                                                                        <tr key={order._id} className={`status-${order.status.toLowerCase()}`}>
+                                                                            <td data-label="Order Number">
+                                                                                {order.isPreOrder && <span className="pre-order-indicator">Pre</span>}
+                                                                                {order.orderNumber}
+                                                                            </td>
+                                                                            <td data-label="Table">{order.tableNumber || '-'}</td>
+                                                                            <td data-label="Customer">{order.customerName || '-'}</td>
+                                                                            <td data-label="Item">
+                                                                                <ul>
+                                                                                    {order.items.map((item, index) => (
+                                                                                        <li key={index}>
+                                                                                            {item.quantity}x {item.menuItem.name}
+                                                                                            {item.remarks && <span className="item-remarks"> ({item.remarks})</span>}
+                                                                                        </li>
+                                                                                    ))}
+                                                                                </ul>
+                                                                            </td>
+                                                                            <td data-label="Total Amount">{calculateOrderTotal(order)}</td>
+                                                                            <td data-label="Ordered At">{format(new Date(order.createdAt), 'p')}</td>
+                                                                            <td data-label="Status">
+                                                                                <span className="status-badge">{order.status}</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                    ))}
+                                                                </tbody>
                         </table>
                     </div>
                 </>
