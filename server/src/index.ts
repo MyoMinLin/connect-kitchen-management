@@ -157,6 +157,7 @@ io.on('connection', async (socket) => {
             const orderNumber = await getNextOrderNumber();
             const newOrder = new Order({
                 orderNumber,
+                tableNumber: orderData.tableNumber,
                 customerName: orderData.customerName,
                 isPreOrder: orderData.isPreOrder,
                 items: orderData.items,

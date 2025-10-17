@@ -7,11 +7,12 @@ import { fetchWithLoader } from '../utils/api';
 import './OrderForm.css';
 
 interface OrderFormProps {
-    onSubmit: (order: { customerName?: string; items: OrderItem[]; isPreOrder: boolean }) => void;
+    onSubmit: (order: { tableNumber?: string; customerName?: string; items: OrderItem[]; isPreOrder: boolean }) => void;
 }
 
 const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+    const [tableNumber, setTableNumber] = useState<string>('');
     const [customerName, setCustomerName] = useState<string>('');
     const [isPreOrder, setIsPreOrder] = useState<boolean>(false);
     const [currentOrderItems, setCurrentOrderItems] = useState<OrderItem[]>([]);
@@ -125,6 +126,10 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
         });
     };
 
+    const handleRemoveItem = (index: number) => {
+        setCurrentOrderItems(prevItems => prevItems.filter((_, i) => i !== index));
+    };
+
     const handleRemarkChange = (index: number, remark: string) => {
         setCurrentOrderItems(prevItems =>
             prevItems.map((item, i) => (i === index ? { ...item, remarks: remark } : item))
@@ -151,8 +156,9 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
             alert('Please add items to the order.');
             return;
         }
-        onSubmit({ customerName, items: currentOrderItems, isPreOrder });
+        onSubmit({ tableNumber, customerName, items: currentOrderItems, isPreOrder });
         setCurrentOrderItems([]); // Reset form
+        setTableNumber(''); // Reset table number
         setCustomerName(''); // Reset customer name
         navigate('/orders'); // Redirect to all orders page
     };
@@ -166,9 +172,19 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                 ) : (
                     <p className="no-active-event">No active event found for this month.</p>
                 )}
-                {lastOrderNumber && (
+                {/* {lastOrderNumber && (
                     <p className="last-order-number">Last Order: <strong>{lastOrderNumber}</strong></p>
-                )}
+                )} */}
+                <div className="form-group">
+                    <label htmlFor="tableNumber">Table Number</label>
+                    <input
+                        id="tableNumber"
+                        type="text"
+                        value={tableNumber}
+                        onChange={(e) => setTableNumber(e.target.value)}
+                        placeholder="e.g., 12"
+                    />
+                </div>
                 <div className="form-group">
                     <label htmlFor="customerName">Customer Name (Optional)</label>
                     <input
@@ -220,6 +236,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                                             onChange={(e) => handleRemarkChange(index, e.target.value)}
                                             className="item-remark-input"
                                         />
+                                        <button type="button" onClick={() => handleRemoveItem(index)} className="remove-item-btn action-btn">Remove</button>
                                     </li>
                                 );
                             })}

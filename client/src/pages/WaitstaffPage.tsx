@@ -25,6 +25,7 @@ export interface OrderItem {
 export interface Order {
     _id: string;
     orderNumber: string;
+    tableNumber?: string;
     customerName?: string; // New field for customer name
     isPreOrder: boolean;
     items: { menuItem: MenuItem; quantity: number; remarks?: string }[]; // Added remarks
@@ -86,7 +87,7 @@ const WaitstaffPage = () => {
         };
     }, [socket]);
 
-    const handleCreateOrder = (order: { customerName?: string; items: OrderItem[]; isPreOrder: boolean }) => {
+    const handleCreateOrder = (order: { tableNumber?: string; customerName?: string; items: OrderItem[]; isPreOrder: boolean }) => {
         if (socket) {
             socket.emit('new_order', order);
         }

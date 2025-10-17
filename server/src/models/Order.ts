@@ -3,6 +3,7 @@ import { IMenuItem } from './MenuItem';
 
 export interface IOrder extends Document {
     orderNumber: string;
+    tableNumber?: string;
     isPreOrder: boolean;
     items: { menuItem: IMenuItem['_id']; quantity: number }[];
     status: 'New' | 'Preparing' | 'Ready' | 'Collected';
@@ -14,6 +15,7 @@ export interface IOrder extends Document {
 
 const OrderSchema: Schema = new Schema({
     orderNumber: { type: String, unique: true },
+    tableNumber: { type: String },
     isPreOrder: { type: Boolean, default: false },
     customerName: { type: String }, // New field for customer name
     items: [{

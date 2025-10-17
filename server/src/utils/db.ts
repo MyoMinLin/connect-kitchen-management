@@ -9,20 +9,12 @@ if (!MONGO_URI) {
   throw new Error('Please define the MONGO_URI environment variable inside .env.local');
 }
 
-let cachedConnection: typeof mongoose | null = null;
-
 async function dbConnect() {
-  if (cachedConnection) {
-    return cachedConnection;
-  }
-
   const opts = {
     bufferCommands: false,
   };
 
-  cachedConnection = await mongoose.connect(MONGO_URI, opts);
-
-  return cachedConnection;
+  return mongoose.connect(MONGO_URI, opts);
 }
 
 export default dbConnect;

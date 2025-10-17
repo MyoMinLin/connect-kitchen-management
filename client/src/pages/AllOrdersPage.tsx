@@ -74,6 +74,7 @@ const AllOrdersPage: React.FC = () => {
                     <thead>
                         <tr>
                             <th>Order Number</th>
+                            <th>Table</th>
                             <th>Customer</th>
                             <th>Item</th>
                             <th>Ordered At</th>
@@ -88,6 +89,7 @@ const AllOrdersPage: React.FC = () => {
                                     {order.isPreOrder && <span className="pre-order-indicator">Pre</span>}
                                     {order.orderNumber}
                                 </td>
+                                <td data-label="Table">{order.tableNumber || '-'}</td>
                                 <td data-label="Customer">{order.customerName || '-'}</td>
                                 <td data-label="Item">
                                     <ul>
@@ -127,6 +129,7 @@ const AllOrdersPage: React.FC = () => {
                             <thead>
                                 <tr>
                                     <th>Order Number</th>
+                                    <th>Table</th>
                                     <th>Customer</th>
                                     <th>Item</th>
                                     <th>Ordered At</th>
@@ -136,10 +139,11 @@ const AllOrdersPage: React.FC = () => {
                             <tbody>
                                 {collectedOrders.map(order => (
                                     <tr key={order._id} className={`status-${order.status.toLowerCase()}`}>
-                                        <td data-label="Table">
+                                        <td data-label="Order Number">
                                             {order.isPreOrder && <span className="pre-order-indicator">Pre</span>}
-                                            {order.tableNumber}
+                                            {order.orderNumber}
                                         </td>
+                                        <td data-label="Table">{order.tableNumber || '-'}</td>
                                         <td data-label="Customer">{order.customerName || '-'}</td>
                                         <td data-label="Item">
                                             <ul>
