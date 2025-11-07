@@ -63,8 +63,16 @@ const AllOrdersPage: React.FC = () => {
         }
     };
 
-    const activeOrders = orders.filter(order => order.status !== 'Collected');
-    const collectedOrders = orders.filter(order => order.status === 'Collected');
+    const sortOrders = (orders: Order[]) => {
+        return orders.sort((a, b) => {
+            const dateA = new Date(a.updatedAt || a.createdAt);
+            const dateB = new Date(b.updatedAt || b.createdAt);
+            return dateB.getTime() - dateA.getTime();
+        });
+    };
+
+    const activeOrders = sortOrders(orders.filter(order => order.status !== 'Collected'));
+    const collectedOrders = sortOrders(orders.filter(order => order.status === 'Collected'));
 
     const calculateOrderTotal = (order: Order) => {
         const total = order.items.reduce((sum, item) => sum + (item.quantity * (item.menuItem.price || 0)), 0);
