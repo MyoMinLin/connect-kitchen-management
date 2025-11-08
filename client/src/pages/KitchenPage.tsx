@@ -75,9 +75,13 @@ const KitchenPage = () => {
                 </div>
                 <div className="kds-column">
                     <h3>Collected</h3>
-                    {filterOrdersByStatus('Collected').map(order => (
-                        <OrderCard key={order._id} order={order} onStatusUpdate={handleStatusUpdate} userRole="Kitchen" />
-                    ))}
+                    {filterOrdersByStatus('Collected').length > 0 ? (
+                        filterOrdersByStatus('Collected').map(order => (
+                            <OrderCard key={order._id} order={order} onStatusUpdate={handleStatusUpdate} userRole="Kitchen" />
+                        ))
+                    ) : (
+                        <p>No collected orders yet.</p>
+                    )}
                 </div>
             </div>
         </div>

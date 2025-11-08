@@ -87,7 +87,7 @@ const WaitstaffPage = () => {
         };
     }, [socket]);
 
-    const handleCreateOrder = (order: { tableNumber?: string; customerName?: string; items: OrderItem[]; isPreOrder: boolean }) => {
+    const handleCreateOrder = (order: { eventId: string; tableNumber?: string; customerName?: string; items: OrderItem[]; isPreOrder: boolean; isPaid: boolean; deliveryAddress?: string }) => {
         if (socket) {
             socket.emit('new_order', order);
         }

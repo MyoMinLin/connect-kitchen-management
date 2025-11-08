@@ -41,7 +41,10 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         await dbConnect();
-        const newEvent = new Event(req.body);
+        // Set IsCurrentEvent to false for all existing events
+        await Event.updateMany({}, { IsCurrentEvent: false });
+
+        const newEvent = new Event({ ...req.body, IsCurrentEvent: true });
         const event = await newEvent.save();
         res.status(201).json(event);
     } catch (error) {
