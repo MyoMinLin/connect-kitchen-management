@@ -36,7 +36,7 @@ const App = () => {
 
 const MainApp = () => {
     const { user, logout } = useAuth();
-    const { currentEvent, events, setCurrentEvent, fetchEvents } = useEvent();
+    const { currentEvent, events, setCurrentEvent } = useEvent();
     const { readyOrder, setReadyOrder } = useNotification();
     const { isLoading, showLoader, hideLoader } = useLoader();
     const socket = useSocket();

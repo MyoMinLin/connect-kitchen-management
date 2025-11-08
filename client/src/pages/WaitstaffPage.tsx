@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { format } from 'date-fns-tz';
 import { API_BASE_URL } from '../utils/apiConfig';
 import { fetchWithLoader } from '../utils/api';
-import { MenuItem, OrderItem, Order } from '../types'; // Import from types.ts
+import { OrderItem, Order } from '../types'; // Import from types.ts
 import { useEvent } from '../context/EventContext'; // Import useEvent
 
 const WaitstaffPage = () => {
