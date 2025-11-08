@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MenuItem, OrderItem, Event } from '../types'; // Import from types.ts
+import { MenuItem, OrderItem } from '../types'; // Import from types.ts
 import { useAuth } from '../context/AuthContext';
 import { useEvent } from '../context/EventContext'; // Import useEvent
 import { API_BASE_URL } from '../utils/apiConfig';
