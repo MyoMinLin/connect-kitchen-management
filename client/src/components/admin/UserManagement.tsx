@@ -48,7 +48,7 @@ const UserManagement = () => {
 
     useEffect(() => {
         fetchUsers();
-    }, []);
+    }, [fetchUsers]);
 
     const handleCreateUser = (e: React.FormEvent) => {
         e.preventDefault();

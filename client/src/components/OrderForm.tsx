@@ -7,7 +7,7 @@ import { fetchWithLoader } from '../utils/api';
 import './OrderForm.css';
 
 interface OrderFormProps {
-    onSubmit: (order: { tableNumber?: string; customerName?: string; items: OrderItem[]; isPreOrder: boolean }) => void;
+    onSubmit: (order: { eventId: string; tableNumber?: string; customerName?: string; items: OrderItem[]; isPreOrder: boolean; isPaid: boolean; deliveryAddress?: string; }) => void;
 }
 
 const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
@@ -15,6 +15,8 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
     const [tableNumber, setTableNumber] = useState<string>('');
     const [customerName, setCustomerName] = useState<string>('');
     const [isPreOrder, setIsPreOrder] = useState<boolean>(false);
+    const [isPaid, setIsPaid] = useState<boolean>(false);
+    const [deliveryAddress, setDeliveryAddress] = useState<string>('');
     const [currentOrderItems, setCurrentOrderItems] = useState<OrderItem[]>([]);
     const [events, setEvents] = useState<Event[]>([]); // New state for events
     const [activeEvent, setActiveEvent] = useState<Event | null>(null); // New state for active event
@@ -152,11 +154,15 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (!activeEvent) {
+            alert('No active event selected. Cannot create order.');
+            return;
+        }
         if (currentOrderItems.length === 0) {
             alert('Please add items to the order.');
             return;
         }
-        onSubmit({ tableNumber, customerName, items: currentOrderItems, isPreOrder });
+        onSubmit({ eventId: activeEvent._id, tableNumber, customerName, items: currentOrderItems, isPreOrder, isPaid, deliveryAddress });
         setCurrentOrderItems([]); // Reset form
         setTableNumber(''); // Reset table number
         setCustomerName(''); // Reset customer name
@@ -206,6 +212,29 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                         />
                         <span className="slider"></span>
                     </label>
+                </div>
+                <div className="form-group toggle-group">
+                    <label htmlFor="isPaid">Paid?</label>
+                    <label className="toggle-switch">
+                        <input
+                            id="isPaid"
+                            type="checkbox"
+                            checked={isPaid}
+                            onChange={(e) => setIsPaid(e.target.checked)}
+                        />
+                        <span className="slider"></span>
+                    </label>
+                </div>
+                <div className="form-group">
+                    <label htmlFor="deliveryAddress">Delivery Address</label>
+                    <input
+                        id="deliveryAddress"
+                        type="text"
+                        value={deliveryAddress}
+                        onChange={(e) => setDeliveryAddress(e.target.value)}
+                        placeholder="e.g., 123 Main St"
+                        disabled={!isPreOrder}
+                    />
                 </div>
                 <div className="menu-items-list">
                     <h3>Menu</h3>

@@ -47,12 +47,14 @@ import { protect, authorize } from './middleware/auth';
 
 import eventRoutes from './routes/events';
 import menuItemRoutes from './routes/menuItems';
+import orderRoutes from './routes/orders';
 
 // --- API Routes ---
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/menu-items', menuItemRoutes);
+app.use('/api/orders', orderRoutes);
 
 app.get('/api/orders/last', protect, authorize('Admin', 'Waiter'), async (req, res) => {
     try {
@@ -68,15 +70,6 @@ app.get('/api/orders/last', protect, authorize('Admin', 'Waiter'), async (req, r
     }
 });
 
-app.get('/api/orders', protect, authorize('Admin', 'Waiter', 'Kitchen'), async (req, res) => {
-    try {
-        await dbConnect();
-        const orders = await Order.find({ isActive: true }).populate('items.menuItem', 'name price');
-        res.json(orders);
-    } catch (error) {
-        res.status(500).json({ message: 'Error fetching orders' });
-    }
-});
 
 
 import { UserRole } from './models/User';
@@ -156,11 +149,8 @@ io.on('connection', async (socket) => {
             await dbConnect();
             const orderNumber = await getNextOrderNumber();
             const newOrder = new Order({
+                ...orderData,
                 orderNumber,
-                tableNumber: orderData.tableNumber,
-                customerName: orderData.customerName,
-                isPreOrder: orderData.isPreOrder,
-                items: orderData.items,
                 status: 'New',
             });
             console.log('New order:', newOrder);

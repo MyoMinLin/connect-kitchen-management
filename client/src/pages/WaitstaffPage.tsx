@@ -47,7 +47,6 @@ const WaitstaffPage = () => {
     const socket = useSocket();
     const { token, user } = useAuth();
     const [orders, setOrders] = useState<Order[]>([]);
-    const [error, setError] = useState('');
 
     // Fetch initial orders via HTTP
     useEffect(() => {
@@ -60,7 +59,7 @@ const WaitstaffPage = () => {
                 if (data.message) throw new Error(data.message);
                 setOrders(data);
             })
-            .catch(err => setError(err.message));
+            .catch(err => console.error('Error fetching initial orders:', err));
         }
     }, [token]);
 
@@ -87,7 +86,7 @@ const WaitstaffPage = () => {
         };
     }, [socket]);
 
-    const handleCreateOrder = (order: { tableNumber?: string; customerName?: string; items: OrderItem[]; isPreOrder: boolean }) => {
+    const handleCreateOrder = (order: { eventId: string; tableNumber?: string; customerName?: string; items: OrderItem[]; isPreOrder: boolean; isPaid: boolean; deliveryAddress?: string }) => {
         if (socket) {
             socket.emit('new_order', order);
         }

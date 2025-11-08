@@ -1,7 +1,7 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Order } from '../types';
+import { Order, Event as EventType } from '../types';
 import { useSocket } from '../hooks/useSocket';
 import { API_BASE_URL } from '../utils/apiConfig';
 import './AllOrdersPage.css';
@@ -11,30 +11,51 @@ import { fetchWithLoader } from '../utils/api';
 
 const AllOrdersPage: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
-    const { user } = useAuth();
+    const [activeEvent, setActiveEvent] = useState<EventType | null>(null);
+    const {  } = useAuth(); // Removed 'user' as it's unused
     const socket = useSocket();
 
-    const fetchOrders = async () => {
-        try {
-            // TODO: Fetch orders for the current event
-            const response = await fetchWithLoader(`${API_BASE_URL}/api/orders`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+    useEffect(() => {
+        const fetchActiveEvent = async () => {
+            try {
+                const response = await fetchWithLoader(`${API_BASE_URL}/api/events/active`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+                if (!response.ok) throw new Error('Failed to fetch active event');
+                const events = await response.json();
+                if (events.length > 0) {
+                    const event = events[0];
+                    setActiveEvent(event);
+                    fetchOrders(event._id); // Call fetchOrders immediately after setting activeEvent
+                } else {
+                    // If no active event, clear orders or show a message
+                    setOrders([]);
                 }
-            });
-            if (!response.ok) {
-                throw new Error('Failed to fetch orders');
+            } catch (error) {
+                console.error('Error fetching active event:', error);
+                setOrders([]); // Clear orders on error
             }
+        };
+        fetchActiveEvent();
+    }, []); // This useEffect now handles both event and initial order fetching
+
+    const fetchOrders = async (eventId: string) => {
+        try {
+            const response = await fetchWithLoader(`${API_BASE_URL}/api/orders?eventId=${eventId}`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            if (!response.ok) throw new Error('Failed to fetch orders');
             const data = await response.json();
             setOrders(data);
         } catch (error) {
             console.error('Error fetching orders:', error);
+            setOrders([]); // Clear orders on error
         }
     };
 
     useEffect(() => {
-        fetchOrders();
-
+        // This useEffect is now only for socket updates, as initial fetchOrders is handled above.
+        // The dependency on activeEvent is still needed for socket updates related to the current event.
         if (socket) {
             const handleOrderUpdate = (updatedOrder: Order) => {
                 setOrders(prevOrders => {
@@ -55,7 +76,7 @@ const AllOrdersPage: React.FC = () => {
                 socket.off('order_update', handleOrderUpdate);
             };
         }
-    }, [socket]);
+    }, [socket, activeEvent]);
 
     const handleMarkAsCollected = (orderId: string) => {
         if (socket) {
@@ -63,12 +84,41 @@ const AllOrdersPage: React.FC = () => {
         }
     };
 
-    const activeOrders = orders.filter(order => order.status !== 'Collected');
-    const collectedOrders = orders.filter(order => order.status === 'Collected');
+    const sortOrders = (orders: Order[]) => {
+        return orders.sort((a, b) => {
+            const dateA = new Date(a.updatedAt || a.createdAt);
+            const dateB = new Date(b.updatedAt || b.createdAt);
+            return dateB.getTime() - dateA.getTime();
+        });
+    };
+
+    const activeOrders = useMemo(() => sortOrders(orders.filter(order => order.status !== 'Collected')), [orders]);
+    const collectedOrders = useMemo(() => sortOrders(orders.filter(order => order.status === 'Collected')), [orders]);
 
     const calculateOrderTotal = (order: Order) => {
         const total = order.items.reduce((sum, item) => sum + (item.quantity * (item.menuItem.price || 0)), 0);
         return new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY' }).format(total);
+    };
+
+    const aggregateItems = (items: Order['items']) => {
+        const itemMap = new Map<string, { quantity: number; remarks: string[] }>();
+        items.forEach(item => {
+            const key = item.menuItem.name;
+            const existing = itemMap.get(key);
+            if (existing) {
+                existing.quantity += item.quantity;
+                if (item.remarks) existing.remarks.push(item.remarks);
+            } else {
+                itemMap.set(key, {
+                    quantity: item.quantity,
+                    remarks: item.remarks ? [item.remarks] : [],
+                });
+            }
+        });
+        return Array.from(itemMap.entries()).map(([name, data]) => ({
+            name,
+            ...data,
+        }));
     };
 
     return (
@@ -99,10 +149,10 @@ const AllOrdersPage: React.FC = () => {
                                 <td data-label="Customer">{order.customerName || '-'}</td>
                                 <td data-label="Item">
                                     <ul>
-                                        {order.items.map((item, index) => (
+                                        {aggregateItems(order.items).map((item, index) => (
                                             <li key={index}>
-                                                {item.quantity}x {item.menuItem.name}
-                                                {item.remarks && <span className="item-remarks"> ({item.remarks})</span>}
+                                                {item.quantity}x {item.name}
+                                                {item.remarks.length > 0 && <span className="item-remarks"> ({item.remarks.join(', ')})</span>}
                                             </li>
                                         ))}
                                     </ul>
@@ -156,10 +206,10 @@ const AllOrdersPage: React.FC = () => {
                                                                             <td data-label="Customer">{order.customerName || '-'}</td>
                                                                             <td data-label="Item">
                                                                                 <ul>
-                                                                                    {order.items.map((item, index) => (
+                                                                                    {aggregateItems(order.items).map((item, index) => (
                                                                                         <li key={index}>
-                                                                                            {item.quantity}x {item.menuItem.name}
-                                                                                            {item.remarks && <span className="item-remarks"> ({item.remarks})</span>}
+                                                                                            {item.quantity}x {item.name}
+                                                                                            {item.remarks.length > 0 && <span className="item-remarks"> ({item.remarks.join(', ')})</span>}
                                                                                         </li>
                                                                                     ))}
                                                                                 </ul>
