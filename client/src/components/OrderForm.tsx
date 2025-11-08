@@ -58,6 +58,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                 .then(res => res.json())
                 .then(data => {
                     if (data.orderNumber) {
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
                         setLastOrderNumber(data.orderNumber);
                     }
                 })

@@ -67,7 +67,7 @@ const MainApp = () => {
         return () => {
             socket.off('order_ready_notification', handleReadyNotification);
         };
-    }, [socket, setReadyOrder]);
+    }, [socket, setReadyOrder, user]);
 
     const handleClearNotification = () => {
         setReadyOrder(null);

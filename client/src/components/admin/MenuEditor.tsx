@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { API_BASE_URL } from '../../utils/apiConfig';
 import { fetchWithLoader } from '../../utils/api';
@@ -54,7 +54,7 @@ const MenuEditor = () => {
     };
 
     // Generic API handler
-    const api = (url: string, method: string, body?: any) => {
+    const api = useCallback((url: string, method: string, body?: any) => {
         return fetchWithLoader(`${API_BASE_URL}/api${url}`,
             {
                 method,
@@ -71,7 +71,7 @@ const MenuEditor = () => {
             }
             return res.json();
         });
-    }
+    }, [token]);
 
     // Fetch events on component mount
     useEffect(() => {

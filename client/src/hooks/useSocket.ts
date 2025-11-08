@@ -40,6 +40,7 @@ export const useSocket = () => {
             socket.close();
             setSocket(null);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token, logout]); // Add logout to dependency array
 
     return socket;

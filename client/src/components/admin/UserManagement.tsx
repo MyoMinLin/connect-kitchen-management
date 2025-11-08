@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { API_BASE_URL } from '../../utils/apiConfig';
 import { fetchWithLoader } from '../../utils/api';
@@ -21,7 +21,7 @@ const UserManagement = () => {
     const [password, setPassword] = useState('');
     const [role, setRole] = useState<'Waiter' | 'Kitchen'>('Waiter');
 
-    const api = (endpoint: string, method: string, body?: any) => {
+    const api = useCallback((endpoint: string, method: string, body?: any) => {
         return fetchWithLoader(`${API_BASE_URL}/api/users${endpoint}`,
             {
                 method,
@@ -38,13 +38,13 @@ const UserManagement = () => {
             }
             return res.json();
         });
-    }
+    }, [token]);
 
-    const fetchUsers = () => {
+    const fetchUsers = useCallback(() => {
         api('/', 'GET')
             .then(data => setUsers(data))
             .catch(err => setError(err.message));
-    };
+    }, [api]);
 
     useEffect(() => {
         fetchUsers();

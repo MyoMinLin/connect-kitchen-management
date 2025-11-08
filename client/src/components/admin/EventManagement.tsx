@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { API_BASE_URL } from '../../utils/apiConfig';
 import { fetchWithLoader } from '../../utils/api';
@@ -18,7 +18,7 @@ const EventManagement = () => {
     const [error, setError] = useState('');
     const { token } = useAuth();
 
-    const api = (endpoint: string, method: string, body?: any) => {
+    const api = useCallback((endpoint: string, method: string, body?: any) => {
         return fetchWithLoader(`${API_BASE_URL}/api/events${endpoint}`,
             {
                 method,
@@ -35,15 +35,15 @@ const EventManagement = () => {
             }
             return res.json();
         });
-    }
+    }, [token]);
 
-    const fetchEvents = () => {
+    const fetchEvents = useCallback(() => {
         api('/', 'GET').then(setEvents).catch(err => setError(err.message));
-    };
+    }, [api]);
 
     useEffect(() => {
         fetchEvents();
-    }, []);
+    }, [fetchEvents]);
 
     const handleCreateEvent = (e: React.FormEvent) => {
         e.preventDefault();

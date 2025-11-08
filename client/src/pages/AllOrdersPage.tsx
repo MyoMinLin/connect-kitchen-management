@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { useAuth } from '../context/AuthContext';
 import { Order, Event as EventType } from '../types';
 import { useSocket } from '../hooks/useSocket';
 import { API_BASE_URL } from '../utils/apiConfig';
@@ -12,7 +11,7 @@ import { fetchWithLoader } from '../utils/api';
 const AllOrdersPage: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [activeEvent, setActiveEvent] = useState<EventType | null>(null);
-    const {  } = useAuth(); // Removed 'user' as it's unused
+    // Removed 'user' as it's unused and caused an empty object pattern warning
     const socket = useSocket();
 
     useEffect(() => {
