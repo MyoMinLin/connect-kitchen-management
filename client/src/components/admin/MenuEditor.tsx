@@ -81,7 +81,7 @@ const MenuEditor = () => {
                 setSelectedEvent(data[0]._id);
             }
         }).catch(err => setError(err.message));
-    }, []);
+    }, [api]);
 
     // Fetch menu items when an event is selected
     useEffect(() => {
@@ -93,7 +93,7 @@ const MenuEditor = () => {
                     setMenuItems([]);
                 });
         }
-    }, [selectedEvent]);
+    }, [selectedEvent, api]);
 
     const handleCreateItem = (e: React.FormEvent) => {
         e.preventDefault();

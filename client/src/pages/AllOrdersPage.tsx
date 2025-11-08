@@ -12,7 +12,7 @@ import { fetchWithLoader } from '../utils/api';
 const AllOrdersPage: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [activeEvent, setActiveEvent] = useState<EventType | null>(null);
-    const { user } = useAuth();
+    const {  } = useAuth(); // Removed 'user' as it's unused
     const socket = useSocket();
 
     useEffect(() => {
