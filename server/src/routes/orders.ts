@@ -5,17 +5,13 @@ import dbConnect from '../utils/db';
 
 const router = express.Router();
 
-// GET /api/orders - Get all orders (protected)
-router.get('/', protect, async (req, res) => {
+// GET /api/orders/event/:eventId - Get all orders for a specific event (protected)
+router.get('/event/:eventId', protect, async (req, res) => {
     try {
         await dbConnect();
-        const eventId = req.query.eventId as string;
+        const { eventId } = req.params;
 
-        if (!eventId) {
-            return res.status(400).json({ message: 'Event ID is required' });
-        }
-
-        const orders = await Order.find({ eventId: eventId }) // Filter by eventId
+        const orders = await Order.find({ eventId: eventId })
             .populate('items.menuItem')
             .sort({ createdAt: -1 });
 

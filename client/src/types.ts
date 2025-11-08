@@ -1,3 +1,17 @@
+export interface MenuItem {
+    _id: string;
+    name: string;
+    price: number;
+    category: string;
+    requiresPrep: boolean;
+}
+
+export interface OrderItem {
+    menuItem: string; // Just the ID
+    quantity: number;
+    remarks?: string; // Optional remarks for the item
+}
+
 export interface Order {
     _id: string;
     eventId: string; // The ID of the associated event
@@ -8,12 +22,7 @@ export interface Order {
     tableNumber: number;
     customerName?: string;
     items: {
-        menuItem: {
-            _id: string;
-            name: string;
-            price: number;
-            requiresPrep: boolean;
-        };
+        menuItem: MenuItem; // Use MenuItem interface
         quantity: number;
         remarks?: string;
     }[];

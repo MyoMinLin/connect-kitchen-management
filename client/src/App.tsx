@@ -9,6 +9,7 @@ import MenuManagementPage from './pages/MenuManagementPage';
 import AllOrdersPage from './pages/AllOrdersPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { EventProvider, useEvent } from './context/EventContext';
 import { NotificationProvider, useNotification } from './context/NotificationContext';
 import ReadyNotification from './components/ReadyNotification';
 import { useSocket } from './hooks/useSocket';
@@ -20,19 +21,22 @@ import Loader from './components/Loader';
 const App = () => {
     return (
         <AuthProvider>
-            <NotificationProvider>
-                <LoaderProvider>
-                    <Router>
-                        <MainApp />
-                    </Router>
-                </LoaderProvider>
-            </NotificationProvider>
+            <EventProvider>
+                <NotificationProvider>
+                    <LoaderProvider>
+                        <Router>
+                            <MainApp />
+                        </Router>
+                    </LoaderProvider>
+                </NotificationProvider>
+            </EventProvider>
         </AuthProvider>
     );
 }
 
 const MainApp = () => {
     const { user, logout } = useAuth();
+    const { currentEvent, events, setCurrentEvent, fetchEvents } = useEvent();
     const { readyOrder, setReadyOrder } = useNotification();
     const { isLoading, showLoader, hideLoader } = useLoader();
     const socket = useSocket();
@@ -107,7 +111,21 @@ const MainApp = () => {
                             {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>အော်ဒါအသစ်</Link>}
                             {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/orders" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>အော်ဒါများ</Link>}
                             {(user.role === 'Admin' || user.role === 'Kitchen') && <Link to="/kds" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>မီးဖိုချောင်</Link>}
-                            {user.role === 'Admin' && <Link to="/admin" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Admin</Link>}
+                            {user.role === 'Admin' && (
+                                <>
+                                    <Link to="/admin" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Admin</Link>
+                                    <select
+                                        className="nav-link event-select"
+                                        value={currentEvent?._id || ''}
+                                        onChange={(e) => setCurrentEvent(events.find(event => event._id === e.target.value) || null)}
+                                    >
+                                        <option value="">Select Event</option>
+                                        {events.map(event => (
+                                            <option key={event._id} value={event._id}>{event.name}</option>
+                                        ))}
+                                    </select>
+                                </>
+                            )}
                             <button onClick={logout} className="nav-link logout-btn">Logout</button>
                         </div>
                     </div>

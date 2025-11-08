@@ -4,54 +4,20 @@ import OrderForm from '../components/OrderForm';
 import { useAuth } from '../context/AuthContext';
 import { format } from 'date-fns-tz';
 import { API_BASE_URL } from '../utils/apiConfig';
-
 import { fetchWithLoader } from '../utils/api';
-
-// --- Data Models ---
-export interface MenuItem {
-    _id: string;
-    name: string;
-    price: number;
-    category: string;
-    requiresPrep: boolean;
-}
-
-export interface OrderItem {
-    menuItem: string; // Just the ID
-    quantity: number;
-    remarks?: string; // Optional remarks for the item
-}
-
-export interface Order {
-    _id: string;
-    orderNumber: string;
-    tableNumber?: string;
-    customerName?: string; // New field for customer name
-    isPreOrder: boolean;
-    items: { menuItem: MenuItem; quantity: number; remarks?: string }[]; // Added remarks
-    status: 'New' | 'Preparing' | 'Ready' | 'Collected';
-    createdAt: string;
-    preparingStartedAt?: string;
-    readyAt?: string;
-    collectedAt?: string;
-}
-
-export interface Event {
-    _id: string;
-    name: string;
-    description?: string;
-    eventDate: string; // Use string for date as it comes from API
-}
+import { MenuItem, OrderItem, Order } from '../types'; // Import from types.ts
+import { useEvent } from '../context/EventContext'; // Import useEvent
 
 const WaitstaffPage = () => {
     const socket = useSocket();
     const { token, user } = useAuth();
+    const { currentEvent } = useEvent(); // Use currentEvent from context
     const [orders, setOrders] = useState<Order[]>([]);
 
     // Fetch initial orders via HTTP
     useEffect(() => {
-        if (token) {
-            fetchWithLoader(`${API_BASE_URL}/api/orders`, {
+        if (token && currentEvent) {
+            fetchWithLoader(`${API_BASE_URL}/api/orders/event/${currentEvent._id}`, { // Fetch orders for current event
                 headers: { 'Authorization': `Bearer ${token}` }
             })
             .then(res => res.json())
@@ -60,14 +26,21 @@ const WaitstaffPage = () => {
                 setOrders(data);
             })
             .catch(err => console.error('Error fetching initial orders:', err));
+        } else {
+            setOrders([]); // Clear orders if no event is selected
         }
-    }, [token]);
+    }, [token, currentEvent]);
 
     useEffect(() => {
         if (!socket) return;
 
         const handleOrderUpdate = (updatedOrder: Order) => {
             setOrders(prevOrders => {
+                // Only update if the order belongs to the current event
+                if (currentEvent && updatedOrder.eventId !== currentEvent._id) {
+                    return prevOrders;
+                }
+
                 const existingOrderIndex = prevOrders.findIndex(o => o._id === updatedOrder._id);
                 if (existingOrderIndex !== -1) {
                     const newOrders = [...prevOrders];
@@ -84,9 +57,9 @@ const WaitstaffPage = () => {
         return () => {
             socket.off('order_update', handleOrderUpdate);
         };
-    }, [socket]);
+    }, [socket, currentEvent]);
 
-    const handleCreateOrder = (order: { eventId: string; tableNumber?: string; customerName?: string; items: OrderItem[]; isPreOrder: boolean; isPaid: boolean; deliveryAddress?: string }) => {
+    const handleCreateOrder = (order: { eventId: string; tableNumber: number; customerName?: string; items: OrderItem[]; isPreOrder: boolean; isPaid: boolean; deliveryAddress?: string }) => {
         if (socket) {
             socket.emit('new_order', order);
         }
@@ -103,16 +76,19 @@ const WaitstaffPage = () => {
 
     return (
         <div>
-            <OrderForm onSubmit={handleCreateOrder} />
-            <div className="orders-list-container">
-                <table className="orders-table">
-                    <thead>
-                        <tr>
-                            <th>Order Number</th>
-                            <th>Customer</th>
-                            <th>Items</th>
-                            <th>Status</th>
-                            <th>Time</th>
+            <h2>Waitstaff Page {currentEvent ? `(${currentEvent.name})` : ''}</h2>
+            {!currentEvent && <p>Please select an event from the Admin menu to create/view orders.</p>}
+            {currentEvent && <OrderForm onSubmit={handleCreateOrder} />}
+            {currentEvent && (
+                <div className="orders-list-container">
+                    <table className="orders-table">
+                        <thead>
+                            <tr>
+                                <th>Order Number</th>
+                                <th>Customer</th>
+                                <th>Items</th>
+                                <th>Status</th>
+                                <th>Time</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -145,6 +121,7 @@ const WaitstaffPage = () => {
                     </tbody>
                 </table>
             </div>
+            )}
         </div>
     );
 };
