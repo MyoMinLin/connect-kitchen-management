@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useSocket } from '../hooks/useSocket';
-import { Order } from './WaitstaffPage'; // Re-using the interface
+import { useEvent } from '../context/EventContext';
+import { Order } from '../types';
 import OrderCard from '../components/OrderCard';
 import './KitchenPage.css';
 
 const KitchenPage = () => {
     const socket = useSocket();
+    const { currentEvent } = useEvent();
     const [orders, setOrders] = useState<Order[]>([]);
 
     useEffect(() => {
-        if (!socket) return;
+        if (!socket || !currentEvent) {
+            setOrders([]); // Clear orders if no event is selected
+            return;
+        }
 
         const handleInitialOrders = (initialOrders: Order[]) => {
-            setOrders(initialOrders);
+            setOrders(initialOrders.filter(order => order.eventId === currentEvent._id));
         };
 
         const handleOrderUpdate = (updatedOrder: Order) => {
@@ -24,8 +29,11 @@ const KitchenPage = () => {
                     newOrders[existingOrderIndex] = updatedOrder;
                     return newOrders;
                 } else {
-                    // Add new order
-                    return [...prevOrders, updatedOrder];
+                    // Add new order only if it belongs to the current event
+                    if (updatedOrder.eventId === currentEvent._id) {
+                        return [...prevOrders, updatedOrder];
+                    }
+                    return prevOrders;
                 }
             });
         };
@@ -37,7 +45,7 @@ const KitchenPage = () => {
             socket.off('initial_orders', handleInitialOrders);
             socket.off('order_update', handleOrderUpdate);
         };
-    }, [socket]);
+    }, [socket, currentEvent]);
 
     const handleStatusUpdate = (orderId: string, status: Order['status']) => {
         if (socket) {
@@ -53,7 +61,8 @@ const KitchenPage = () => {
 
     return (
         <div>
-            <h2>Kitchen Display System</h2>
+            <h2>Kitchen Display System {currentEvent ? `(${currentEvent.name})` : ''}</h2>
+            {!currentEvent && <p>Please select an event from the Admin menu to view orders.</p>}
             <div className="kds-container">
                 <div className="kds-column">
                     <h3>New</h3>

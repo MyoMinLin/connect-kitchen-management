@@ -1,5 +1,5 @@
 import React from 'react';
-import { Order } from '../pages/WaitstaffPage';
+import { Order, OrderItem } from '../types'; // Import Order and OrderItem from types.ts
 import './OrderCard.css';
 import { format } from 'date-fns-tz';
 

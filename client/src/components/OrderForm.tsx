@@ -1,52 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MenuItem, OrderItem, Event } from '../pages/WaitstaffPage';
+import { MenuItem, OrderItem, Event } from '../types'; // Import from types.ts
 import { useAuth } from '../context/AuthContext';
+import { useEvent } from '../context/EventContext'; // Import useEvent
 import { API_BASE_URL } from '../utils/apiConfig';
 import { fetchWithLoader } from '../utils/api';
 import './OrderForm.css';
 
 interface OrderFormProps {
-    onSubmit: (order: { eventId: string; tableNumber?: string; customerName?: string; items: OrderItem[]; isPreOrder: boolean; isPaid: boolean; deliveryAddress?: string; }) => void;
+    onSubmit: (order: { eventId: string; tableNumber: number; customerName?: string; items: OrderItem[]; isPreOrder: boolean; isPaid: boolean; deliveryAddress?: string; }) => void;
 }
 
 const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-    const [tableNumber, setTableNumber] = useState<string>('');
+    const [tableNumber, setTableNumber] = useState<number | ''>(''); // Change to number
     const [customerName, setCustomerName] = useState<string>('');
     const [isPreOrder, setIsPreOrder] = useState<boolean>(false);
     const [isPaid, setIsPaid] = useState<boolean>(false);
     const [deliveryAddress, setDeliveryAddress] = useState<string>('');
     const [currentOrderItems, setCurrentOrderItems] = useState<OrderItem[]>([]);
-    const [events, setEvents] = useState<Event[]>([]); // New state for events
-    const [activeEvent, setActiveEvent] = useState<Event | null>(null); // New state for active event
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [lastOrderNumber, setLastOrderNumber] = useState<string>('');
 
     const { token, logout } = useAuth();
+    const { currentEvent } = useEvent(); // Use currentEvent from context
     const navigate = useNavigate();
 
-    // Effect to fetch events and determine the active event
-    useEffect(() => {
-        if (token) {
-            fetchWithLoader(`${API_BASE_URL}/api/events/active`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-                .then(res => {
-                    if (res.status === 401) {
-                        logout();
-                        throw new Error('Unauthorized');
-                    }
-                    return res.json();
-                })
-                .then(data => {
-                    if (data.message) throw new Error(data.message);
-                    setEvents(data);
-                })
-                .catch(err => console.error("Failed to fetch events:", err));
-        }
-    }, [token, logout]);
 
     useEffect(() => {
         if (token) {
@@ -66,40 +45,11 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
         }
     }, [token]);
 
-    // Effect to determine the active event from fetched events
+
+    // Effect to fetch menu items for the current event
     useEffect(() => {
-        if (events.length > 0) { // Check if events is not null and has length
-            const now = new Date();
-            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-            // Filter events for the current month and future
-            const currentMonthEvents = events.filter(event => {
-                const eventDate = new Date(event.eventDate);
-                return eventDate.getMonth() === now.getMonth() && eventDate.getFullYear() === now.getFullYear() && eventDate >= today;
-            });
-
-            if (currentMonthEvents.length === 1) {
-                setActiveEvent(currentMonthEvents[0]);
-            } else if (currentMonthEvents.length > 1) {
-                // Find the event closest to today's date
-                const closestEvent = currentMonthEvents.reduce((prev, curr) => {
-                    const prevDate = new Date(prev.eventDate);
-                    const currDate = new Date(curr.eventDate);
-                    const diffPrev = Math.abs(prevDate.getTime() - today.getTime());
-                    const diffCurr = Math.abs(currDate.getTime() - today.getTime());
-                    return (diffCurr < diffPrev) ? curr : prev;
-                });
-                setActiveEvent(closestEvent);
-            } else {
-                setActiveEvent(null); // No active event for the current month
-            }
-        }
-    }, [events]);
-
-    // Effect to fetch menu items for the active event
-    useEffect(() => {
-        if (token && activeEvent) {
-            fetchWithLoader(`${API_BASE_URL}/api/menu-items/event/${activeEvent._id}`, { // Fetch menu items by event ID
+        if (token && currentEvent) {
+            fetchWithLoader(`${API_BASE_URL}/api/menu-items/event/${currentEvent._id}`, { // Fetch menu items by event ID
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -116,11 +66,11 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                     setMenuItems(data)
                 })
                 .catch(err => console.error("Failed to fetch menu items:", err));
-        } else if (token && !activeEvent) {
-            // If no active event, clear menu items
+        } else if (token && !currentEvent) {
+            // If no current event, clear menu items
             setMenuItems([]);
         }
-    }, [token, logout, activeEvent]); // Add activeEvent to dependency array
+    }, [token, logout, currentEvent]); // Add currentEvent to dependency array
 
     const handleAddItem = (menuItemId: string) => {
         setCurrentOrderItems(prevItems => {
@@ -155,7 +105,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!activeEvent) {
+        if (!currentEvent) {
             alert('No active event selected. Cannot create order.');
             return;
         }
@@ -163,7 +113,8 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
             alert('Please add items to the order.');
             return;
         }
-        onSubmit({ eventId: activeEvent._id, tableNumber, customerName, items: currentOrderItems, isPreOrder, isPaid, deliveryAddress });
+        
+        onSubmit({ eventId: currentEvent._id, tableNumber: tableNumber as number, customerName, items: currentOrderItems, isPreOrder, isPaid, deliveryAddress });
         setCurrentOrderItems([]); // Reset form
         setTableNumber(''); // Reset table number
         setCustomerName(''); // Reset customer name
@@ -174,22 +125,20 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
         <div className="order-form-container">
             <form onSubmit={handleSubmit} className="order-form">
                 <h3>Create New Order</h3>
-                {activeEvent ? (
-                    <p className="active-event-display">Active Event: <strong>{activeEvent.name}</strong></p>
+                {currentEvent ? (
+                    <p className="active-event-display">Active Event: <strong>{currentEvent.name}</strong></p>
                 ) : (
-                    <p className="no-active-event">No active event found for this month.</p>
+                    <p className="no-active-event">No active event selected.</p>
                 )}
-                {/* {lastOrderNumber && (
-                    <p className="last-order-number">Last Order: <strong>{lastOrderNumber}</strong></p>
-                )} */}
                 <div className="form-group">
                     <label htmlFor="tableNumber">Table Number</label>
                     <input
                         id="tableNumber"
-                        type="text"
+                        type="number" // Change type to number
                         value={tableNumber}
-                        onChange={(e) => setTableNumber(e.target.value)}
+                        onChange={(e) => setTableNumber(e.target.value === '' ? '' : Number(e.target.value))}
                         placeholder="e.g., 12"
+                        required
                     />
                 </div>
                 <div className="form-group">
