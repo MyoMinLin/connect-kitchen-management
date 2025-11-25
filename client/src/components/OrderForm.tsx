@@ -113,7 +113,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
             alert('Please add items to the order.');
             return;
         }
-        
+
         onSubmit({ eventId: currentEvent._id, tableNumber: tableNumber as number, customerName, items: currentOrderItems, isPreOrder, isPaid, deliveryAddress });
         setCurrentOrderItems([]); // Reset form
         setTableNumber(''); // Reset table number
@@ -138,7 +138,6 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                         value={tableNumber}
                         onChange={(e) => setTableNumber(e.target.value === '' ? '' : Number(e.target.value))}
                         placeholder="e.g., 12"
-                        required
                     />
                 </div>
                 <div className="form-group">
