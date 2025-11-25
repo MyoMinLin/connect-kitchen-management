@@ -48,7 +48,14 @@ export const EventProvider = ({ children }: { children: ReactNode }) => {
 
     const fetchEvents = useCallback(() => {
         if (token) {
-            api('/', 'GET').then(setEvents).catch(err => console.error("Failed to fetch events:", err.message));
+            api('/active', 'GET').then(data => {
+                setEvents(data);
+                if (data && data.length > 0) {
+                    setCurrentEvent(data[0]);
+                } else {
+                    setCurrentEvent(null);
+                }
+            }).catch(err => console.error("Failed to fetch events:", err.message));
         }
     }, [api, token]);
 
