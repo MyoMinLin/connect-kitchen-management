@@ -1,0 +1,49 @@
+.popular-dishes-chart {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.popular-dishes-chart .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.popular-dishes-chart h2 {
+    margin: 0;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+.popular-dishes-chart .event-selector {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.popular-dishes-chart .event-selector:hover {
+    border-color: #4CAF50;
+}
+
+.popular-dishes-chart .event-selector:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+}
+
+.popular-dishes-chart .no-data {
+    text-align: center;
+    color: #999;
+    padding: 40px 0;
+    font-style: italic;
+}
