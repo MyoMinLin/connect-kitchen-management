@@ -13,12 +13,12 @@ dotenv.config();
 
 const app = express();
 const corsOptions = [
-  cors({
-    origin: '*',
-    methods: '*',
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-  })
+    cors({
+        origin: '*',
+        methods: '*',
+        allowedHeaders: ['Content-Type', 'Authorization'],
+        credentials: true,
+    })
 ];
 
 app.use(corsOptions);
@@ -26,10 +26,10 @@ app.use(express.json());
 
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: {
-    origin: "*", // In production, restrict this to your client's URL
-    methods: ["GET", "POST"]
-  }
+    cors: {
+        origin: "*", // In production, restrict this to your client's URL
+        methods: ["GET", "POST"]
+    }
 });
 
 const PORT = process.env.PORT || 4000;
@@ -48,6 +48,7 @@ import { protect, authorize } from './middleware/auth';
 import eventRoutes from './routes/events';
 import menuItemRoutes from './routes/menuItems';
 import orderRoutes from './routes/orders';
+import reportRoutes from './routes/reports';
 
 // --- API Routes ---
 app.use('/api/auth', authRoutes);
@@ -55,6 +56,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/menu-items', menuItemRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/reports', reportRoutes);
 
 app.get('/api/orders/last', protect, authorize('Admin', 'Waiter'), async (req, res) => {
     try {
@@ -168,7 +170,7 @@ io.on('connection', async (socket) => {
     // Listen for a status update from the KDS client
     socket.on('update_order_status', async ({ orderId, status }) => {
         const user = (socket as any).user;
-        const allowedUpdate = 
+        const allowedUpdate =
             (user.role === 'Admin') ||
             (user.role === 'Kitchen' && (status === 'Preparing' || status === 'Ready')) ||
             (user.role === 'Waiter' && status === 'Collected');
@@ -233,5 +235,5 @@ io.on('connection', async (socket) => {
 
 
 server.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
