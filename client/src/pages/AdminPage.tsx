@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import UserManagement from '../components/admin/UserManagement';
+
 import EventSalesChart from '../components/admin/EventSalesChart';
 import PopularDishesChart from '../components/admin/PopularDishesChart';
 import EventPerformanceTable from '../components/admin/EventPerformanceTable';
