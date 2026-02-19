@@ -13,7 +13,7 @@
 
 .address-modal-content {
     background-color: white;
-    padding: 2rem;
+    padding: 1.5rem;
     border-radius: 8px;
     width: 90%;
     max-width: 500px;
@@ -32,7 +32,7 @@
 
 .address-modal-header h2 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     color: #333;
 }
 
