@@ -12,146 +12,157 @@ router.get('/dashboard', protect, authorize('Admin'), async (req, res) => {
     try {
         await dbConnect();
 
-        // Fetch all events
-        const events = await Event.find().sort({ eventDate: -1 });
+        // 1. Fetch all events (we need this to show events with 0 sales too)
+        const allEvents = await Event.find().sort({ eventDate: -1 }).lean();
 
-        // Aggregate sales and order counts per event
-        const eventSalesData = await Promise.all(
-            events.map(async (event) => {
-                const orders = await Order.find({ eventId: event._id }).populate('items.menuItem');
-
-                const totalOrders = orders.length;
-                const totalSales = orders.reduce((sum, order) => {
-                    const orderTotal = order.items.reduce((itemSum, item) => {
-                        return itemSum + (item.quantity * (item.menuItem.price || 0));
-                    }, 0);
-                    return sum + orderTotal;
-                }, 0);
-
-                const categoryBreakdown: Record<string, number> = {};
-                orders.forEach(order => {
-                    order.items.forEach(item => {
-                        const menuItem = item.menuItem as any;
-                        if (menuItem && menuItem.category) {
-                            const cat = menuItem.category;
-                            categoryBreakdown[cat] = (categoryBreakdown[cat] || 0) + item.quantity;
-                        }
-                    });
-                });
-
-                return {
-                    eventId: event._id,
-                    eventName: event.name,
-                    eventDate: event.eventDate,
-                    totalOrders,
-                    totalSales,
-                    categoryBreakdown,
-                    isCurrentEvent: event.IsCurrentEvent,
-                };
-            })
-        );
-
-        // Aggregate popular main dishes across all events
-        const allOrders = await Order.find().populate('items.menuItem');
-        console.log('Total orders found:', allOrders.length);
-
-        if (allOrders.length > 0) {
-            console.log('Sample order:', JSON.stringify(allOrders[0], null, 2));
-        }
-
-        const dishMap = new Map<string, { count: number; sales: number; category: string }>();
-
-        allOrders.forEach(order => {
-            order.items.forEach(item => {
-                const menuItem = item.menuItem as any;
-
-                // Skip if menuItem is not populated or is null
-                if (!menuItem || !menuItem.name || !menuItem.category) {
-                    console.warn('Skipping item with invalid menuItem. Item:', JSON.stringify(item, null, 2));
-                    return;
+        // 2. Aggregate Global Popular Dishes (Main Dishes only)
+        const popularDishes = await Order.aggregate([
+            { $unwind: "$items" },
+            {
+                $lookup: {
+                    from: "menuitems",
+                    localField: "items.menuItem",
+                    foreignField: "_id",
+                    as: "menuItem"
                 }
+            },
+            { $unwind: "$menuItem" },
+            { $match: { "menuItem.category": "Main" } },
+            {
+                $group: {
+                    _id: "$menuItem.name",
+                    orderCount: { $sum: "$items.quantity" },
+                    totalSales: { $sum: { $multiply: ["$items.quantity", "$menuItem.price"] } }
+                }
+            },
+            { $sort: { orderCount: -1 } },
+            {
+                $project: {
+                    dishName: "$_id",
+                    orderCount: 1,
+                    totalSales: 1,
+                    _id: 0
+                }
+            }
+        ]);
 
-                const dishName = menuItem.name;
-                const category = menuItem.category;
-                const itemSales = item.quantity * (menuItem.price || 0);
-
-                // Only include Main category
-                if (category === 'Main') {
-                    const existing = dishMap.get(dishName);
-                    if (existing) {
-                        existing.count += item.quantity;
-                        existing.sales += itemSales;
-                    } else {
-                        dishMap.set(dishName, {
-                            count: item.quantity,
-                            sales: itemSales,
-                            category,
-                        });
+        // 3. Aggregate Event Sales & Stats
+        const eventStats = await Order.aggregate([
+            { $unwind: "$items" },
+            {
+                $lookup: {
+                    from: "menuitems",
+                    localField: "items.menuItem",
+                    foreignField: "_id",
+                    as: "menuItem"
+                }
+            },
+            { $unwind: "$menuItem" },
+            {
+                $group: {
+                    _id: "$eventId",
+                    totalSales: { $sum: { $multiply: ["$items.quantity", "$menuItem.price"] } },
+                    // We need to count unique orders, but we unwound items.
+                    // Solution: Collect unique Order IDs in a Set-like array
+                    uniqueOrderIds: { $addToSet: "$_id" },
+                    // Collect categories for breakdown (we'll process this in the next stage or JS)
+                    categories: { $push: { category: "$menuItem.category", quantity: "$items.quantity" } },
+                    // Collect dishes for "Popular Dishes by Event"
+                    dishes: {
+                        $push: {
+                            name: "$menuItem.name",
+                            quantity: "$items.quantity",
+                            price: "$menuItem.price",
+                            category: "$menuItem.category"
+                        }
                     }
                 }
-            });
+            },
+            {
+                $project: {
+                    eventId: "$_id",
+                    totalSales: 1,
+                    totalOrders: { $size: "$uniqueOrderIds" },
+                    categories: 1,
+                    dishes: 1
+                }
+            }
+        ]);
+
+
+        // 4. Merge Aggregation Results with All Events
+        // Create a map for easy lookup
+        // Filter out null eventIds (from dirty data) before mapping
+        const validStats = eventStats.filter(stat => stat.eventId);
+        const statsMap = new Map(validStats.map(stat => [stat.eventId.toString(), stat]));
+
+        const eventSalesData = allEvents.map(event => {
+            const stats = statsMap.get(event._id.toString());
+
+            // Default values if no orders for this event
+            let totalOrders = 0;
+            let totalSales = 0;
+            let categoryBreakdown: Record<string, number> = {};
+
+            if (stats) {
+                totalOrders = stats.totalOrders;
+                totalSales = stats.totalSales;
+
+                // Process category breakdown from the array
+                stats.categories.forEach((cat: any) => {
+                    const name = cat.category;
+                    categoryBreakdown[name] = (categoryBreakdown[name] || 0) + cat.quantity;
+                });
+            }
+
+            return {
+                eventId: event._id,
+                eventName: event.name,
+                eventDate: event.eventDate,
+                totalOrders,
+                totalSales,
+                categoryBreakdown,
+                isCurrentEvent: event.IsCurrentEvent,
+            };
         });
 
-        const popularDishes = Array.from(dishMap.entries())
-            .map(([name, data]) => ({
-                dishName: name,
-                orderCount: data.count,
-                totalSales: data.sales,
-            }))
-            .sort((a, b) => b.orderCount - a.orderCount);
+        // 5. Process Popular Dishes By Event
+        const popularDishesByEvent = allEvents.map(event => {
+            const stats = statsMap.get(event._id.toString());
+            let dishes: any[] = [];
 
-        console.log('Popular dishes found:', popularDishes.length);
+            if (stats && stats.dishes) {
+                const dishMap = new Map<string, { count: number; sales: number }>();
 
-        // Aggregate popular dishes per event
-        const popularDishesByEvent = await Promise.all(
-            events.map(async (event) => {
-                const eventOrders = await Order.find({ eventId: event._id }).populate('items.menuItem');
-                const eventDishMap = new Map<string, { count: number; sales: number }>();
-
-                eventOrders.forEach(order => {
-                    order.items.forEach(item => {
-                        const menuItem = item.menuItem as any;
-
-                        // Skip if menuItem is not populated or is null
-                        if (!menuItem || !menuItem.name || !menuItem.category) {
-                            return;
+                stats.dishes.forEach((d: any) => {
+                    if (d.category === 'Main') {
+                        const existing = dishMap.get(d.name);
+                        const sales = d.quantity * d.price;
+                        if (existing) {
+                            existing.count += d.quantity;
+                            existing.sales += sales;
+                        } else {
+                            dishMap.set(d.name, { count: d.quantity, sales });
                         }
-
-                        const dishName = menuItem.name;
-                        const category = menuItem.category;
-                        const itemSales = item.quantity * (menuItem.price || 0);
-
-                        // Only include Main category
-                        if (category === 'Main') {
-                            const existing = eventDishMap.get(dishName);
-                            if (existing) {
-                                existing.count += item.quantity;
-                                existing.sales += itemSales;
-                            } else {
-                                eventDishMap.set(dishName, {
-                                    count: item.quantity,
-                                    sales: itemSales,
-                                });
-                            }
-                        }
-                    });
+                    }
                 });
 
-                const dishes = Array.from(eventDishMap.entries())
+                dishes = Array.from(dishMap.entries())
                     .map(([name, data]) => ({
                         dishName: name,
                         orderCount: data.count,
-                        totalSales: data.sales,
+                        totalSales: data.sales
                     }))
                     .sort((a, b) => b.orderCount - a.orderCount);
+            }
 
-                return {
-                    eventId: event._id,
-                    eventName: event.name,
-                    dishes,
-                };
-            })
-        );
+            return {
+                eventId: event._id,
+                eventName: event.name,
+                dishes
+            };
+        });
+
 
         // Return aggregated data
         res.json({
@@ -164,7 +175,7 @@ router.get('/dashboard', protect, authorize('Admin'), async (req, res) => {
                 totalOrders: event.totalOrders,
                 totalSales: event.totalSales,
                 categoryBreakdown: event.categoryBreakdown,
-                status: new Date(event.eventDate) > new Date() ? 'Upcoming' : 'Past',
+                status: new Date(event.eventDate as Date) > new Date() ? 'Upcoming' : 'Past',
             })),
         });
     } catch (error) {
