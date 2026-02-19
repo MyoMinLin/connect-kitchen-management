@@ -14,19 +14,19 @@
     overflow-x: auto;
 }
 
-table {
+.event-performance-table table {
     width: 100%;
     border-collapse: collapse;
 }
 
-th,
-td {
+.event-performance-table th,
+.event-performance-table td {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid #eee;
 }
 
-th {
+.event-performance-table th {
     background-color: #f8f9fa;
     color: #2c3e50;
     font-weight: 600;

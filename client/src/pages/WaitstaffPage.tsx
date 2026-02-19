@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSocket } from '../hooks/useSocket';
 import OrderForm from '../components/OrderForm';
+import EditOrderModal from '../components/EditOrderModal';
 import { useAuth } from '../context/AuthContext';
 import { format } from 'date-fns-tz';
 import { API_BASE_URL } from '../utils/apiConfig';
@@ -13,6 +14,7 @@ const WaitstaffPage = () => {
     const { token, user } = useAuth();
     const { currentEvent } = useEvent(); // Use currentEvent from context
     const [orders, setOrders] = useState<Order[]>([]);
+    const [editingOrder, setEditingOrder] = useState<Order | null>(null);
 
     // Fetch initial orders via HTTP
     useEffect(() => {
@@ -20,12 +22,12 @@ const WaitstaffPage = () => {
             fetchWithLoader(`${API_BASE_URL}/api/orders/event/${currentEvent._id}`, { // Fetch orders for current event
                 headers: { 'Authorization': `Bearer ${token}` }
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.message) throw new Error(data.message);
-                setOrders(data);
-            })
-            .catch(err => console.error('Error fetching initial orders:', err));
+                .then(res => res.json())
+                .then(data => {
+                    if (data.message) throw new Error(data.message);
+                    setOrders(data);
+                })
+                .catch(err => console.error('Error fetching initial orders:', err));
         } else {
             setOrders([]); // Clear orders if no event is selected
         }
@@ -60,9 +62,19 @@ const WaitstaffPage = () => {
     }, [socket, currentEvent]);
 
     const handleCreateOrder = (order: { eventId: string; tableNumber: number; customerName?: string; items: OrderItem[]; isPreOrder: boolean; isPaid: boolean; deliveryAddress?: string }) => {
-        if (socket) {
-            socket.emit('new_order', order);
-        }
+        return new Promise<void>((resolve, reject) => {
+            if (socket) {
+                socket.emit('new_order', order, (response: any) => {
+                    if (response?.status === 'ok') {
+                        resolve();
+                    } else {
+                        reject(new Error(response?.message || 'Failed to create order'));
+                    }
+                });
+            } else {
+                reject(new Error('No connection to server'));
+            }
+        });
     };
 
     const handleUpdateStatus = (orderId: string, status: Order['status']) => {
@@ -71,12 +83,36 @@ const WaitstaffPage = () => {
         }
     };
 
+    const handleEditOrder = (orderId: string, data: {
+        tableNumber: number;
+        customerName?: string;
+        items: OrderItem[];
+        isPreOrder: boolean;
+        isPaid: boolean;
+        deliveryAddress?: string;
+    }) => {
+        return new Promise<void>((resolve, reject) => {
+            if (socket) {
+                socket.emit('edit_order', { orderId, ...data }, (response: any) => {
+                    if (response?.status === 'ok') {
+                        resolve();
+                    } else {
+                        reject(new Error(response?.message || 'Failed to update order'));
+                    }
+                });
+            } else {
+                reject(new Error('No connection to server'));
+            }
+        });
+    };
+
     const sortedOrders = orders.filter(o => o.status !== 'Collected').sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const canEdit = user && (user.role === 'Waiter' || user.role === 'Admin');
 
     return (
         <div>
-            <h2>Waitstaff Page {currentEvent ? `(${currentEvent.name})` : ''}</h2>
+            <h2>Create Order for {currentEvent ? `(${currentEvent.name})` : ''}</h2>
             {!currentEvent && <p>Please select an event from the Admin menu to create/view orders.</p>}
             {currentEvent && <OrderForm onSubmit={handleCreateOrder} />}
             {currentEvent && (
@@ -89,38 +125,57 @@ const WaitstaffPage = () => {
                                 <th>Items</th>
                                 <th>Status</th>
                                 <th>Time</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {sortedOrders.map(order => (
-                            <tr key={order._id} className={`status-${order.status.toLowerCase().replace(' ', '-')}`}>
-                                <td data-label="Order Number">{order.orderNumber}</td>
-                                <td data-label="Customer">{order.customerName || 'N/A'}</td>
-                                <td data-label="Items">
-                                    <ul>
-                                        {order.items.map(item => (
-                                            <li key={item.menuItem._id}>
-                                                {item.quantity}x {item.menuItem.name}
-                                                {item.remarks && ` (${item.remarks})`}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </td>
-                                <td data-label="Status"><span className="status-badge">{order.status}</span></td>
-                                <td data-label="Time">{format(new Date(order.createdAt), 'p', { timeZone: userTimeZone })}</td>
-                                <td data-label="Action">
-                                    {user && user.role === 'Waiter' && order.status === 'Ready' && (
-                                        <button onClick={() => handleUpdateStatus(order._id, 'Collected')} className="action-btn collected-btn">
-                                            Mark as Collected
-                                        </button>
-                                    )}
-                                </td>
+                                <th>Action</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            {sortedOrders.map(order => (
+                                <tr key={order._id} className={`status-${order.status.toLowerCase().replace(' ', '-')}`}>
+                                    <td data-label="Order Number">{order.orderNumber}</td>
+                                    <td data-label="Customer">{order.customerName || 'N/A'}</td>
+                                    <td data-label="Items">
+                                        <ul>
+                                            {order.items.map(item => (
+                                                <li key={item.menuItem._id}>
+                                                    {item.quantity}x {item.menuItem.name}
+                                                    {item.remarks && ` (${item.remarks})`}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </td>
+                                    <td data-label="Status"><span className="status-badge">{order.status}</span></td>
+                                    <td data-label="Time">{format(new Date(order.createdAt), 'p', { timeZone: userTimeZone })}</td>
+                                    <td data-label="Action">
+                                        <button
+                                            className="icon-action-btn edit-btn"
+                                            onClick={() => setEditingOrder(order)}
+                                            title="Edit Order"
+                                            aria-label={`Edit order ${order.orderNumber}`}
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M12 20h9"></path>
+                                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                            </svg>
+                                        </button>
+                                        {user && user.role === 'Waiter' && order.status === 'Ready' && (
+                                            <button onClick={() => handleUpdateStatus(order._id, 'Collected')} className="action-btn collected-btn">
+                                                Mark as Collected
+                                            </button>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            {editingOrder && (
+                <EditOrderModal
+                    order={editingOrder}
+                    onClose={() => setEditingOrder(null)}
+                    onSubmit={handleEditOrder}
+                />
             )}
         </div>
     );
