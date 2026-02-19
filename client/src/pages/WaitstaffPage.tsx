@@ -108,7 +108,6 @@ const WaitstaffPage = () => {
 
     const sortedOrders = orders.filter(o => o.status !== 'Collected').sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const canEdit = user && (user.role === 'Waiter' || user.role === 'Admin');
 
     return (
         <div>
