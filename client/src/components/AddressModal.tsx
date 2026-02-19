@@ -3,15 +3,21 @@ import './AddressModal.css';
 
 interface AddressModalProps {
     address: string;
+    customerName?: string;
+    orderNo?: string | number;
     onClose: () => void;
 }
 
-const AddressModal: React.FC<AddressModalProps> = ({ address, onClose }) => {
+const AddressModal: React.FC<AddressModalProps> = ({ address, customerName, orderNo, onClose }) => {
+    const title = customerName && orderNo
+        ? `Delivery Address of ${customerName} (${orderNo})`
+        : 'Delivery Address';
+
     return (
         <div className="address-modal-overlay" onClick={onClose}>
             <div className="address-modal-content" onClick={(e) => e.stopPropagation()}>
                 <div className="address-modal-header">
-                    <h2>Delivery Address</h2>
+                    <h2>{title}</h2>
                     <button className="close-modal-btn" onClick={onClose}>&times;</button>
                 </div>
                 <div className="address-content">
