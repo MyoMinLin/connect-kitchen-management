@@ -1,16 +1,6 @@
-:root {
-    --primary-color: #4a90e2;
-    --secondary-color: #f5a623;
-    --background-color: #f8f9fa;
-    --white: #ffffff;
-    --gray: #e9ecef;
-    --dark-gray: #ced4da;
-    --text-color: #343a40;
-    --shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.all-orders-page h1, .all-orders-page h2 {
-    color: var(--text-color);
+.all-orders-page h1,
+.all-orders-page h2 {
+    color: var(--font-color);
     margin-bottom: 1rem;
 }
 
@@ -90,7 +80,8 @@
         float: left;
         font-weight: bold;
         text-transform: uppercase;
-        margin-right: 1rem; /* Add spacing */
+        margin-right: 1rem;
+        /* Add spacing */
     }
 
     .orders-table td:last-child {
@@ -103,7 +94,8 @@
     border-collapse: collapse;
 }
 
-.orders-table th, .orders-table td {
+.orders-table th,
+.orders-table td {
     padding: 1rem;
     text-align: left;
     border-bottom: 1px solid var(--gray);
@@ -148,9 +140,11 @@
     0% {
         box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
     }
+
     70% {
         box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
     }
+
     100% {
         box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
     }
@@ -172,4 +166,48 @@
 
 .collected-btn {
     background-color: #007bff;
+}
+
+.action-buttons-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.icon-action-btn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: transparent;
+}
+
+.edit-btn {
+    background-color: var(--secondary-color);
+    color: var(--white);
+    border: none;
+}
+
+.edit-btn:hover {
+    background-color: #e09b1f;
+    opacity: 0.9;
+}
+
+.address-btn {
+    background-color: #6f42c1;
+    /* Purple to match PreOrder badge */
+    color: var(--white);
+    border: none;
+}
+
+.address-btn:hover {
+    background-color: #5a32a3;
+    opacity: 0.9;
 }

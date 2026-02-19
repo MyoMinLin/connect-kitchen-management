@@ -11,10 +11,18 @@ import dbConnect from './utils/db';
 
 dotenv.config();
 
+if (!process.env.JWT_SECRET) {
+    console.error('FATAL ERROR: JWT_SECRET is not defined.');
+    process.exit(1);
+}
+
+
 const app = express();
+const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
+
 const corsOptions = [
     cors({
-        origin: '*',
+        origin: clientUrl,
         methods: '*',
         allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true,
@@ -27,8 +35,9 @@ app.use(express.json());
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "*", // In production, restrict this to your client's URL
-        methods: ["GET", "POST"]
+        origin: clientUrl,
+        methods: ["GET", "POST"],
+        credentials: true
     }
 });
 
@@ -141,9 +150,12 @@ io.on('connection', async (socket) => {
     });
 
     // Listen for a new order from the waitstaff client
-    socket.on('new_order', async (orderData) => {
+    socket.on('new_order', async (orderData, callback) => {
         const user = (socket as any).user;
         if (user.role !== 'Admin' && user.role !== 'Waiter') {
+            if (typeof callback === 'function') {
+                return callback({ status: 'error', message: 'Unauthorized' });
+            }
             return socket.emit('error', { message: 'Unauthorized' });
         }
 
@@ -161,9 +173,69 @@ io.on('connection', async (socket) => {
 
             // Broadcast the new order to all clients (especially the KDS)
             io.emit('order_update', populatedOrder);
+
+            if (typeof callback === 'function') {
+                callback({ status: 'ok', order: populatedOrder });
+            }
         } catch (error) {
             console.error('Error creating new order:', error);
-            socket.emit('error', { message: 'Failed to create order' });
+            if (typeof callback === 'function') {
+                callback({ status: 'error', message: 'Failed to create order' });
+            } else {
+                socket.emit('error', { message: 'Failed to create order' });
+            }
+        }
+    });
+
+
+    // Listen for an order edit from waitstaff/admin
+    socket.on('edit_order', async (editData, callback) => {
+        const user = (socket as any).user;
+        if (user.role !== 'Admin' && user.role !== 'Waiter') {
+            if (typeof callback === 'function') {
+                return callback({ status: 'error', message: 'Unauthorized' });
+            }
+            return socket.emit('error', { message: 'Unauthorized' });
+        }
+
+        try {
+            await dbConnect();
+            const { orderId, tableNumber, customerName, items, isPreOrder, isPaid, deliveryAddress } = editData;
+
+            // Prevent editing Collected orders
+            const existingOrder = await Order.findById(orderId);
+            if (!existingOrder) {
+                if (typeof callback === 'function') {
+                    return callback({ status: 'error', message: 'Order not found' });
+                }
+                return socket.emit('error', { message: 'Order not found' });
+            }
+            if (existingOrder.status === 'Collected') {
+                if (typeof callback === 'function') {
+                    return callback({ status: 'error', message: 'Cannot edit a Collected order' });
+                }
+                return socket.emit('error', { message: 'Cannot edit a Collected order' });
+            }
+
+            const updatedOrder = await Order.findByIdAndUpdate(
+                orderId,
+                { tableNumber, customerName, items, isPreOrder, isPaid, deliveryAddress },
+                { new: true }
+            ).populate('items.menuItem');
+
+            if (updatedOrder) {
+                io.emit('order_update', updatedOrder);
+                if (typeof callback === 'function') {
+                    callback({ status: 'ok', order: updatedOrder });
+                }
+            }
+        } catch (error) {
+            console.error('Error editing order:', error);
+            if (typeof callback === 'function') {
+                callback({ status: 'error', message: 'Failed to edit order' });
+            } else {
+                socket.emit('error', { message: 'Failed to edit order' });
+            }
         }
     });
 
