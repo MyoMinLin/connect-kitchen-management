@@ -15,6 +15,7 @@ import { EventProvider } from './context/EventContext';
 import { NotificationProvider, useNotification } from './context/NotificationContext';
 import ReadyNotification from './components/ReadyNotification';
 import { useSocket } from './hooks/useSocket';
+import logo from './assets/logo.png';
 import './App.css';
 
 import { LoaderProvider, useLoader } from './context/LoaderContext';
@@ -103,7 +104,10 @@ const MainApp = () => {
             {user && (
                 <nav className="navbar">
                     <div className="container">
-                        <Link to={getHomeRoute()} className="nav-brand">ကွန်နက် မီးဖိုချောင်</Link>
+                        <Link to={getHomeRoute()} className="nav-brand">
+                            <img src={logo} alt="Logo" className="navbar-logo" />
+                            ကွန်နက် မီးဖိုချောင်
+                        </Link>
                         <button className="hamburger-menu" onClick={toggleMobileMenu}>
                             <span className="bar"></span>
                             <span className="bar"></span>
@@ -137,33 +141,31 @@ const MainApp = () => {
                 />
             )}
 
-            <div className="container">
-                <Routes>
-                    <Route
-                        path="/login"
-                        element={user ? <Navigate to={getHomeRoute()} replace /> : <LoginPage />}
-                    />
-                    <Route path="/unauthorized" element={<UnauthorizedPage />} />
+            <Routes>
+                <Route
+                    path="/login"
+                    element={user ? <Navigate to={getHomeRoute()} replace /> : <LoginPage />}
+                />
+                <Route path="/unauthorized" element={<div className="container"><UnauthorizedPage /></div>} />
 
-                    <Route element={<ProtectedRoute allowedRoles={['Admin', 'Waiter']} />}>
-                        <Route path="/" element={<WaitstaffPage />} />
-                        <Route path="/orders" element={<AllOrdersPage />} />
-                    </Route>
+                <Route element={<ProtectedRoute allowedRoles={['Admin', 'Waiter']} />}>
+                    <Route path="/" element={<div className="container"><WaitstaffPage /></div>} />
+                    <Route path="/orders" element={<div className="container"><AllOrdersPage /></div>} />
+                </Route>
 
-                    <Route element={<ProtectedRoute allowedRoles={['Admin', 'Kitchen']} />}>
-                        <Route path="/kds" element={<KitchenPage />} />
-                    </Route>
+                <Route element={<ProtectedRoute allowedRoles={['Admin', 'Kitchen']} />}>
+                    <Route path="/kds" element={<div className="container"><KitchenPage /></div>} />
+                </Route>
 
-                    <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
-                        <Route path="/admin/events" element={<ManageEvents />} />
-                        <Route path="/admin" element={<AdminPage />} />
-                        <Route path="/admin/menu" element={<MenuManagementPage />} />
-                        <Route path="/admin/users" element={<ManageUsers />} />
-                    </Route>
+                <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
+                    <Route path="/admin/events" element={<div className="container"><ManageEvents /></div>} />
+                    <Route path="/admin" element={<div className="container"><AdminPage /></div>} />
+                    <Route path="/admin/menu" element={<div className="container"><MenuManagementPage /></div>} />
+                    <Route path="/admin/users" element={<div className="container"><ManageUsers /></div>} />
+                </Route>
 
-                    <Route path="*" element={<Navigate to={getHomeRoute()} />} />
-                </Routes>
-            </div>
+                <Route path="*" element={<Navigate to={getHomeRoute()} />} />
+            </Routes>
         </div>
     );
 }

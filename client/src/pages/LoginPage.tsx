@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { API_BASE_URL } from '../utils/apiConfig';
-import './LoginPage.css';
-
+import logo from '../assets/logo.png';
 import { fetchWithLoader } from '../utils/api';
+import './LoginPage.css';
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
@@ -60,6 +60,7 @@ const LoginPage = () => {
     return (
         <div className="login-container">
             <form onSubmit={handleSubmit} className="login-form">
+                <img src={logo} alt="Logo" className="login-logo" />
                 <h2>Login</h2>
                 {error && <p className="error-message">{error}</p>}
                 <div className="form-group">
