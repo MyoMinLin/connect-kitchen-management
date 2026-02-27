@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSocket } from '../hooks/useSocket';
 import { useEvent } from '../context/EventContext';
-import { Order, MenuItem } from '../types';
+import { Order } from '../types';
 import { API_BASE_URL } from '../utils/apiConfig';
 import OrderCard from '../components/OrderCard';
 import './KitchenPage.css';

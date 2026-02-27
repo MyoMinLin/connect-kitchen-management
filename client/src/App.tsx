@@ -15,7 +15,7 @@ import QRMenuPage from './pages/QRMenuPage';
 import CustomerOrdersPage from './pages/CustomerOrdersPage';
 import CheckoutPage from './pages/CheckoutPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { EventProvider, useEvent } from './context/EventContext';
+import { EventProvider } from './context/EventContext';
 import { NotificationProvider, useNotification } from './context/NotificationContext';
 import ReadyNotification from './components/ReadyNotification';
 import { useSocket } from './hooks/useSocket';
@@ -46,7 +46,6 @@ const MainApp = () => {
 
     const { readyOrder, setReadyOrder } = useNotification();
     const { isLoading, showLoader, hideLoader } = useLoader();
-    const { currentEvent } = useEvent();
     const socket = useSocket();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isAdminExpanded, setIsAdminExpanded] = useState(false);

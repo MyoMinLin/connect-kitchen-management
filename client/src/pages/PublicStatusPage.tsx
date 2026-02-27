@@ -31,6 +31,7 @@ const PublicStatusPage: React.FC = () => {
         if (eventId) {
             fetchStatus();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [eventId]);
 
     useEffect(() => {

@@ -28,6 +28,7 @@ const CheckoutPage: React.FC = () => {
 
     useEffect(() => {
         fetchOrders();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentEvent]);
 
     useEffect(() => {
