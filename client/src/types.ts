@@ -4,6 +4,7 @@ export interface MenuItem {
     price: number;
     category: string;
     requiresPrep: boolean;
+    isDeleted?: boolean;
 }
 
 export interface OrderItem {
@@ -21,17 +22,20 @@ export interface Order {
     deliveryAddress?: string;
     tableNumber: number;
     customerName?: string;
+    tabId?: string; // Unique ID to group orders by customer session
     items: {
         menuItem: MenuItem; // Use MenuItem interface
         quantity: number;
         remarks?: string;
     }[];
     status: 'New' | 'Preparing' | 'Ready' | 'Collected' | 'Cancelled';
+    isActive: boolean;
     createdAt: string;
     updatedAt: string;
     preparingStartedAt?: string;
     readyAt?: string;
     collectedAt?: string;
+    cancelledAt?: string;
 }
 
 export interface Event {

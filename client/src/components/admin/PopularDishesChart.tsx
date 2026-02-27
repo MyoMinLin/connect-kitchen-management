@@ -60,14 +60,17 @@ const PopularDishesChart: React.FC<PopularDishesChartProps> = ({ allTimeData, by
                     <BarChart
                         data={displayData}
                         layout="vertical"
-                        margin={{ top: 20, right: 30, left: 100, bottom: 5 }}
+                        margin={window.innerWidth < 768
+                            ? { top: 10, right: 20, left: 20, bottom: 0 }
+                            : { top: 20, right: 30, left: 100, bottom: 5 }
+                        }
                     >
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis type="number" />
                         <YAxis
                             dataKey="dishName"
                             type="category"
-                            width={90}
+                            width={window.innerWidth < 768 ? 60 : 90}
                         />
                         <Tooltip
                             formatter={(value: number) => [`${value} orders`, 'Orders']}

@@ -86,30 +86,32 @@ const UserManagement = () => {
                 <button type="submit">Create User</button>
             </form>
 
-            <table className="users-table">
-                <thead>
-                    <tr>
-                        <th>Username</th>
-                        <th>Role</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {users.map(user => (
-                        <tr key={user._id}>
-                            <td>{user.username}</td>
-                            <td>{user.role}</td>
-                            <td>
-                                {user.username !== 'admin' && (
-                                    <button onClick={() => handleDeleteUser(user._id)} className="delete-btn">
-                                        Delete
-                                    </button>
-                                )}
-                            </td>
+            <div className="users-table-container">
+                <table className="users-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Actions</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {users.map(user => (
+                            <tr key={user._id}>
+                                <td>{user.username}</td>
+                                <td>{user.role}</td>
+                                <td>
+                                    {user.username !== 'admin' && (
+                                        <button onClick={() => handleDeleteUser(user._id)} className="delete-btn">
+                                            Delete
+                                        </button>
+                                    )}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

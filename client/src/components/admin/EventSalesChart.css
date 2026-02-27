@@ -13,6 +13,19 @@
     font-size: 1.5rem;
 }
 
+@media (max-width: 768px) {
+    .event-sales-chart {
+        padding: 12px;
+        overflow: hidden;
+        /* Ensure Recharts doesn't push width */
+    }
+
+    .event-sales-chart h2 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
+}
+
 .event-sales-chart .no-data {
     text-align: center;
     color: #999;

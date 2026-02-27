@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSocket } from '../hooks/useSocket';
 import { useEvent } from '../context/EventContext';
-import { Order } from '../types';
+import { Order, MenuItem } from '../types';
+import { API_BASE_URL } from '../utils/apiConfig';
 import OrderCard from '../components/OrderCard';
 import './KitchenPage.css';
 
@@ -11,26 +12,37 @@ const KitchenPage = () => {
     const [orders, setOrders] = useState<Order[]>([]);
 
     useEffect(() => {
-        if (!socket || !currentEvent) {
-            setOrders([]); // Clear orders if no event is selected
+        if (!currentEvent) {
+            setOrders([]);
             return;
         }
 
-        const handleInitialOrders = (initialOrders: Order[]) => {
-            setOrders(initialOrders.filter(order => order.eventId === currentEvent._id));
+        const fetchOrders = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/orders/event/${currentEvent._id}`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+                if (!response.ok) throw new Error('Failed to fetch orders');
+                const data = await response.json();
+                setOrders(data);
+            } catch (error) {
+                console.error('Error fetching initial kitchen orders:', error);
+            }
         };
+
+        fetchOrders();
+
+        if (!socket) return;
 
         const handleOrderUpdate = (updatedOrder: Order) => {
             setOrders(prevOrders => {
                 const existingOrderIndex = prevOrders.findIndex(o => o._id === updatedOrder._id);
                 if (existingOrderIndex !== -1) {
-                    // Update existing order
                     const newOrders = [...prevOrders];
                     newOrders[existingOrderIndex] = updatedOrder;
                     return newOrders;
                 } else {
-                    // Add new order only if it belongs to the current event
-                    if (updatedOrder.eventId === currentEvent._id) {
+                    if (updatedOrder.eventId.toString() === currentEvent._id.toString()) {
                         return [...prevOrders, updatedOrder];
                     }
                     return prevOrders;
@@ -38,11 +50,9 @@ const KitchenPage = () => {
             });
         };
 
-        socket.on('initial_orders', handleInitialOrders);
         socket.on('order_update', handleOrderUpdate);
 
         return () => {
-            socket.off('initial_orders', handleInitialOrders);
             socket.off('order_update', handleOrderUpdate);
         };
     }, [socket, currentEvent]);
@@ -53,45 +63,83 @@ const KitchenPage = () => {
         }
     };
 
+    // Batching Logic: Aggregate items that require prep across New and Preparing orders
+    const batchSummary = useMemo(() => {
+        const summary: { [key: string]: number } = {};
+        orders
+            .filter(o => (o.status === 'New' || o.status === 'Preparing') && o.isActive !== false)
+            .forEach(order => {
+                order.items.forEach(item => {
+                    if (item.menuItem.requiresPrep) {
+                        summary[item.menuItem.name] = (summary[item.menuItem.name] || 0) + item.quantity;
+                    }
+                });
+            });
+        return Object.entries(summary);
+    }, [orders]);
+
     const filterOrdersByStatus = (status: Order['status']) => {
         return orders
-            .filter(order => order.status === status)
+            .filter(order => order.status === status && order.isActive !== false)
             .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
     };
 
     return (
-        <div>
-            <h2>Kitchen Display System {currentEvent ? `(${currentEvent.name})` : ''}</h2>
-            {!currentEvent && <p>Please select an event from the Admin menu to view orders.</p>}
-            <div className="kds-container">
-                <div className="kds-column">
-                    <h3>New</h3>
-                    {filterOrdersByStatus('New').map(order => (
-                        <OrderCard key={order._id} order={order} onStatusUpdate={handleStatusUpdate} userRole="Kitchen" />
-                    ))}
-                </div>
-                <div className="kds-column">
-                    <h3>Preparing</h3>
-                    {filterOrdersByStatus('Preparing').map(order => (
-                        <OrderCard key={order._id} order={order} onStatusUpdate={handleStatusUpdate} userRole="Kitchen" />
-                    ))}
-                </div>
-                <div className="kds-column">
-                    <h3>Ready</h3>
-                    {filterOrdersByStatus('Ready').map(order => (
-                        <OrderCard key={order._id} order={order} onStatusUpdate={handleStatusUpdate} userRole="Kitchen" />
-                    ))}
-                </div>
-                <div className="kds-column">
-                    <h3>Collected</h3>
-                    {filterOrdersByStatus('Collected').length > 0 ? (
-                        filterOrdersByStatus('Collected').map(order => (
-                            <OrderCard key={order._id} order={order} onStatusUpdate={handleStatusUpdate} userRole="Kitchen" />
+        <div className="kds-page">
+            <header className="kds-header">
+                <h2>Chef's Console {currentEvent ? `(${currentEvent.name})` : ''}</h2>
+                <div className="batch-summary-bar">
+                    {batchSummary.length > 0 ? (
+                        batchSummary.map(([name, qty]) => (
+                            <div key={name} className="batch-item">
+                                <span className="batch-qty">{qty}</span>
+                                <span className="batch-name">{name}</span>
+                            </div>
                         ))
                     ) : (
-                        <p>No collected orders yet.</p>
+                        <span className="no-batch">No active prep items</span>
                     )}
                 </div>
+            </header>
+
+            {!currentEvent && <p className="kds-error">Please select an event in the Admin dashboard.</p>}
+
+            <div className="kds-board">
+                <section className="kds-lane">
+                    <div className="lane-header new">
+                        <h3>New Orders</h3>
+                        <span className="lane-count">{filterOrdersByStatus('New').length}</span>
+                    </div>
+                    <div className="lane-content">
+                        {filterOrdersByStatus('New').map(order => (
+                            <OrderCard key={order._id} order={order} onStatusUpdate={handleStatusUpdate} userRole="Kitchen" />
+                        ))}
+                    </div>
+                </section>
+
+                <section className="kds-lane">
+                    <div className="lane-header preparing">
+                        <h3>In Progress</h3>
+                        <span className="lane-count">{filterOrdersByStatus('Preparing').length}</span>
+                    </div>
+                    <div className="lane-content">
+                        {filterOrdersByStatus('Preparing').map(order => (
+                            <OrderCard key={order._id} order={order} onStatusUpdate={handleStatusUpdate} userRole="Kitchen" />
+                        ))}
+                    </div>
+                </section>
+
+                <section className="kds-lane">
+                    <div className="lane-header ready">
+                        <h3>Ready for Pickup</h3>
+                        <span className="lane-count">{filterOrdersByStatus('Ready').length}</span>
+                    </div>
+                    <div className="lane-content">
+                        {filterOrdersByStatus('Ready').map(order => (
+                            <OrderCard key={order._id} order={order} onStatusUpdate={handleStatusUpdate} userRole="Kitchen" />
+                        ))}
+                    </div>
+                </section>
             </div>
         </div>
     );

@@ -10,8 +10,12 @@ import AllOrdersPage from './pages/AllOrdersPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import ManageEvents from './pages/ManageEvents';
 import ManageUsers from './pages/ManageUsers';
+import PublicStatusPage from './pages/PublicStatusPage';
+import QRMenuPage from './pages/QRMenuPage';
+import CustomerOrdersPage from './pages/CustomerOrdersPage';
+import CheckoutPage from './pages/CheckoutPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { EventProvider } from './context/EventContext';
+import { EventProvider, useEvent } from './context/EventContext';
 import { NotificationProvider, useNotification } from './context/NotificationContext';
 import ReadyNotification from './components/ReadyNotification';
 import { useSocket } from './hooks/useSocket';
@@ -42,8 +46,10 @@ const MainApp = () => {
 
     const { readyOrder, setReadyOrder } = useNotification();
     const { isLoading, showLoader, hideLoader } = useLoader();
+    const { currentEvent } = useEvent();
     const socket = useSocket();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isAdminExpanded, setIsAdminExpanded] = useState(false);
 
     useEffect(() => {
         const handleShowLoader = () => showLoader();
@@ -96,39 +102,75 @@ const MainApp = () => {
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
+        if (isMobileMenuOpen) {
+            setIsAdminExpanded(false);
+        }
     };
+
+    const toggleAdminMenu = (e: React.MouseEvent) => {
+        if (window.innerWidth <= 768) {
+            e.preventDefault();
+            e.stopPropagation();
+            setIsAdminExpanded(!isAdminExpanded);
+        }
+    };
+
+    const closeMenu = () => {
+        setIsMobileMenuOpen(false);
+        setIsAdminExpanded(false);
+    };
+
+    const isPublicRoute = window.location.pathname.startsWith('/status/') || window.location.pathname.startsWith('/menu/');
 
     return (
         <div>
             {isLoading && <Loader />}
-            {user && (
+            {user && !isPublicRoute && (
                 <nav className="navbar">
                     <div className="container">
-                        <Link to={getHomeRoute()} className="nav-brand">
+                        <Link to={getHomeRoute()} className="nav-brand" onClick={closeMenu}>
                             <img src={logo} alt="Logo" className="navbar-logo" />
                             ကွန်နက် မီးဖိုချောင်
                         </Link>
-                        <button className="hamburger-menu" onClick={toggleMobileMenu}>
+                        <button className={`hamburger-menu ${isMobileMenuOpen ? 'active hidden' : ''}`} onClick={toggleMobileMenu}>
                             <span className="bar"></span>
                             <span className="bar"></span>
                             <span className="bar"></span>
                         </button>
                         <div className={`nav-links ${isMobileMenuOpen ? 'open' : ''}`}>
-                            {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>အော်ဒါအသစ်</Link>}
-                            {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/orders" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>အော်ဒါများ</Link>}
-                            {(user.role === 'Admin' || user.role === 'Kitchen') && <Link to="/kds" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>မီးဖိုချောင်</Link>}
-                            {user.role === 'Admin' && (
-                                <div className="dropdown">
-                                    <span className="nav-link" style={{ cursor: 'pointer' }}>Admin</span>
-                                    <div className="dropdown-content">
-                                        <Link to="/admin/menu" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Menus</Link>
-                                        <Link to="/admin/events" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Events</Link>
-                                        <Link to="/admin/users" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Users</Link>
+                            <div className="mobile-menu-header">
+                                <Link to={getHomeRoute()} className="nav-brand" onClick={closeMenu}>
+                                    <img src={logo} alt="Logo" className="navbar-logo" />
+                                </Link>
+                                <button className="close-menu-btn" onClick={closeMenu}>
+                                    &times;
+                                </button>
+                            </div>
+                            <div className="nav-links-inner">
+                                {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/" className="nav-link" onClick={closeMenu}>အော်ဒါအသစ်</Link>}
+                                {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/orders" className="nav-link" onClick={closeMenu}>အော်ဒါများ</Link>}
+                                {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/checkout" className="nav-link" onClick={closeMenu}>ငွေရှင်းရန်</Link>}
+                                {(user.role === 'Admin' || user.role === 'Kitchen') && <Link to="/kds" className="nav-link" onClick={closeMenu}>မီးဖိုချောင်</Link>}
+                                {user.role === 'Admin' && (
+                                    <div className={`dropdown ${isAdminExpanded ? 'expanded' : ''}`}>
+                                        <div className="dropdown-trigger" onClick={toggleAdminMenu}>
+                                            <span className="nav-link">Admin</span>
+                                            <div className="chevron-icon-container">
+                                                <span className="chevron-icon"></span>
+                                            </div>
+                                        </div>
+                                        <div className={`dropdown-content ${isAdminExpanded ? 'show' : ''}`}>
+                                            <Link to="/admin/menu" className="nav-link" onClick={closeMenu}>Menus</Link>
+                                            <Link to="/admin/events" className="nav-link" onClick={closeMenu}>Events</Link>
+                                            <Link to="/admin/users" className="nav-link" onClick={closeMenu}>Users</Link>
+                                        </div>
                                     </div>
-                                </div>
-                            )}
-                            <span className="username-tag">{user.username}</span>
-                            <button onClick={logout} className="nav-link logout-btn">Logout</button>
+                                )}
+                            </div>
+                            <div className="nav-footer">
+                                <span className="username-tag">{user.username}</span>
+                                <button onClick={logout} className="nav-link logout-btn">Logout</button>
+                            </div>
                         </div>
                     </div>
                 </nav>
@@ -151,6 +193,7 @@ const MainApp = () => {
                 <Route element={<ProtectedRoute allowedRoles={['Admin', 'Waiter']} />}>
                     <Route path="/" element={<div className="container"><WaitstaffPage /></div>} />
                     <Route path="/orders" element={<div className="container"><AllOrdersPage /></div>} />
+                    <Route path="/checkout" element={<div className="container"><CheckoutPage /></div>} />
                 </Route>
 
                 <Route element={<ProtectedRoute allowedRoles={['Admin', 'Kitchen']} />}>
@@ -163,6 +206,10 @@ const MainApp = () => {
                     <Route path="/admin/menu" element={<div className="container"><MenuManagementPage /></div>} />
                     <Route path="/admin/users" element={<div className="container"><ManageUsers /></div>} />
                 </Route>
+
+                <Route path="/status/:eventId" element={<PublicStatusPage />} />
+                <Route path="/menu/:eventId" element={<QRMenuPage />} />
+                <Route path="/orders/my/:eventId" element={<CustomerOrdersPage />} />
 
                 <Route path="*" element={<Navigate to={getHomeRoute()} />} />
             </Routes>

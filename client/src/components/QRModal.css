@@ -1,0 +1,185 @@
+/* QR Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal-content.qr-modal {
+    background: white;
+    padding: 2rem 1.5rem;
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    max-width: 450px;
+    width: 92%;
+    text-align: center;
+    position: relative;
+    animation: qr-modal-fade-in 0.2s ease;
+}
+
+@keyframes qr-modal-fade-in {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-content.qr-modal {
+        padding: 1.5rem 1rem;
+    }
+
+    .qr-container {
+        padding: 1rem;
+    }
+
+    .qr-container canvas {
+        width: 100% !important;
+        height: auto !important;
+    }
+}
+
+.qr-modal h2 {
+    margin-bottom: 1.5rem;
+    color: #2d3436;
+    font-size: 1.4rem;
+}
+
+.qr-container {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 12px;
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.qr-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.copy-image-btn,
+.share-btn,
+.download-btn,
+.copy-link-btn {
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    flex: 1;
+    min-width: 120px;
+}
+
+.copy-image-btn {
+    background: #0984e3;
+    color: white;
+}
+
+.copy-image-btn:hover {
+    background: #0873c4;
+}
+
+.share-btn {
+    background: #6c5ce7;
+    color: white;
+}
+
+.share-btn:hover {
+    background: #5b4cc4;
+}
+
+.download-btn {
+    background: #2d3436;
+    color: white;
+}
+
+.download-btn:hover {
+    background: #1e2224;
+}
+
+.copy-image-btn:active,
+.share-btn:active,
+.download-btn:active,
+.copy-link-btn:active {
+    transform: scale(0.96);
+}
+
+.qr-link-section {
+    background: #f1f2f6;
+    border-radius: 12px;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.qr-url {
+    flex: 1;
+    font-size: 0.8rem;
+    word-break: break-all;
+    color: #636e72;
+    margin: 0;
+    padding: 0.25rem 0.5rem;
+    font-family: monospace;
+}
+
+.copy-link-btn {
+    padding: 0.5rem 0.75rem;
+    background: white;
+    color: #2d3436;
+    border: 1px solid #dfe6e9;
+    flex: none;
+    min-width: auto;
+}
+
+.copy-link-btn:hover {
+    background: #f8f9fa;
+    border-color: #b2bec3;
+}
+
+.qr-hint {
+    color: #b2bec3;
+    font-size: 0.85rem;
+    margin-bottom: 1.25rem;
+}
+
+.close-btn {
+    width: 100%;
+    padding: 1rem;
+    background: #dfe6e9;
+    color: #2d3436;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.close-btn:hover {
+    background: #b2bec3;
+}

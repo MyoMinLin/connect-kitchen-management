@@ -109,7 +109,9 @@ io.use((socket, next) => {
     const token = socket.handshake.auth.token;
 
     if (!token) {
-        return next(new Error('Authentication error: No token provided'));
+        // Allow anonymous connections for guests (QR Menu)
+        (socket as any).user = { id: 'anonymous', role: 'Guest', username: 'Guest' };
+        return next();
     }
 
     try {
@@ -119,10 +121,13 @@ io.use((socket, next) => {
         }
 
         const decoded = jwt.verify(token, jwtSecret) as { user: { id: string; role: UserRole; username: string } };
-        (socket as any).user = decoded.user; // Attach user to the socket object
+        (socket as any).user = decoded.user;
         next();
     } catch (err) {
-        next(new Error('Authentication error: Invalid token'));
+        // If an invalid token is provided, we still allow connection as Guest but log the error
+        console.warn('Socket connection with invalid token, falling back to Guest:', err);
+        (socket as any).user = { id: 'anonymous', role: 'Guest', username: 'Guest' };
+        next();
     }
 });
 
@@ -138,7 +143,7 @@ io.on('connection', async (socket) => {
     // Send all current orders to the newly connected client
     await dbConnect();
     try {
-        const orders = await Order.find({ isActive: true }).populate('items.menuItem', 'name price');
+        const orders = await Order.find({ isActive: { $ne: false } }).populate('items.menuItem', 'name price');
         socket.emit('initial_orders', orders);
     } catch (error) {
         console.error('Error fetching initial orders:', error);
@@ -187,20 +192,46 @@ io.on('connection', async (socket) => {
         }
     });
 
+    // Listen for public orders (anonymous customers via QR)
+    socket.on('new_public_order', async (orderData, callback) => {
+        try {
+            await dbConnect();
+            const orderNumber = await getNextOrderNumber();
 
-    // Listen for an order edit from waitstaff/admin
+            // For public orders, we ensure status is 'New' and tabId is present if provided
+            const newOrder = new Order({
+                ...orderData,
+                orderNumber,
+                status: 'New',
+                isPaid: false, // Customers pay later
+            });
+
+            console.log('New public order:', newOrder.orderNumber, 'by', newOrder.customerName);
+            await newOrder.save();
+            const populatedOrder = await Order.findById(newOrder._id).populate('items.menuItem');
+
+            // Broadcast to all clients (Kitchen sees it, Waitstaff sees it in tabs)
+            io.emit('order_update', populatedOrder);
+
+            if (typeof callback === 'function') {
+                callback({ status: 'ok', order: populatedOrder });
+            }
+        } catch (error) {
+            console.error('Error creating public order:', error);
+            if (typeof callback === 'function') {
+                callback({ status: 'error', message: 'Failed to place order. Please try again or call a volunteer.' });
+            }
+        }
+    });
+
+
+    // Listen for an order edit
     socket.on('edit_order', async (editData, callback) => {
         const user = (socket as any).user;
-        if (user.role !== 'Admin' && user.role !== 'Waiter') {
-            if (typeof callback === 'function') {
-                return callback({ status: 'error', message: 'Unauthorized' });
-            }
-            return socket.emit('error', { message: 'Unauthorized' });
-        }
+        const { orderId, tableNumber, customerName, items, isPreOrder, isPaid, deliveryAddress, tabId } = editData;
 
         try {
             await dbConnect();
-            const { orderId, tableNumber, customerName, items, isPreOrder, isPaid, deliveryAddress } = editData;
 
             // Prevent editing Collected orders
             const existingOrder = await Order.findById(orderId);
@@ -210,6 +241,24 @@ io.on('connection', async (socket) => {
                 }
                 return socket.emit('error', { message: 'Order not found' });
             }
+
+            // Auth Check:
+            // 1. Admin/Waiter can edit anything
+            // 2. Guest can edit ONLY their own order (matching tabId) AND only if it's 'New'
+            const isAuthorized =
+                (user.role === 'Admin' || user.role === 'Waiter') ||
+                (user.role === 'Guest' && existingOrder.tabId === tabId && existingOrder.status === 'New');
+
+            if (!isAuthorized) {
+                const msg = user.role === 'Guest' && existingOrder.status !== 'New'
+                    ? 'Cannot edit order once it is being prepared'
+                    : 'Unauthorized';
+                if (typeof callback === 'function') {
+                    return callback({ status: 'error', message: msg });
+                }
+                return socket.emit('error', { message: msg });
+            }
+
             if (existingOrder.status === 'Collected') {
                 if (typeof callback === 'function') {
                     return callback({ status: 'error', message: 'Cannot edit a Collected order' });
@@ -244,7 +293,7 @@ io.on('connection', async (socket) => {
         const user = (socket as any).user;
         const allowedUpdate =
             (user.role === 'Admin') ||
-            (user.role === 'Kitchen' && (status === 'Preparing' || status === 'Ready')) ||
+            (user.role === 'Kitchen' && (status === 'Preparing' || status === 'Ready' || status === 'Cancelled')) ||
             (user.role === 'Waiter' && status === 'Collected');
 
         if (!allowedUpdate) {
@@ -260,6 +309,8 @@ io.on('connection', async (socket) => {
                 update.readyAt = new Date();
             } else if (status === 'Collected') {
                 update.collectedAt = new Date();
+            } else if (status === 'Cancelled') {
+                update.cancelledAt = new Date();
             }
 
             const updatedOrder = await Order.findByIdAndUpdate(
@@ -306,6 +357,23 @@ io.on('connection', async (socket) => {
 });
 
 
-server.listen(PORT, () => {
+// Add a one-time migration to ensure all orders have isActive: true
+const runMigration = async () => {
+    try {
+        await dbConnect();
+        const result = await Order.updateMany(
+            { isActive: { $exists: false } },
+            { $set: { isActive: true } }
+        );
+        if (result.modifiedCount > 0) {
+            console.log(`Migration: Set isActive: true for ${result.modifiedCount} orders.`);
+        }
+    } catch (error) {
+        console.error('Migration failed:', error);
+    }
+};
+
+server.listen(PORT, async () => {
     console.log(`Server is running on http://localhost:${PORT}`);
+    await runMigration();
 });
