@@ -1,5 +1,5 @@
 .checkout-container {
-    padding: 2rem 0;
+    padding: var(--space-8) 0;
     max-width: 1200px;
     margin: 0 auto;
 }
@@ -8,59 +8,59 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: var(--space-8);
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: var(--space-4);
 }
 
 .search-box input {
-    padding: 0.8rem 1.5rem;
-    border-radius: 25px;
-    border: 1px solid #dfe6e9;
+    padding: 0.8rem var(--space-6);
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-neutral-200);
     width: 300px;
-    font-size: 1rem;
+    font-size: var(--text-base);
 }
 
 .tabs-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 2rem;
+    gap: var(--space-8);
 }
 
 .tab-card {
-    background: white;
-    border-radius: 16px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-md);
     display: flex;
     flex-direction: column;
-    border: 1px solid #f1f2f6;
+    border: 1px solid var(--color-neutral-100);
 }
 
 .tab-top {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--space-6);
 }
 
 .tab-top h3 {
     margin: 0;
     font-size: 1.3rem;
-    color: #2d3436;
+    color: var(--color-neutral-800);
 }
 
 .order-count {
-    background: #f1f2f6;
+    background: var(--color-neutral-100);
     padding: 0.3rem 0.8rem;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    color: #636e72;
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    color: var(--color-neutral-500);
 }
 
 .tab-details {
     flex: 1;
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--space-6);
 }
 
 .tab-row {
@@ -68,38 +68,38 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.8rem 0;
-    border-bottom: 1px dashed #f1f2f6;
+    border-bottom: 1px dashed var(--color-neutral-100);
 }
 
 .tab-items {
     flex: 1;
-    margin: 0 1rem;
+    margin: 0 var(--space-4);
     font-size: 0.9rem;
     display: flex;
     flex-direction: column;
-    color: #2d3436;
+    color: var(--color-neutral-800);
 }
 
 .status-dot {
     width: 10px;
     height: 10px;
-    border-radius: 50%;
+    border-radius: var(--radius-full);
 }
 
 .status-dot.new {
-    background: #0984e3;
+    background: var(--status-new);
 }
 
 .status-dot.preparing {
-    background: #ffa500;
+    background: var(--status-preparing);
 }
 
 .status-dot.ready {
-    background: #00b894;
+    background: var(--status-ready);
 }
 
 .tab-footer {
-    border-top: 2px solid #f1f2f6;
+    border-top: 2px solid var(--color-neutral-100);
     padding-top: 1.2rem;
     display: flex;
     justify-content: space-between;
@@ -112,35 +112,39 @@
 }
 
 .total-amount span {
-    font-size: 0.8rem;
-    color: #636e72;
+    font-size: var(--text-sm);
+    color: var(--color-neutral-500);
 }
 
 .total-amount strong {
-    font-size: 1.5rem;
-    color: #2d3436;
+    font-size: var(--text-2xl);
+    color: var(--color-neutral-800);
 }
 
 .settle-btn {
-    background: #00b894;
-    color: white;
+    background: var(--color-success);
+    color: var(--color-white);
     border: none;
-    padding: 0.8rem 1.5rem;
-    border-radius: 12px;
-    font-weight: bold;
+    padding: 0.8rem var(--space-6);
+    border-radius: var(--radius-md);
+    font-weight: var(--font-bold);
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background var(--transition-base);
 }
 
 .settle-btn:hover {
-    background: #009477;
+    background: var(--color-success-hover);
+}
+
+.settle-btn:active {
+    transform: scale(0.97);
 }
 
 .no-tabs {
     text-align: center;
     grid-column: 1 / -1;
     padding: 4rem;
-    color: #b2bec3;
+    color: var(--color-neutral-400);
 }
 
 @media (max-width: 600px) {

@@ -5,6 +5,7 @@ import { fetchWithLoader } from '../../utils/api';
 import './UserManagement.css'; // Reusing styles
 import '../QRModal.css';
 import { QRCodeCanvas } from 'qrcode.react';
+import toast from 'react-hot-toast';
 
 interface IEvent {
     _id: string;
@@ -88,10 +89,10 @@ const EventManagement = () => {
                     await navigator.clipboard.write([
                         new ClipboardItem({ 'image/png': blob })
                     ]);
-                    alert('QR Code copied to clipboard as image!');
+                    toast.success('QR Code copied to clipboard as image!');
                 } catch (err) {
                     console.error('Clipboard error:', err);
-                    alert('Failed to copy image. Your browser might not support this feature.');
+                    toast.error('Failed to copy image. Your browser might not support this feature.');
                 }
             }, 'image/png');
         } catch (err) {
@@ -102,7 +103,7 @@ const EventManagement = () => {
     const handleShare = async () => {
         const canvas = document.getElementById('qr-code-canvas') as HTMLCanvasElement;
         if (!canvas || !navigator.share) {
-            alert('Web Share is not supported on this browser.');
+            toast.error('Web Share is not supported on this browser.');
             return;
         }
 
@@ -134,7 +135,7 @@ const EventManagement = () => {
     const handleCopyLink = () => {
         const url = `${window.location.origin}/menu/${selectedQR?._id}`;
         navigator.clipboard.writeText(url).then(() => {
-            alert('Menu link copied to clipboard!');
+            toast.success('Menu link copied to clipboard!');
         });
     };
 

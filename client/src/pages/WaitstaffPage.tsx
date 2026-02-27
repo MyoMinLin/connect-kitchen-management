@@ -10,7 +10,8 @@ import { OrderItem, Order } from '../types'; // Import from types.ts
 import { useEvent } from '../context/EventContext'; // Import useEvent
 
 import { QRCodeCanvas } from 'qrcode.react';
-import '../components/QRModal.css';
+import toast from 'react-hot-toast';
+import '../pages/WaitstaffPage.css';
 
 const WaitstaffPage = () => {
     const socket = useSocket();
@@ -132,10 +133,10 @@ const WaitstaffPage = () => {
                     await navigator.clipboard.write([
                         new ClipboardItem({ 'image/png': blob })
                     ]);
-                    alert('QR Code copied to clipboard as image!');
+                    toast.success('QR Code copied to clipboard as image!');
                 } catch (err) {
                     console.error('Clipboard error:', err);
-                    alert('Failed to copy image. Your browser might not support this feature.');
+                    toast.error('Failed to copy image. Your browser might not support this feature.');
                 }
             }, 'image/png');
         } catch (err) {
@@ -146,7 +147,7 @@ const WaitstaffPage = () => {
     const handleShare = async () => {
         const canvas = document.getElementById('qr-code-canvas') as HTMLCanvasElement;
         if (!canvas || !navigator.share) {
-            alert('Web Share is not supported on this browser.');
+            toast.error('Web Share is not supported on this browser.');
             return;
         }
 
@@ -179,7 +180,7 @@ const WaitstaffPage = () => {
         if (!currentEvent) return;
         const url = `${window.location.origin}/menu/${currentEvent._id}`;
         navigator.clipboard.writeText(url).then(() => {
-            alert('Menu link copied to clipboard!');
+            toast.success('Menu link copied to clipboard!');
         });
     };
 
@@ -188,29 +189,26 @@ const WaitstaffPage = () => {
     const menuUrl = currentEvent ? `${window.location.origin}/menu/${currentEvent._id}` : '';
 
     return (
-        <div>
-            <h2>Create Order for {currentEvent ? `(${currentEvent.name})` : ''}</h2>
+        <div className="waitstaff-page">
+            <h2 className="page-title">Create Order for {currentEvent ? `(${currentEvent.name})` : ''}</h2>
             {!currentEvent && <p>Please select an event from the Admin menu to create/view orders.</p>}
             {currentEvent && (
-                <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                <div className="waitstaff-actions">
                     <button
                         onClick={() => window.open(`/menu/${currentEvent._id}`, '_blank')}
-                        className="action-btn"
-                        style={{ background: '#2d3436', color: 'white' }}
+                        className="action-btn open-menu-btn"
                     >
                         📱 Open Menu
                     </button>
                     <button
                         onClick={() => setShowQRModal(true)}
-                        className="action-btn"
-                        style={{ background: '#0984e3', color: 'white' }}
+                        className="action-btn share-qr-btn"
                     >
                         📸 Share QR
                     </button>
                     <button
                         onClick={handleCopyLink}
-                        className="action-btn"
-                        style={{ background: '#f8f9fa', color: '#2d3436', border: '1px solid #dfe6e9' }}
+                        className="action-btn copy-link-btn"
                     >
                         🔗 Copy Link
                     </button>

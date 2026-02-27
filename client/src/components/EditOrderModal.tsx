@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useEvent } from '../context/EventContext';
 import { API_BASE_URL } from '../utils/apiConfig';
 import { fetchWithLoader } from '../utils/api';
+import toast from 'react-hot-toast';
 import './EditOrderModal.css';
 
 interface EditOrderModalProps {
@@ -135,7 +136,7 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({ order, onClose, onSubmi
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (currentOrderItems.length === 0) {
-            alert('Please add at least one item to the order.');
+            toast.error('Please add at least one item to the order.');
             return;
         }
         if (isSubmitting) return;
@@ -153,7 +154,7 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({ order, onClose, onSubmi
             onClose();
         } catch (error) {
             console.error('Error updating order:', error);
-            alert('Failed to update order. Please try again.');
+            toast.error('Failed to update order. Please try again.');
         } finally {
             setIsSubmitting(false);
         }

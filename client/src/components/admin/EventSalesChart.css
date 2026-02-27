@@ -1,15 +1,15 @@
 .event-sales-chart {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+    background: var(--color-white);
+    padding: var(--space-5);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--space-5);
 }
 
 .event-sales-chart h2 {
     margin-top: 0;
-    margin-bottom: 20px;
-    color: #333;
+    margin-bottom: var(--space-5);
+    color: var(--color-neutral-800);
     font-size: 1.5rem;
 }
 
@@ -17,7 +17,6 @@
     .event-sales-chart {
         padding: 12px;
         overflow: hidden;
-        /* Ensure Recharts doesn't push width */
     }
 
     .event-sales-chart h2 {
@@ -28,7 +27,7 @@
 
 .event-sales-chart .no-data {
     text-align: center;
-    color: #999;
+    color: var(--color-neutral-400);
     padding: 40px 0;
     font-style: italic;
 }

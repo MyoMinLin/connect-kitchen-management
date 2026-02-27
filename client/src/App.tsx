@@ -24,6 +24,7 @@ import './App.css';
 
 import { LoaderProvider, useLoader } from './context/LoaderContext';
 import Loader from './components/Loader';
+import { Toaster } from 'react-hot-toast';
 
 const App = () => {
     return (
@@ -123,6 +124,32 @@ const MainApp = () => {
 
     return (
         <div>
+            <Toaster
+                position="top-right"
+                toastOptions={{
+                    duration: 4000,
+                    style: {
+                        background: 'var(--color-surface)',
+                        color: 'var(--color-neutral-800)',
+                        fontFamily: 'var(--font-family)',
+                        borderRadius: 'var(--radius-md)',
+                        boxShadow: 'var(--shadow-lg)',
+                        padding: 'var(--space-4)',
+                    },
+                    success: {
+                        iconTheme: {
+                            primary: 'var(--color-success)',
+                            secondary: 'var(--color-white)',
+                        },
+                    },
+                    error: {
+                        iconTheme: {
+                            primary: 'var(--color-danger)',
+                            secondary: 'var(--color-white)',
+                        },
+                    },
+                }}
+            />
             {isLoading && <Loader />}
             {user && !isPublicRoute && (
                 <nav className="navbar">

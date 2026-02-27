@@ -1,0 +1,41 @@
+.waitstaff-actions {
+    margin-bottom: var(--space-4);
+    display: flex;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+}
+
+.waitstaff-actions .action-btn {
+    padding: 0.6rem var(--space-6);
+    border-radius: var(--radius-sm);
+    font-weight: var(--font-bold);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.waitstaff-actions .open-menu-btn {
+    background: var(--color-neutral-900);
+    color: var(--color-white);
+    border: none;
+}
+
+.waitstaff-actions .share-qr-btn {
+    background: var(--color-primary);
+    color: var(--color-white);
+    border: none;
+}
+
+.waitstaff-actions .copy-link-btn {
+    background: var(--color-neutral-50);
+    color: var(--color-neutral-800);
+    border: 1px solid var(--color-neutral-200);
+}
+
+.waitstaff-actions .action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.waitstaff-actions .action-btn:active {
+    transform: translateY(0);
+}
