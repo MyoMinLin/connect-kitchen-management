@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useEvent } from '../context/EventContext'; // Import useEvent
 import { API_BASE_URL } from '../utils/apiConfig';
 import { fetchWithLoader } from '../utils/api';
+import toast from 'react-hot-toast';
 import './OrderForm.css';
 
 interface OrderFormProps {
@@ -91,11 +92,11 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentEvent) {
-            alert('No active event selected. Cannot create order.');
+            toast.error('No active event selected. Cannot create order.');
             return;
         }
         if (currentOrderItems.length === 0) {
-            alert('Please add items to the order.');
+            toast.error('Please add items to the order.');
             return;
         }
 
@@ -123,7 +124,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
             navigate('/orders');
         } catch (error) {
             console.error('Error submitting order:', error);
-            alert('Failed to submit order. Please check your connection and try again.');
+            toast.error('Failed to submit order. Please check your connection and try again.');
         } finally {
             setIsSubmitting(false);
         }

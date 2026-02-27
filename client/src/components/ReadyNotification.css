@@ -8,43 +8,47 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: var(--z-modal);
 }
 
 .notification-modal {
-    background-color: var(--white);
-    padding: 2rem;
-    border-radius: 8px;
+    background-color: var(--color-white);
+    padding: var(--space-8);
+    border-radius: var(--radius-md);
     text-align: center;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    animation: fadeIn 0.3s ease-out;
+    box-shadow: var(--shadow-lg);
+    animation: fadeIn var(--transition-slow) ease-out;
 }
 
 .notification-modal h2 {
-    color: #28a745;
+    color: var(--color-success);
     margin-top: 0;
-    font-size: 2rem;
+    font-size: var(--text-2xl);
 }
 
 .notification-modal p {
     font-size: 1.2rem;
-    margin: 1rem 0;
+    margin: var(--space-4) 0;
 }
 
 .clear-btn {
-    background-color: #28a745;
-    color: var(--white);
+    background-color: var(--color-success);
+    color: var(--color-white);
     border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 5px;
-    font-size: 1rem;
-    font-weight: bold;
+    padding: 0.75rem var(--space-6);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-base);
+    font-weight: var(--font-bold);
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: background-color var(--transition-base) ease;
 }
 
 .clear-btn:hover {
-    background-color: #218838;
+    background-color: var(--color-success-hover);
+}
+
+.clear-btn:active {
+    transform: scale(0.97);
 }
 
 @keyframes fadeIn {
@@ -52,6 +56,7 @@
         opacity: 0;
         transform: scale(0.9);
     }
+
     to {
         opacity: 1;
         transform: scale(1);

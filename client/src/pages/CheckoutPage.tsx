@@ -4,6 +4,7 @@ import { useEvent } from '../context/EventContext';
 import { Order } from '../types';
 import { API_BASE_URL } from '../utils/apiConfig';
 import { fetchWithLoader } from '../utils/api';
+import toast from 'react-hot-toast';
 import './CheckoutPage.css';
 
 const CheckoutPage: React.FC = () => {
@@ -81,10 +82,10 @@ const CheckoutPage: React.FC = () => {
             });
 
             if (response.ok) {
-                alert('Tab settled successfully!');
+                toast.success('Tab settled successfully!');
                 fetchOrders(); // Refresh local data
             } else {
-                alert('Failed to settle tab.');
+                toast.error('Failed to settle tab.');
             }
         } catch (error) {
             console.error('Error settling tab:', error);

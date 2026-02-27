@@ -1,15 +1,14 @@
 .user-management-container {
-    background-color: var(--white);
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: var(--shadow);
+    background-color: var(--color-white);
+    padding: var(--space-6);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
 }
 
 @media (max-width: 768px) {
     .user-management-container {
-        padding: 1rem;
+        padding: var(--space-4);
         margin: 0 -0.5rem;
-        /* Allow more space on very small screens */
         border-radius: 0;
         box-shadow: none;
         background: transparent;
@@ -18,8 +17,8 @@
 
 .user-form {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
     align-items: center;
 }
 
@@ -27,10 +26,10 @@
     .user-form {
         flex-direction: column;
         align-items: stretch;
-        background: white;
+        background: var(--color-white);
         padding: 1.25rem;
-        border-radius: 12px;
-        box-shadow: var(--shadow);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
     }
 
     .user-form input,
@@ -44,97 +43,94 @@
 .user-form input,
 .user-form select {
     padding: 0.5rem;
-    border: 1px solid var(--dark-gray);
-    border-radius: 5px;
-    font-size: 1rem;
+    border: 1px solid var(--color-neutral-300);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-base);
 }
 
 .user-form button {
-    padding: 0.6rem 1rem;
-    background-color: var(--primary-color);
-    color: var(--white);
+    padding: 0.6rem var(--space-4);
+    background-color: var(--color-primary);
+    color: var(--color-white);
     border: none;
-    border-radius: 5px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    font-weight: 500;
+    font-weight: var(--font-medium);
 }
 
 .users-table-container {
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    background: white;
-    border-radius: 12px;
-    box-shadow: var(--shadow);
+    background: var(--color-white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
 }
 
 .users-table {
     width: 100%;
     border-collapse: collapse;
     min-width: 500px;
-    /* Force scroll on mobile */
 }
 
 .users-table th,
 .users-table td {
     padding: 0.75rem;
     text-align: left;
-    border-bottom: 1px solid var(--gray);
+    border-bottom: 1px solid var(--color-neutral-200);
 }
 
 .users-table th {
-    background-color: var(--background-color);
-    font-weight: 600;
+    background-color: var(--color-neutral-100);
+    font-weight: var(--font-semibold);
 }
 
 .delete-btn {
-    background-color: #dc3545;
-    color: var(--white);
+    background-color: var(--color-danger);
+    color: var(--color-white);
     border: none;
     padding: 0.4rem 0.8rem;
-    border-radius: 5px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     margin-right: 5px;
 }
 
 .edit-btn {
-    background-color: #007bff;
-    color: var(--white);
+    background-color: var(--color-primary);
+    color: var(--color-white);
     border: none;
     padding: 0.4rem 0.8rem;
-    border-radius: 5px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     margin-right: 5px;
 }
 
 .update-btn {
-    background-color: #28a745;
-    color: var(--white);
+    background-color: var(--color-success);
+    color: var(--color-white);
     border: none;
     padding: 0.4rem 0.8rem;
-    border-radius: 5px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     margin-right: 5px;
 }
 
 .cancel-btn {
-    background-color: #6c757d;
-    color: var(--white);
+    background-color: var(--color-neutral-500);
+    color: var(--color-white);
     border: none;
     padding: 0.4rem 0.8rem;
-    border-radius: 5px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
 }
 
-/* Modal Styles moved to QRModal.css */
-
 .close-btn {
     width: 100%;
-    padding: 1rem;
-    background: #6c757d;
-    color: white;
+    padding: var(--space-4);
+    background: var(--color-neutral-500);
+    color: var(--color-white);
     border: none;
-    border-radius: 10px;
-    font-weight: 600;
+    border-radius: var(--radius-md);
+    font-weight: var(--font-semibold);
     cursor: pointer;
 }
