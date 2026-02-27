@@ -46,6 +46,8 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onStatusUpdate, userRole }
                 return getTimeElapsed(order.readyAt);
             case 'Collected':
                 return getTimeElapsed(order.collectedAt);
+            case 'Cancelled':
+                return getTimeElapsed(order.cancelledAt);
             default:
                 return getTimeElapsed(order.createdAt);
         }
@@ -63,11 +65,11 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onStatusUpdate, userRole }
                 {order.items
                     .filter(item => item.menuItem && item.menuItem.requiresPrep)
                     .map((item, index) => (
-                    <li key={index}>
-                        {item.quantity}x {item.menuItem.name}
-                        {item.remarks && <span className="item-remarks"> ({item.remarks})</span>}
-                    </li>
-                ))}
+                        <li key={index}>
+                            {item.quantity}x {item.menuItem.name}
+                            {item.remarks && <span className="item-remarks"> ({item.remarks})</span>}
+                        </li>
+                    ))}
             </ul>
             <div className="card-actions">
                 {userRole === 'Kitchen' && order.status === 'New' && (
@@ -80,9 +82,21 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onStatusUpdate, userRole }
                         Mark as Ready
                     </button>
                 )}
-                 {userRole === 'Waiter' && order.status === 'Ready' && (
+                {userRole === 'Waiter' && order.status === 'Ready' && (
                     <button onClick={() => onStatusUpdate(order._id, 'Collected')} className="action-btn collected-btn">
                         Mark as Collected
+                    </button>
+                )}
+                {(userRole === 'Kitchen' || userRole === 'Admin') && (order.status === 'New' || order.status === 'Preparing') && (
+                    <button
+                        onClick={() => {
+                            if (window.confirm('Are you sure you want to cancel this order?')) {
+                                onStatusUpdate(order._id, 'Cancelled');
+                            }
+                        }}
+                        className="action-btn cancel-btn"
+                    >
+                        Cancel
                     </button>
                 )}
             </div>

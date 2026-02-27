@@ -32,6 +32,11 @@
     gap: 20px;
 }
 
+.reports-grid>* {
+    min-width: 0;
+    /* Important: allow grid items to shrink below content size */
+}
+
 /* Dashboard Navigation */
 .admin-dashboard-nav {
     display: grid;
@@ -81,4 +86,30 @@
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
     align-items: start;
+}
+
+/* Mobile Responsiveness for Admin Dashboard */
+@media (max-width: 768px) {
+    .reports-section {
+        margin-bottom: 25px;
+        padding: 0 5px;
+    }
+
+    .reports-section .section-title {
+        font-size: 1.4rem;
+        margin-bottom: 15px;
+    }
+
+    .reports-grid {
+        gap: 15px;
+    }
+
+    .admin-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .admin-dashboard-nav {
+        grid-template-columns: 1fr;
+    }
 }

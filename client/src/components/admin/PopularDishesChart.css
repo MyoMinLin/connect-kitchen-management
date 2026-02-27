@@ -41,6 +41,29 @@
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
 }
 
+@media (max-width: 768px) {
+    .popular-dishes-chart {
+        padding: 12px;
+        overflow: hidden;
+    }
+
+    .popular-dishes-chart .chart-header {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 15px;
+    }
+
+    .popular-dishes-chart h2 {
+        font-size: 1.2rem;
+    }
+
+    .popular-dishes-chart .event-selector {
+        width: 100%;
+        padding: 6px 10px;
+        font-size: 0.85rem;
+    }
+}
+
 .popular-dishes-chart .no-data {
     text-align: center;
     color: #999;

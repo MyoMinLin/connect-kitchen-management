@@ -112,7 +112,7 @@ const AllOrdersPage: React.FC = () => {
         });
     };
 
-    const activeOrders = useMemo(() => sortOrders(orders.filter(order => order.status !== 'Collected')), [orders]);
+    const activeOrders = useMemo(() => sortOrders(orders.filter(order => order.status !== 'Collected' && order.status !== 'Cancelled')), [orders]);
     const collectedOrders = useMemo(() => sortOrders(orders.filter(order => order.status === 'Collected')), [orders]);
 
     const calculateOrderTotal = (order: Order) => {

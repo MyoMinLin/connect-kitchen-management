@@ -1,112 +1,138 @@
 .order-card {
-    background-color: var(--white);
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    box-shadow: var(--shadow);
-    border-left: 5px solid var(--primary-color);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 1.2rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-@media (max-width: 768px) {
-    .order-card {
-        padding: 0.75rem; /* Slightly reduce padding on smaller screens */
-    }
-
-    .card-header h4 {
-        font-size: 1.1rem; /* Slightly smaller font for table number */
-    }
-
-    .time-elapsed {
-        font-size: 0.8rem; /* Slightly smaller font for time elapsed */
-    }
-
-    .action-btn {
-        padding: 0.5rem 0.8rem; /* Adjust button padding */
-        font-size: 0.9rem; /* Adjust button font size */
-    }
-}
-
-.order-card.status-in-progress {
-    border-left-color: var(--secondary-color);
-}
-
-.order-card.status-ready {
-    border-left-color: #28a745; /* Green */
+.order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 .card-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
+    align-items: flex-start;
+    margin-bottom: 1rem;
 }
 
 .card-header h4 {
     margin: 0;
-    font-size: 1.2rem;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #f8fafc;
 }
 
 .time-elapsed {
-    font-size: 0.9rem;
-    color: #6c757d;
-    font-weight: 500;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+}
+
+.table-number,
+.customer-name {
+    margin: 0.5rem 0;
+    font-size: 1rem;
+    color: #cbd5e1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .item-list {
     list-style: none;
-    padding: 0;
-    margin: 0 0 1rem 0;
-    max-height: 150px;
-    overflow-y: auto;
-}
-
-.item-list::-webkit-scrollbar {
-    width: 8px;
-}
-
-.item-list::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-.item-list::-webkit-scrollbar-thumb {
-    background: #888;
-}
-
-.item-list::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    padding: 1rem;
+    margin: 1rem 0;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
 }
 
 .item-list li {
-    padding: 0.5rem 0;
+    padding: 0.4rem 0;
+    font-size: 1.1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: #f1f5f9;
+}
+
+.item-list li:last-child {
+    border-bottom: none;
+}
+
+.item-remarks {
+    font-size: 0.9rem;
+    color: #f87171;
+    font-style: italic;
+    display: block;
+    margin-top: 0.2rem;
 }
 
 .card-actions {
     display: flex;
-    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1rem;
 }
 
 .action-btn {
+    flex: 1;
     border: none;
-    padding: 0.6rem 1rem;
-    border-radius: 5px;
-    color: var(--white);
-    font-weight: bold;
+    padding: 0.8rem;
+    border-radius: 10px;
+    font-weight: 700;
     cursor: pointer;
-    transition: opacity 0.2s ease;
+    transition: filter 0.2s ease;
 }
 
 .action-btn:hover {
-    opacity: 0.85;
+    filter: brightness(1.2);
 }
 
 .progress-btn {
-    background-color: var(--secondary-color);
+    background: #3b82f6;
+    color: white;
 }
 
 .ready-btn {
-    background-color: #28a745;
+    background: #10b981;
+    color: white;
 }
 
 .collected-btn {
-    background-color: #007bff;
+    background: #6366f1;
+    color: white;
+}
+
+.cancel-btn {
+    background: #ef4444;
+    color: white;
+}
+
+/* Status-specific overrides */
+.status-new {
+    border-left: 4px solid #3b82f6;
+}
+
+.status-preparing {
+    border-left: 4px solid #f59e0b;
+}
+
+.status-ready {
+    border-left: 4px solid #10b981;
+}
+
+.status-collected {
+    border-left: 4px solid #64748b;
+    opacity: 0.7;
+}
+
+.status-cancelled {
+    border-left: 4px solid #ef4444;
+    opacity: 0.6;
+    background: rgba(239, 68, 68, 0.05);
 }

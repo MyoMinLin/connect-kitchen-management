@@ -18,6 +18,17 @@ router.get('/event/:eventId', protect, authorize('Admin', 'Waiter', 'Kitchen'), 
     }
 });
 
+// GET /api/menu-items/public/event/:eventId - Get all menu items for a specific event (PUBLIC - for Customers)
+router.get('/public/event/:eventId', async (req, res) => {
+    try {
+        await dbConnect();
+        const menuItems = await MenuItem.find({ eventId: req.params.eventId, isDeleted: false });
+        res.json(menuItems);
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
 // Protect all management routes, only for Admins
 // router.use(protect, authorize('Admin'));
 

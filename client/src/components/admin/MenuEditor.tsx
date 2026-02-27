@@ -158,7 +158,7 @@ const MenuEditor = () => {
             <hr />
 
             <h4>Add New Menu Item</h4>
-            <form onSubmit={handleCreateItem} className="user-form" style={{ flexWrap: 'wrap' }}>
+            <form onSubmit={handleCreateItem} className="user-form">
                 <input type="text" placeholder="Name" value={name} onChange={e => setName(e.target.value)} required />
                 <input type="text" inputMode="decimal" placeholder="Price (¥)" value={price} onChange={handlePriceChange} required />
                 <input type="text" placeholder="Category" value={category} onChange={e => setCategory(e.target.value)} required />
@@ -169,38 +169,40 @@ const MenuEditor = () => {
             <hr />
 
             <h4>Existing Menu Items</h4>
-            <table className="users-table">
-                <thead><tr><th>Name</th><th>Price</th><th>Category</th><th>Prep?</th><th>Actions</th></tr></thead>
-                <tbody>
-                    {menuItems.map(item => (
-                        <tr key={item._id}>
-                            {editingItemId === item._id ? (
-                                <>
-                                    <td><input type="text" value={editedName} onChange={e => setEditedName(e.target.value)} /></td>
-                                    <td><input type="text" inputMode="decimal" value={editedPrice} onChange={handleEditedPriceChange} /></td>
-                                    <td><input type="text" value={editedCategory} onChange={e => setEditedCategory(e.target.value)} /></td>
-                                    <td><input type="checkbox" checked={editedRequiresPrep} onChange={e => setEditedRequiresPrep(e.target.checked)} /></td>
-                                    <td>
-                                        <button onClick={() => handleUpdateItem(item._id)} className="update-btn">Update</button>
-                                        <button onClick={handleCancelEdit} className="cancel-btn">Cancel</button>
-                                    </td>
-                                </> 
-                            ) : (
-                                <>
-                                    <td>{item.name}</td>
-                                    <td>¥{item.price}</td>
-                                    <td>{item.category}</td>
-                                    <td>{item.requiresPrep ? 'Yes' : 'No'}</td>
-                                    <td>
-                                        <button onClick={() => handleEditItem(item)} className="edit-btn">Edit</button>
-                                        <button onClick={() => handleDeleteItem(item._id)} className="delete-btn">Delete</button>
-                                    </td>
-                                </>
-                            )}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <div className="users-table-container">
+                <table className="users-table">
+                    <thead><tr><th>Name</th><th>Price</th><th>Category</th><th>Prep?</th><th>Actions</th></tr></thead>
+                    <tbody>
+                        {menuItems.map(item => (
+                            <tr key={item._id}>
+                                {editingItemId === item._id ? (
+                                    <>
+                                        <td><input type="text" value={editedName} onChange={e => setEditedName(e.target.value)} /></td>
+                                        <td><input type="text" inputMode="decimal" value={editedPrice} onChange={handleEditedPriceChange} /></td>
+                                        <td><input type="text" value={editedCategory} onChange={e => setEditedCategory(e.target.value)} /></td>
+                                        <td><input type="checkbox" checked={editedRequiresPrep} onChange={e => setEditedRequiresPrep(e.target.checked)} /></td>
+                                        <td>
+                                            <button onClick={() => handleUpdateItem(item._id)} className="update-btn">Update</button>
+                                            <button onClick={handleCancelEdit} className="cancel-btn">Cancel</button>
+                                        </td>
+                                    </>
+                                ) : (
+                                    <>
+                                        <td>{item.name}</td>
+                                        <td>¥{item.price}</td>
+                                        <td>{item.category}</td>
+                                        <td>{item.requiresPrep ? 'Yes' : 'No'}</td>
+                                        <td>
+                                            <button onClick={() => handleEditItem(item)} className="edit-btn">Edit</button>
+                                            <button onClick={() => handleDeleteItem(item._id)} className="delete-btn">Delete</button>
+                                        </td>
+                                    </>
+                                )}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };
