@@ -1,27 +1,26 @@
 .kds-page {
     min-height: 100vh;
-    background: #0f172a;
-    color: #f8fafc;
-    padding: 1.5rem;
-    font-family: 'Outfit', sans-serif;
+    background: var(--dark-bg);
+    color: var(--dark-text);
+    padding: var(--space-6);
 }
 
 .kds-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: var(--space-8);
+    padding-bottom: var(--space-6);
+    border-bottom: 1px solid var(--dark-border);
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: var(--space-4);
 }
 
 .kds-header h2 {
-    font-size: 2rem;
-    font-weight: 700;
+    font-size: var(--text-4xl);
+    font-weight: var(--font-bold);
     margin: 0;
-    background: linear-gradient(to right, #60a5fa, #3b82f6);
+    background: linear-gradient(to right, #60a5fa, var(--color-primary));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -29,15 +28,15 @@
 
 .batch-summary-bar {
     display: flex;
-    gap: 1rem;
+    gap: var(--space-4);
     flex-wrap: wrap;
 }
 
 .batch-item {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 0.5rem 1rem;
-    border-radius: 12px;
+    background: var(--dark-surface);
+    border: 1px solid var(--dark-border);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     gap: 0.8rem;
@@ -45,27 +44,27 @@
 }
 
 .batch-qty {
-    background: #ef4444;
-    color: white;
+    background: var(--color-danger);
+    color: var(--color-white);
     width: 32px;
     height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
-    font-weight: 800;
+    border-radius: var(--radius-sm);
+    font-weight: var(--font-extrabold);
     font-size: 1.1rem;
 }
 
 .batch-name {
-    font-weight: 600;
-    color: #e2e8f0;
+    font-weight: var(--font-semibold);
+    color: var(--dark-text-secondary);
 }
 
 .kds-board {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
+    gap: var(--space-8);
     align-items: start;
 }
 
@@ -75,63 +74,63 @@
     min-height: 70vh;
     display: flex;
     flex-direction: column;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--dark-surface);
 }
 
 .lane-header {
-    padding: 1.5rem;
+    padding: var(--space-6);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 2px solid var(--dark-surface);
 }
 
 .lane-header.new {
-    border-color: #3b82f6;
+    border-color: var(--status-new);
 }
 
 .lane-header.preparing {
-    border-color: #f59e0b;
+    border-color: var(--status-preparing);
 }
 
 .lane-header.ready {
-    border-color: #10b981;
+    border-color: var(--status-ready);
 }
 
 .lane-header h3 {
     margin: 0;
-    font-size: 1.25rem;
-    font-weight: 700;
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
 }
 
 .lane-count {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--dark-border);
     padding: 0.2rem 0.8rem;
-    border-radius: 20px;
+    border-radius: var(--radius-full);
     font-size: 0.9rem;
-    font-weight: 600;
+    font-weight: var(--font-semibold);
 }
 
 .lane-content {
-    padding: 1rem;
+    padding: var(--space-4);
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: var(--space-6);
 }
 
-/* Ensure OrderCards look good inside KDS lanes */
+/* OrderCards inside KDS lanes */
 .kds-lane .order-card {
-    background: rgba(255, 255, 255, 0.05) !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    color: #f8fafc !important;
+    background: var(--dark-surface) !important;
+    border-color: var(--dark-border) !important;
+    color: var(--dark-text) !important;
 }
 
 .kds-lane .order-card h4 {
-    color: #f8fafc !important;
+    color: var(--dark-text) !important;
 }
 
 .kds-lane .order-card .customer-name {
-    color: #94a3b8 !important;
+    color: var(--dark-text-muted) !important;
 }
 
 @media (max-width: 1200px) {

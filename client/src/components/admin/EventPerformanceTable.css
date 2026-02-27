@@ -1,13 +1,13 @@
 .event-performance-table {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: var(--color-white);
+    padding: var(--space-5);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
 }
 
 .event-performance-table h2 {
-    margin-bottom: 20px;
-    color: #2c3e50;
+    margin-bottom: var(--space-5);
+    color: var(--color-neutral-800);
 }
 
 .table-container {
@@ -23,13 +23,13 @@
 .event-performance-table td {
     padding: 12px;
     text-align: left;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--color-neutral-200);
 }
 
 .event-performance-table th {
-    background-color: #f8f9fa;
-    color: #2c3e50;
-    font-weight: 600;
+    background-color: var(--color-neutral-100);
+    color: var(--color-neutral-800);
+    font-weight: var(--font-semibold);
 }
 
 @media (max-width: 768px) {
@@ -55,25 +55,25 @@
 
 .status-badge {
     padding: 4px 8px;
-    border-radius: 12px;
+    border-radius: var(--radius-full);
     font-size: 0.85em;
-    font-weight: 500;
+    font-weight: var(--font-medium);
 }
 
 .status-badge.upcoming {
-    background-color: #e3f2fd;
-    color: #1976d2;
+    background-color: var(--status-new-bg);
+    color: var(--status-new-text);
 }
 
 .status-badge.past {
-    background-color: #f5f5f5;
-    color: #616161;
+    background-color: var(--status-collected-bg);
+    color: var(--status-collected-text);
 }
 
 .no-data {
     text-align: center;
-    color: #666;
-    padding: 20px;
+    color: var(--color-neutral-500);
+    padding: var(--space-5);
 }
 
 .category-breakdown {
@@ -83,20 +83,20 @@
 }
 
 .category-stat {
-    background: #f0f2f5;
+    background: var(--color-neutral-100);
     padding: 2px 8px;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     font-size: 0.85em;
     display: flex;
     gap: 4px;
 }
 
 .cat-name {
-    color: #555;
-    font-weight: 500;
+    color: var(--color-neutral-600);
+    font-weight: var(--font-medium);
 }
 
 .cat-count {
-    color: #2c3e50;
-    font-weight: 700;
+    color: var(--color-neutral-800);
+    font-weight: var(--font-bold);
 }

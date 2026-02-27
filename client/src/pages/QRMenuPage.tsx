@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useSocket } from '../hooks/useSocket';
 import { MenuItem } from '../types';
 import { API_BASE_URL } from '../utils/apiConfig';
+import toast from 'react-hot-toast';
 import './QRMenuPage.css';
 
 const QRMenuPage: React.FC = () => {
@@ -93,7 +94,7 @@ const QRMenuPage: React.FC = () => {
                     setShowSuccessModal(true);
                     setCart([]);
                 } else {
-                    alert(response?.message || 'Failed to place order.');
+                    toast.error(response?.message || 'Failed to place order.');
                 }
             });
         }
@@ -170,7 +171,7 @@ const QRMenuPage: React.FC = () => {
                         </section>
                     ))
                 ) : (
-                    <div className="loading-menu" style={{ textAlign: 'center', padding: '2rem', color: '#636e72' }}>
+                    <div className="loading-menu">
                         {eventId ? 'Loading menu items...' : 'No event specified.'}
                     </div>
                 )}
