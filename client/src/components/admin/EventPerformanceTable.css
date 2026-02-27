@@ -32,6 +32,27 @@
     font-weight: 600;
 }
 
+@media (max-width: 768px) {
+    .event-performance-table {
+        padding: 15px;
+    }
+
+    .event-performance-table h2 {
+        font-size: 1.25rem;
+    }
+
+    .event-performance-table th,
+    .event-performance-table td {
+        padding: 8px;
+        font-size: 0.85rem;
+    }
+
+    .category-stat {
+        padding: 1px 4px;
+        font-size: 0.75rem;
+    }
+}
+
 .status-badge {
     padding: 4px 8px;
     border-radius: 12px;

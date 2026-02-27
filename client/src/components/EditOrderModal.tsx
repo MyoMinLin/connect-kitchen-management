@@ -16,6 +16,7 @@ interface EditOrderModalProps {
         isPreOrder: boolean;
         isPaid: boolean;
         deliveryAddress?: string;
+        tabId?: string;
     }) => Promise<void>;
 }
 
@@ -49,21 +50,31 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({ order, onClose, onSubmi
     const [activeTab, setActiveTab] = useState<'details' | 'menu'>('details');
 
     useEffect(() => {
-        if (token && currentEvent) {
-            fetchWithLoader(`${API_BASE_URL}/api/menu-items/event/${currentEvent._id}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            })
-                .then(res => {
-                    if (res.status === 401) { logout(); throw new Error('Unauthorized'); }
-                    return res.json();
-                })
-                .then(data => {
-                    if (data.message) throw new Error(data.message);
-                    setMenuItems(data);
-                })
-                .catch(err => console.error('Failed to fetch menu items:', err));
-        }
-    }, [token, logout, currentEvent]);
+        const fetchMenu = async () => {
+            const fetchEventId = token ? currentEvent?._id : order.eventId;
+            if (!fetchEventId) return;
+
+            const url = token
+                ? `${API_BASE_URL}/api/menu-items/event/${fetchEventId}`
+                : `${API_BASE_URL}/api/menu-items/public/event/${fetchEventId}`;
+
+            const options: RequestInit = token
+                ? { headers: { 'Authorization': `Bearer ${token}` } }
+                : {};
+
+            try {
+                const res = await fetchWithLoader(url, options);
+                if (res.status === 401 && token) { logout(); throw new Error('Unauthorized'); }
+                const data = await res.json();
+                if (data.message) throw new Error(data.message);
+                setMenuItems(data);
+            } catch (err) {
+                console.error('Failed to fetch menu items:', err);
+            }
+        };
+
+        fetchMenu();
+    }, [token, logout, currentEvent, order.eventId]);
 
     const handleKeyDown = useCallback((e: KeyboardEvent) => {
         if (e.key === 'Escape') onClose();
@@ -137,6 +148,7 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({ order, onClose, onSubmi
                 isPreOrder,
                 isPaid,
                 deliveryAddress,
+                tabId: order.tabId
             });
             onClose();
         } catch (error) {
@@ -224,36 +236,40 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({ order, onClose, onSubmi
                                 </div>
 
                                 <div className="eom-toggles">
-                                    <label className="eom-toggle-row">
-                                        <span className="eom-toggle-label">
-                                            <span className="eom-toggle-icon">📦</span>
-                                            Pre-Order
-                                        </span>
-                                        <button
-                                            type="button"
-                                            role="switch"
-                                            aria-checked={isPreOrder}
-                                            className={`eom-switch ${isPreOrder ? 'on' : ''}`}
-                                            onClick={() => setIsPreOrder(v => !v)}
-                                        >
-                                            <span className="eom-switch-thumb" />
-                                        </button>
-                                    </label>
-                                    <label className="eom-toggle-row">
-                                        <span className="eom-toggle-label">
-                                            <span className="eom-toggle-icon">💳</span>
-                                            Paid
-                                        </span>
-                                        <button
-                                            type="button"
-                                            role="switch"
-                                            aria-checked={isPaid}
-                                            className={`eom-switch ${isPaid ? 'on' : ''}`}
-                                            onClick={() => setIsPaid(v => !v)}
-                                        >
-                                            <span className="eom-switch-thumb" />
-                                        </button>
-                                    </label>
+                                    {token && (
+                                        <label className="eom-toggle-row">
+                                            <span className="eom-toggle-label">
+                                                <span className="eom-toggle-icon">📦</span>
+                                                Pre-Order
+                                            </span>
+                                            <button
+                                                type="button"
+                                                role="switch"
+                                                aria-checked={isPreOrder}
+                                                className={`eom-switch ${isPreOrder ? 'on' : ''}`}
+                                                onClick={() => setIsPreOrder(v => !v)}
+                                            >
+                                                <span className="eom-switch-thumb" />
+                                            </button>
+                                        </label>
+                                    )}
+                                    {token && (
+                                        <label className="eom-toggle-row">
+                                            <span className="eom-toggle-label">
+                                                <span className="eom-toggle-icon">💳</span>
+                                                Paid
+                                            </span>
+                                            <button
+                                                type="button"
+                                                role="switch"
+                                                aria-checked={isPaid}
+                                                className={`eom-switch ${isPaid ? 'on' : ''}`}
+                                                onClick={() => setIsPaid(v => !v)}
+                                            >
+                                                <span className="eom-switch-thumb" />
+                                            </button>
+                                        </label>
+                                    )}
                                 </div>
 
                                 {isPreOrder && (

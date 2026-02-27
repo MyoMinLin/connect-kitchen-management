@@ -10,38 +10,32 @@ export const useSocket = () => {
     const { token, logout } = useAuth(); // Destructure logout
 
     useEffect(() => {
-        if (token) {
-            const newSocket = io(SOCKET_SERVER_URL, {
-                auth: {
-                    token
-                }
-            });
+        const newSocket = io(SOCKET_SERVER_URL, {
+            auth: {
+                token: token || undefined
+            }
+        });
 
-            newSocket.on('connect_error', (err) => {
-                console.error('Socket connection error:', err.message);
-                // If connection error is due to invalid token, logout
-                if (err.message.includes('Authentication error')) { // Check for specific message from server
-                    logout();
-                }
-            });
-
-            // Listen for a custom 'auth_error' event from the server if it sends one
-            newSocket.on('auth_error', (message: string) => {
-                console.error('Socket authentication error:', message);
+        newSocket.on('connect_error', (err) => {
+            console.error('Socket connection error:', err.message);
+            // Only logout if an EXPLICIT authentication error is returned for a provided token
+            if (token && err.message.includes('Authentication error')) {
                 logout();
-            });
+            }
+        });
 
-            setSocket(newSocket);
+        newSocket.on('auth_error', (message: string) => {
+            console.error('Socket authentication error:', message);
+            if (token) logout();
+        });
 
-            return () => {
-                newSocket.close();
-            };
-        } else if (socket) { // If token becomes null while socket is active, close it
-            socket.close();
-            setSocket(null);
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [token, logout]); // Add logout to dependency array
+        setSocket(newSocket);
+
+        return () => {
+            newSocket.close();
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [token, logout]);
 
     return socket;
 };

@@ -14,7 +14,10 @@ router.get('/active', protect, authorize('Admin', 'Waiter', 'Kitchen'), async (r
         const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
         const events = await Event.find({
-            eventDate: { $gte: startOfMonth, $lte: endOfMonth } // Events within current month
+            $or: [
+                { IsCurrentEvent: true },
+                { eventDate: { $gte: startOfMonth, $lte: endOfMonth } }
+            ]
         }).sort({ eventDate: 1 }); // Sort by date ascending
 
         res.json(events);

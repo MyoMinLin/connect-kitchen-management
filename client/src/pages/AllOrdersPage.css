@@ -136,6 +136,10 @@
     background-color: #6c757d;
 }
 
+.status-cancelled .status-badge {
+    background-color: #ef4444;
+}
+
 @keyframes pulse {
     0% {
         box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);

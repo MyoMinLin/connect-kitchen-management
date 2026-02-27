@@ -1,8 +1,19 @@
 .user-management-container {
     background-color: var(--white);
     padding: 1.5rem;
-    border-radius: 8px;
+    border-radius: 12px;
     box-shadow: var(--shadow);
+}
+
+@media (max-width: 768px) {
+    .user-management-container {
+        padding: 1rem;
+        margin: 0 -0.5rem;
+        /* Allow more space on very small screens */
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+    }
 }
 
 .user-form {
@@ -10,6 +21,24 @@
     gap: 1rem;
     margin-bottom: 1.5rem;
     align-items: center;
+}
+
+@media (max-width: 768px) {
+    .user-form {
+        flex-direction: column;
+        align-items: stretch;
+        background: white;
+        padding: 1.25rem;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+    }
+
+    .user-form input,
+    .user-form select,
+    .user-form button {
+        width: 100%;
+        padding: 0.8rem;
+    }
 }
 
 .user-form input,
@@ -30,12 +59,24 @@
     font-weight: 500;
 }
 
+.users-table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+}
+
 .users-table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 500px;
+    /* Force scroll on mobile */
 }
 
-.users-table th, .users-table td {
+.users-table th,
+.users-table td {
     padding: 0.75rem;
     text-align: left;
     border-bottom: 1px solid var(--gray);
@@ -82,5 +123,18 @@
     border: none;
     padding: 0.4rem 0.8rem;
     border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Modal Styles moved to QRModal.css */
+
+.close-btn {
+    width: 100%;
+    padding: 1rem;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
     cursor: pointer;
 }

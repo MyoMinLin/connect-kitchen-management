@@ -29,7 +29,13 @@ const EventSalesChart: React.FC<EventSalesChartProps> = ({ data }) => {
                 <p className="no-data">No sales data available</p>
             ) : (
                 <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                    <BarChart
+                        data={data}
+                        margin={window.innerWidth < 768
+                            ? { top: 10, right: 10, left: -20, bottom: 0 }
+                            : { top: 20, right: 30, left: 20, bottom: 5 }
+                        }
+                    >
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis
                             dataKey="eventName"

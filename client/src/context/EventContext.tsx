@@ -51,7 +51,17 @@ export const EventProvider = ({ children }: { children: ReactNode }) => {
             api('/active', 'GET').then(data => {
                 setEvents(data);
                 if (data && data.length > 0) {
-                    setCurrentEvent(data[0]);
+                    // Selection Logic:
+                    // 1. If we already have a currentEvent, check if it's still in the list
+                    // 2. If not, pick the one marked IsCurrentEvent
+                    // 3. Otherwise pick data[0]
+                    setCurrentEvent(prev => {
+                        if (prev && data.find((e: IEvent) => e._id === prev._id)) {
+                            return prev;
+                        }
+                        const flagged = data.find((e: IEvent) => (e as any).IsCurrentEvent);
+                        return flagged || data[0];
+                    });
                 } else {
                     setCurrentEvent(null);
                 }

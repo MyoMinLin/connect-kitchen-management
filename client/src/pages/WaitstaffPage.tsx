@@ -9,12 +9,16 @@ import { fetchWithLoader } from '../utils/api';
 import { OrderItem, Order } from '../types'; // Import from types.ts
 import { useEvent } from '../context/EventContext'; // Import useEvent
 
+import { QRCodeCanvas } from 'qrcode.react';
+import '../components/QRModal.css';
+
 const WaitstaffPage = () => {
     const socket = useSocket();
     const { token, user } = useAuth();
     const { currentEvent } = useEvent(); // Use currentEvent from context
     const [orders, setOrders] = useState<Order[]>([]);
     const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+    const [showQRModal, setShowQRModal] = useState(false);
 
     // Fetch initial orders via HTTP
     useEffect(() => {
@@ -39,7 +43,7 @@ const WaitstaffPage = () => {
         const handleOrderUpdate = (updatedOrder: Order) => {
             setOrders(prevOrders => {
                 // Only update if the order belongs to the current event
-                if (currentEvent && updatedOrder.eventId !== currentEvent._id) {
+                if (currentEvent && updatedOrder.eventId.toString() !== currentEvent._id.toString()) {
                     return prevOrders;
                 }
 
@@ -106,13 +110,150 @@ const WaitstaffPage = () => {
         });
     };
 
+    const handleDownloadQR = () => {
+        const canvas = document.getElementById('qr-code-canvas') as HTMLCanvasElement;
+        if (canvas) {
+            const url = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = `qr-menu-${currentEvent?.name.replace(/\s+/g, '-').toLowerCase()}.png`;
+            link.href = url;
+            link.click();
+        }
+    };
+
+    const handleCopyAsImage = async () => {
+        const canvas = document.getElementById('qr-code-canvas') as HTMLCanvasElement;
+        if (!canvas) return;
+
+        try {
+            canvas.toBlob(async (blob) => {
+                if (!blob) return;
+                try {
+                    await navigator.clipboard.write([
+                        new ClipboardItem({ 'image/png': blob })
+                    ]);
+                    alert('QR Code copied to clipboard as image!');
+                } catch (err) {
+                    console.error('Clipboard error:', err);
+                    alert('Failed to copy image. Your browser might not support this feature.');
+                }
+            }, 'image/png');
+        } catch (err) {
+            console.error('Error generating image blob:', err);
+        }
+    };
+
+    const handleShare = async () => {
+        const canvas = document.getElementById('qr-code-canvas') as HTMLCanvasElement;
+        if (!canvas || !navigator.share) {
+            alert('Web Share is not supported on this browser.');
+            return;
+        }
+
+        try {
+            canvas.toBlob(async (blob) => {
+                if (!blob) return;
+                const file = new File([blob], 'qr-menu.png', { type: 'image/png' });
+
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: `QR Menu for ${currentEvent?.name}`,
+                        text: `Scan this QR to open the menu for ${currentEvent?.name}`,
+                        url: menuUrl
+                    });
+                } else {
+                    await navigator.share({
+                        title: `QR Menu for ${currentEvent?.name}`,
+                        text: `Open the menu for ${currentEvent?.name}: ${menuUrl}`,
+                        url: menuUrl
+                    });
+                }
+            }, 'image/png');
+        } catch (err) {
+            console.error('Share error:', err);
+        }
+    };
+
+    const handleCopyLink = () => {
+        if (!currentEvent) return;
+        const url = `${window.location.origin}/menu/${currentEvent._id}`;
+        navigator.clipboard.writeText(url).then(() => {
+            alert('Menu link copied to clipboard!');
+        });
+    };
+
     const sortedOrders = orders.filter(o => o.status !== 'Collected').sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const menuUrl = currentEvent ? `${window.location.origin}/menu/${currentEvent._id}` : '';
 
     return (
         <div>
             <h2>Create Order for {currentEvent ? `(${currentEvent.name})` : ''}</h2>
             {!currentEvent && <p>Please select an event from the Admin menu to create/view orders.</p>}
+            {currentEvent && (
+                <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                    <button
+                        onClick={() => window.open(`/menu/${currentEvent._id}`, '_blank')}
+                        className="action-btn"
+                        style={{ background: '#2d3436', color: 'white' }}
+                    >
+                        📱 Open Menu
+                    </button>
+                    <button
+                        onClick={() => setShowQRModal(true)}
+                        className="action-btn"
+                        style={{ background: '#0984e3', color: 'white' }}
+                    >
+                        📸 Share QR
+                    </button>
+                    <button
+                        onClick={handleCopyLink}
+                        className="action-btn"
+                        style={{ background: '#f8f9fa', color: '#2d3436', border: '1px solid #dfe6e9' }}
+                    >
+                        🔗 Copy Link
+                    </button>
+                </div>
+            )}
+
+            {showQRModal && currentEvent && (
+                <div className="modal-overlay" onClick={() => setShowQRModal(false)}>
+                    <div className="modal-content qr-modal" onClick={e => e.stopPropagation()}>
+                        <h2>QR Menu for {currentEvent.name}</h2>
+                        <div className="qr-container">
+                            <QRCodeCanvas
+                                id="qr-code-canvas"
+                                value={menuUrl}
+                                size={256}
+                                level="H"
+                                includeMargin={true}
+                            />
+                        </div>
+                        <div className="qr-actions">
+                            <button onClick={handleCopyAsImage} className="copy-image-btn" title="Copy QR as Image">
+                                📋 Copy Image
+                            </button>
+                            {!!navigator.share && (
+                                <button onClick={handleShare} className="share-btn" title="Share QR">
+                                    📤 Share
+                                </button>
+                            )}
+                            <button onClick={handleDownloadQR} className="download-btn" title="Download as PNG">
+                                ⬇️ Download
+                            </button>
+                        </div>
+                        <div className="qr-link-section">
+                            <p className="qr-url">{menuUrl}</p>
+                            <button onClick={handleCopyLink} className="copy-link-btn" title="Copy Menu URL">
+                                🔗 Copy Link
+                            </button>
+                        </div>
+                        <p className="qr-hint">Scan or share this to open the menu and order.</p>
+                        <button className="close-btn" onClick={() => setShowQRModal(false)}>Close</button>
+                    </div>
+                </div>
+            )}
             {currentEvent && <OrderForm onSubmit={handleCreateOrder} />}
             {currentEvent && (
                 <div className="orders-list-container">
