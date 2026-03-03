@@ -7,7 +7,11 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
-    const { user, token } = useAuth();
+    const { user, token, isLoading } = useAuth();
+
+    if (isLoading) {
+        return null; // Wait for auth state to resolve before redirecting
+    }
 
     if (!token || !user) {
         return <Navigate to="/login" replace />;
