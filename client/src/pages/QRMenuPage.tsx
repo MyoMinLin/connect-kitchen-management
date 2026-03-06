@@ -1,17 +1,15 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useSocket } from '../hooks/useSocket';
 import { MenuItem } from '../types';
 import { API_BASE_URL } from '../utils/apiConfig';
 import toast from 'react-hot-toast';
 import ItemDetailModal from '../components/ItemDetailModal';
-import EditOrderModal from '../components/EditOrderModal';
 import './QRMenuPage.css';
 
 const QRMenuPage: React.FC = () => {
     const { eventId, seat } = useParams<{ eventId: string; seat?: string }>();
     const socket = useSocket();
-    const navigate = useNavigate();
 
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
     const [cart, setCart] = useState<{ menuItem: MenuItem; quantity: number; selectedOptions?: { [key: string]: string } }[]>([]);
@@ -25,7 +23,6 @@ const QRMenuPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [activeTab, setActiveTab] = useState<'order' | 'history'>('order');
     const [orders, setOrders] = useState<any[]>([]); // Changed to any for now to avoid complexity, usually Order[]
-    const [editingOrder, setEditingOrder] = useState<any | null>(null);
 
     const categoryRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
@@ -63,7 +60,7 @@ const QRMenuPage: React.FC = () => {
             }
         };
         if (eventId) fetchMenu();
-    }, [eventId]);
+    }, [eventId, activeCategory]);
 
     // Fetch orders for history tab
     useEffect(() => {
@@ -125,10 +122,6 @@ const QRMenuPage: React.FC = () => {
         toast.success(`${item.name} added to cart!`);
     };
 
-    const cartTotal = useMemo(() => {
-        return cart.reduce((sum, item) => sum + (item.menuItem.price * item.quantity), 0);
-    }, [cart]);
-
     const handlePlaceOrder = () => {
         if (!effectiveSeat && !customerName.trim()) {
             setShowNameModal(true);
@@ -177,22 +170,6 @@ const QRMenuPage: React.FC = () => {
         setCustomerName(trimmed);
         localStorage.setItem('customerName', trimmed);
         setShowNameModal(false);
-    };
-
-    const handleEditOrder = (orderId: string, data: any) => {
-        return new Promise<void>((resolve, reject) => {
-            if (socket) {
-                socket.emit('edit_order', { orderId, ...data }, (response: any) => {
-                    if (response?.status === 'ok') {
-                        resolve();
-                    } else {
-                        reject(new Error(response?.message || 'Failed to update order'));
-                    }
-                });
-            } else {
-                reject(new Error('No connection to server'));
-            }
-        });
     };
 
     const scrollToCategory = (cat: string) => {
@@ -334,15 +311,6 @@ const QRMenuPage: React.FC = () => {
                                                 </div>
                                             ))}
                                         </div>
-                                        {order.status === 'New' && (
-                                            <button
-                                                className="idm-add-btn"
-                                                style={{ marginTop: '10px', width: '100%', padding: '8px' }}
-                                                onClick={() => setEditingOrder(order)}
-                                            >
-                                                ✏️ Edit Order
-                                            </button>
-                                        )}
                                     </div>
                                 ))
                             )}

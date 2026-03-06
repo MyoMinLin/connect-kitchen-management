@@ -168,7 +168,7 @@ const EventManagement = () => {
                                 <td>{event.name}</td>
                                 <td>{new Date(event.eventDate).toLocaleDateString()}</td>
                                 <td className="actions-cell">
-                                    {index === events.length - 1 && (
+                                    {index === 0 && (
                                         <button onClick={() => setSelectedQR(event)} className="edit-btn">Show QR</button>
                                     )}
                                     <button onClick={() => handleDeleteEvent(event._id)} className="delete-btn">Delete</button>
