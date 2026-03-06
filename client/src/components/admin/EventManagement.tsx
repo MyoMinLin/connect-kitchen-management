@@ -20,6 +20,7 @@ const EventManagement = () => {
     const [eventDate, setEventDate] = useState('');
     const [error, setError] = useState('');
     const [selectedQR, setSelectedQR] = useState<IEvent | null>(null);
+    const [qrSeatLabel, setQrSeatLabel] = useState('');
     const { token } = useAuth();
 
     const api = useCallback((endpoint: string, method: string, body?: any) => {
@@ -133,13 +134,13 @@ const EventManagement = () => {
     };
 
     const handleCopyLink = () => {
-        const url = `${window.location.origin}/menu/${selectedQR?._id}`;
+        const url = `${window.location.origin}/menu/${selectedQR?._id}${qrSeatLabel ? `/${qrSeatLabel}` : ''}`;
         navigator.clipboard.writeText(url).then(() => {
             toast.success('Menu link copied to clipboard!');
         });
     };
 
-    const menuUrl = selectedQR ? `${window.location.origin}/menu/${selectedQR._id}` : '';
+    const menuUrl = selectedQR ? `${window.location.origin}/menu/${selectedQR._id}${qrSeatLabel ? `/${qrSeatLabel}` : ''}` : '';
 
     return (
         <div className="user-management-container">
@@ -162,12 +163,14 @@ const EventManagement = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {events.map(event => (
+                        {events.map((event, index) => (
                             <tr key={event._id}>
                                 <td>{event.name}</td>
                                 <td>{new Date(event.eventDate).toLocaleDateString()}</td>
                                 <td className="actions-cell">
-                                    <button onClick={() => setSelectedQR(event)} className="edit-btn">Show QR</button>
+                                    {index === 0 && (
+                                        <button onClick={() => setSelectedQR(event)} className="edit-btn">Show QR</button>
+                                    )}
                                     <button onClick={() => handleDeleteEvent(event._id)} className="delete-btn">Delete</button>
                                 </td>
                             </tr>
@@ -177,7 +180,7 @@ const EventManagement = () => {
             </div>
 
             {selectedQR && (
-                <div className="modal-overlay" onClick={() => setSelectedQR(null)}>
+                <div className="modal-overlay" onClick={() => { setSelectedQR(null); setQrSeatLabel(''); }}>
                     <div className="modal-content qr-modal" onClick={e => e.stopPropagation()}>
                         <h2>QR Menu for {selectedQR.name}</h2>
                         <div className="qr-container">
@@ -187,6 +190,16 @@ const EventManagement = () => {
                                 size={256}
                                 level="H"
                                 includeMargin={true}
+                            />
+                        </div>
+                        <div className="qr-seat-input" style={{ marginBottom: '1rem' }}>
+                            <label style={{ display: 'block', marginBottom: '0.4rem', fontSize: '0.9rem', color: '#64748b', textAlign: 'left' }}>Seat Label (Optional)</label>
+                            <input
+                                type="text"
+                                value={qrSeatLabel}
+                                onChange={e => setQrSeatLabel(e.target.value)}
+                                placeholder="e.g. C1"
+                                style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '1rem' }}
                             />
                         </div>
                         <div className="qr-actions">
@@ -209,7 +222,7 @@ const EventManagement = () => {
                             </button>
                         </div>
                         <p className="qr-hint">Scan or share this to open the menu and order.</p>
-                        <button className="close-btn" onClick={() => setSelectedQR(null)}>Close</button>
+                        <button className="close-btn" onClick={() => { setSelectedQR(null); setQrSeatLabel(''); }}>Close</button>
                     </div>
                 </div>
             )}

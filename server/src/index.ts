@@ -206,7 +206,7 @@ io.on('connection', async (socket) => {
                 isPaid: false, // Customers pay later
             });
 
-            console.log('New public order:', newOrder.orderNumber, 'by', newOrder.customerName);
+            console.log('New public order:', newOrder.orderNumber, 'by', newOrder.customerName || `Seat ${newOrder.seatNumber}`);
             await newOrder.save();
             const populatedOrder = await Order.findById(newOrder._id).populate('items.menuItem');
 
@@ -228,7 +228,7 @@ io.on('connection', async (socket) => {
     // Listen for an order edit
     socket.on('edit_order', async (editData, callback) => {
         const user = (socket as any).user;
-        const { orderId, tableNumber, customerName, items, isPreOrder, isPaid, deliveryAddress, tabId } = editData;
+        const { orderId, seatNumber, customerName, items, isPreOrder, isPaid, deliveryAddress, tabId } = editData;
 
         try {
             await dbConnect();
@@ -268,7 +268,7 @@ io.on('connection', async (socket) => {
 
             const updatedOrder = await Order.findByIdAndUpdate(
                 orderId,
-                { tableNumber, customerName, items, isPreOrder, isPaid, deliveryAddress },
+                { seatNumber, customerName, items, isPreOrder, isPaid, deliveryAddress },
                 { new: true }
             ).populate('items.menuItem');
 
