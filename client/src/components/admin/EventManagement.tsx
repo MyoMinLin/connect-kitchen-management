@@ -162,12 +162,14 @@ const EventManagement = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {events.map(event => (
+                        {events.map((event, index) => (
                             <tr key={event._id}>
                                 <td>{event.name}</td>
                                 <td>{new Date(event.eventDate).toLocaleDateString()}</td>
                                 <td className="actions-cell">
-                                    <button onClick={() => setSelectedQR(event)} className="edit-btn">Show QR</button>
+                                    {index === events.length - 1 && (
+                                        <button onClick={() => setSelectedQR(event)} className="edit-btn">Show QR</button>
+                                    )}
                                     <button onClick={() => handleDeleteEvent(event._id)} className="delete-btn">Delete</button>
                                 </td>
                             </tr>
