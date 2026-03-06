@@ -99,7 +99,7 @@ const PublicStatusPage: React.FC = () => {
                         {preparingOrders.length > 0 ? (
                             preparingOrders.map(order => (
                                 <div key={order._id} className="name-card">
-                                    <span className="order-name">{order.customerName || order.orderNumber}</span>
+                                    <span className="order-name">{order.seatNumber ? `Seat ${order.seatNumber}` : (order.customerName || `#${order.orderNumber}`)}</span>
                                     <span className="prep-indicator">Preparing...</span>
                                 </div>
                             ))
@@ -113,12 +113,15 @@ const PublicStatusPage: React.FC = () => {
                     <h2>Ready to Collect</h2>
                     <div className="name-list">
                         {readyOrders.length > 0 ? (
-                            readyOrders.map(order => (
-                                <div key={order._id} className={`name-card ready-card ${lastReadyOrder === (order.customerName || order.orderNumber) ? 'highlight' : ''}`}>
-                                    <span className="order-name">{order.customerName || order.orderNumber}</span>
-                                    <span className="ready-indicator">READY ✅</span>
-                                </div>
-                            ))
+                            readyOrders.map(order => {
+                                const displayName = order.seatNumber ? `Seat ${order.seatNumber}` : (order.customerName || `#${order.orderNumber}`);
+                                return (
+                                    <div key={order._id} className={`name-card ready-card ${lastReadyOrder === displayName ? 'highlight' : ''}`}>
+                                        <span className="order-name">{displayName}</span>
+                                        <span className="ready-indicator">READY ✅</span>
+                                    </div>
+                                );
+                            })
                         ) : (
                             <p className="empty-msg">Fresh food on the way!</p>
                         )}

@@ -11,7 +11,7 @@ interface EditOrderModalProps {
     order: Order;
     onClose: () => void;
     onSubmit: (orderId: string, data: {
-        tableNumber: number;
+        seatNumber?: string;
         customerName?: string;
         items: OrderItem[];
         isPreOrder: boolean;
@@ -35,7 +35,7 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({ order, onClose, onSubmi
 
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
     const [menuSearch, setMenuSearch] = useState('');
-    const [tableNumber, setTableNumber] = useState<number | ''>(order.tableNumber ?? '');
+    const [seatNumber, setSeatNumber] = useState<string>(order.seatNumber ?? '');
     const [customerName, setCustomerName] = useState<string>(order.customerName ?? '');
     const [isPreOrder, setIsPreOrder] = useState<boolean>(order.isPreOrder);
     const [isPaid, setIsPaid] = useState<boolean>(order.isPaid);
@@ -143,7 +143,7 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({ order, onClose, onSubmi
         try {
             setIsSubmitting(true);
             await onSubmit(order._id, {
-                tableNumber: tableNumber as number,
+                seatNumber,
                 customerName,
                 items: currentOrderItems,
                 isPreOrder,
@@ -212,15 +212,14 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({ order, onClose, onSubmi
                                 <h3 className="eom-section-title">Order Info</h3>
                                 <div className="eom-field-row">
                                     <div className="eom-field eom-field-sm">
-                                        <label className="eom-label" htmlFor="eom-table">Table</label>
+                                        <label className="eom-label" htmlFor="eom-seat">Seat</label>
                                         <input
-                                            id="eom-table"
+                                            id="eom-seat"
                                             className="eom-input"
-                                            type="number"
-                                            value={tableNumber}
-                                            onChange={e => setTableNumber(e.target.value === '' ? '' : Number(e.target.value))}
+                                            type="text"
+                                            value={seatNumber}
+                                            onChange={e => setSeatNumber(e.target.value)}
                                             placeholder="—"
-                                            min={0}
                                         />
                                     </div>
                                     <div className="eom-field eom-field-grow">
@@ -238,36 +237,36 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({ order, onClose, onSubmi
 
                                 <div className="eom-toggles">
                                     {token && (
-                                        <label className="eom-toggle-row">
-                                            <span className="eom-toggle-label">
-                                                <span className="eom-toggle-icon">📦</span>
+                                        <label className="of-toggle-row">
+                                            <span className="of-toggle-label">
+                                                <span className="of-toggle-icon">📦</span>
                                                 Pre-Order
                                             </span>
                                             <button
                                                 type="button"
                                                 role="switch"
                                                 aria-checked={isPreOrder}
-                                                className={`eom-switch ${isPreOrder ? 'on' : ''}`}
+                                                className={`of-switch ${isPreOrder ? 'on' : ''}`}
                                                 onClick={() => setIsPreOrder(v => !v)}
                                             >
-                                                <span className="eom-switch-thumb" />
+                                                <span className="of-switch-thumb" />
                                             </button>
                                         </label>
                                     )}
                                     {token && (
-                                        <label className="eom-toggle-row">
-                                            <span className="eom-toggle-label">
-                                                <span className="eom-toggle-icon">💳</span>
+                                        <label className="of-toggle-row">
+                                            <span className="of-toggle-label">
+                                                <span className="of-toggle-icon">💳</span>
                                                 Paid
                                             </span>
                                             <button
                                                 type="button"
                                                 role="switch"
                                                 aria-checked={isPaid}
-                                                className={`eom-switch ${isPaid ? 'on' : ''}`}
+                                                className={`of-switch ${isPaid ? 'on' : ''}`}
                                                 onClick={() => setIsPaid(v => !v)}
                                             >
-                                                <span className="eom-switch-thumb" />
+                                                <span className="of-switch-thumb" />
                                             </button>
                                         </label>
                                     )}
@@ -275,10 +274,10 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({ order, onClose, onSubmi
 
                                 {isPreOrder && (
                                     <div className="eom-field eom-field-full eom-slide-in">
-                                        <label className="eom-label" htmlFor="eom-address">Delivery Address</label>
+                                        <label className="of-label" htmlFor="address">Delivery Address</label>
                                         <input
-                                            id="eom-address"
-                                            className="eom-input"
+                                            id="address"
+                                            className="of-input"
                                             type="text"
                                             value={deliveryAddress}
                                             onChange={e => setDeliveryAddress(e.target.value)}
@@ -291,10 +290,10 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({ order, onClose, onSubmi
                             {/* Order items */}
                             <section className="eom-section eom-items-section">
                                 <div className="eom-section-header">
-                                    <h3 className="eom-section-title">Order Items</h3>
+                                    <h3 className="of-section-title">Order Items</h3>
                                     <button
                                         type="button"
-                                        className="eom-add-more-btn"
+                                        className="of-add-more-btn"
                                         onClick={() => setActiveTab('menu')}
                                     >
                                         + Add Items
@@ -303,7 +302,7 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({ order, onClose, onSubmi
 
                                 {currentOrderItems.length === 0 ? (
                                     <div className="eom-empty-items">
-                                        <span className="eom-empty-icon">🛒</span>
+                                        <span className="of-empty-icon">🛒</span>
                                         <p>No items yet. Tap <strong>Add Items</strong> to get started.</p>
                                     </div>
                                 ) : (
@@ -313,8 +312,8 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({ order, onClose, onSubmi
                                             return (
                                                 <li key={index} className="eom-item-card">
                                                     <div className="eom-item-top">
-                                                        <span className="eom-item-name">{mi ? mi.name : 'Unknown Item'}</span>
-                                                        <div className="eom-item-right">
+                                                        <span className="of-item-name">{mi ? mi.name : 'Unknown Item'}</span>
+                                                        <div className="of-item-right">
                                                             {mi && <span className="eom-item-price">¥{(mi.price * item.quantity).toLocaleString()}</span>}
                                                             <button
                                                                 type="button"
@@ -365,7 +364,7 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({ order, onClose, onSubmi
                                         <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
                                     </svg>
                                     <input
-                                        className="eom-menu-search"
+                                        className="of-menu-search"
                                         type="text"
                                         placeholder="Search menu…"
                                         value={menuSearch}
@@ -400,12 +399,12 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({ order, onClose, onSubmi
 
                     {/* ── Footer ── */}
                     <div className="eom-footer">
-                        <button type="button" className="eom-btn-cancel" onClick={onClose}>
+                        <button type="button" className="of-btn-cancel" onClick={onClose}>
                             Cancel
                         </button>
-                        <button type="submit" className="eom-btn-save" disabled={isSubmitting}>
+                        <button type="submit" className="of-btn-save" disabled={isSubmitting}>
                             {isSubmitting ? (
-                                <><span className="eom-spinner" /> Saving…</>
+                                <><span className="of-spinner" /> Saving…</>
                             ) : (
                                 <>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">

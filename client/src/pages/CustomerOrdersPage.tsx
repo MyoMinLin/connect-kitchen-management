@@ -14,6 +14,7 @@ const CustomerOrdersPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
 
     const tabId = localStorage.getItem('tabId');
+    const currentSeat = localStorage.getItem('currentSeat');
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -64,7 +65,7 @@ const CustomerOrdersPage: React.FC = () => {
     }, [socket, tabId]);
 
     const handleEditOrder = (orderId: string, data: {
-        tableNumber: number;
+        seatNumber?: string;
         customerName?: string;
         items: OrderItem[];
         isPreOrder: boolean;
@@ -93,7 +94,7 @@ const CustomerOrdersPage: React.FC = () => {
 
     return (
         <div className="customer-orders-container">
-            <Link to={`/menu/${eventId}`} className="back-to-menu">
+            <Link to={currentSeat ? `/menu/${eventId}/${currentSeat}` : `/menu/${eventId}`} className="back-to-menu">
                 ← Back to Menu
             </Link>
 

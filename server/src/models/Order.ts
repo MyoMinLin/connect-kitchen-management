@@ -5,7 +5,7 @@ import { IEvent } from './Event';
 export interface IOrder extends Document {
     eventId: mongoose.Types.ObjectId;
     orderNumber: string;
-    tableNumber?: string;
+    seatNumber?: string;
     customerName?: string; // Add to interface
     tabId?: string; // Unique ID to group orders by customer session
     isPreOrder: boolean;
@@ -23,7 +23,7 @@ export interface IOrder extends Document {
 const OrderSchema: Schema = new Schema({
     eventId: { type: Schema.Types.ObjectId, ref: 'Event', required: true },
     orderNumber: { type: String, unique: true },
-    tableNumber: { type: String },
+    seatNumber: { type: String },
     customerName: { type: String },
     tabId: { type: String }, // New field for grouping orders
     isPreOrder: { type: Boolean, default: false },
