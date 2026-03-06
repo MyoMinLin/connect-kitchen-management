@@ -52,23 +52,26 @@ const CheckoutPage: React.FC = () => {
         const tabGroups: { [key: string]: Order[] } = {};
 
         activeOrders.forEach(order => {
-            const name = order.customerName || 'Walk-in / Unknown';
-            if (!tabGroups[name]) tabGroups[name] = [];
-            tabGroups[name].push(order);
+            const identifier = order.seatNumber ? `Seat ${order.seatNumber}` : (order.customerName || 'Walk-in / Unknown');
+            if (!tabGroups[identifier]) tabGroups[identifier] = [];
+            tabGroups[identifier].push(order);
         });
 
-        return Object.entries(tabGroups).map(([name, orders]) => {
+        return Object.entries(tabGroups).map(([identifier, orders]) => {
             const total = orders.reduce((sum, o) => {
                 return sum + o.items.reduce((itemSum, i) => itemSum + (i.menuItem.price * i.quantity), 0);
             }, 0);
-            return { name, orders, total };
-        }).filter(tab => tab.name.toLowerCase().includes(searchTerm.toLowerCase()));
+            return { identifier, orders, total };
+        }).filter(tab => tab.identifier.toLowerCase().includes(searchTerm.toLowerCase()));
     }, [orders, searchTerm]);
 
-    const handleSettleTab = async (customerName: string) => {
-        if (!window.confirm(`Settle all orders for ${customerName}?`)) return;
+    const handleSettleTab = async (identifier: string) => {
+        if (!window.confirm(`Settle all orders for ${identifier}?`)) return;
 
         try {
+            // Clean up identifier (remove 'Seat ' prefix if present)
+            const cleanIdentifier = identifier.startsWith('Seat ') ? identifier.replace('Seat ', '') : identifier;
+
             const response = await fetchWithLoader(`${API_BASE_URL}/api/orders/tab/settle`, {
                 method: 'POST',
                 headers: {
@@ -77,7 +80,7 @@ const CheckoutPage: React.FC = () => {
                 },
                 body: JSON.stringify({
                     eventId: currentEvent?._id,
-                    customerName: customerName === 'Walk-in / Unknown' ? undefined : customerName
+                    identifier: cleanIdentifier === 'Walk-in / Unknown' ? undefined : cleanIdentifier
                 })
             });
 
@@ -99,7 +102,7 @@ const CheckoutPage: React.FC = () => {
                 <div className="search-box">
                     <input
                         type="text"
-                        placeholder="Search by Customer Name..."
+                        placeholder="Search by Name or Seat..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -111,9 +114,9 @@ const CheckoutPage: React.FC = () => {
             <div className="tabs-grid">
                 {tabs.length > 0 ? (
                     tabs.map(tab => (
-                        <div key={tab.name} className="tab-card">
+                        <div key={tab.identifier} className="tab-card">
                             <div className="tab-top">
-                                <h3>{tab.name}</h3>
+                                <h3>{tab.identifier}</h3>
                                 <span className="order-count">{tab.orders.length} Order(s)</span>
                             </div>
                             <div className="tab-details">
@@ -134,7 +137,7 @@ const CheckoutPage: React.FC = () => {
                                     <span>Total:</span>
                                     <strong>¥{tab.total}</strong>
                                 </div>
-                                <button className="settle-btn" onClick={() => handleSettleTab(tab.name)}>
+                                <button className="settle-btn" onClick={() => handleSettleTab(tab.identifier)}>
                                     Pay & Close Tab
                                 </button>
                             </div>

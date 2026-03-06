@@ -721,6 +721,30 @@
     flex-shrink: 0;
 }
 
+.of-btn-cancel {
+    flex: 0 0 auto;
+    height: 48px;
+    padding: 0 24px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.of-btn-cancel:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    color: #374151;
+}
+
+.of-btn-cancel:active {
+    transform: scale(0.98);
+}
+
 .of-btn-submit {
     flex: 1;
     height: 48px;

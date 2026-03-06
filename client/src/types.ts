@@ -3,6 +3,12 @@ export interface MenuItem {
     name: string;
     price: number;
     category: string;
+    imageUrl?: string;
+    description?: string;
+    options?: {
+        name: string;
+        choices: { name: string; priceAdjustment?: number }[];
+    }[];
     requiresPrep: boolean;
     isDeleted?: boolean;
 }
@@ -20,7 +26,7 @@ export interface Order {
     isPreOrder: boolean;
     isPaid: boolean;
     deliveryAddress?: string;
-    tableNumber: number;
+    seatNumber?: string;
     customerName?: string;
     tabId?: string; // Unique ID to group orders by customer session
     items: {

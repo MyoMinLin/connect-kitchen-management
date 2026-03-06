@@ -20,6 +20,7 @@ const WaitstaffPage = () => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [editingOrder, setEditingOrder] = useState<Order | null>(null);
     const [showQRModal, setShowQRModal] = useState(false);
+    const [qrSeatLabel, setQrSeatLabel] = useState('');
 
     // Fetch initial orders via HTTP
     useEffect(() => {
@@ -66,7 +67,7 @@ const WaitstaffPage = () => {
         };
     }, [socket, currentEvent]);
 
-    const handleCreateOrder = (order: { eventId: string; tableNumber: number; customerName?: string; items: OrderItem[]; isPreOrder: boolean; isPaid: boolean; deliveryAddress?: string }) => {
+    const handleCreateOrder = (order: { eventId: string; seatNumber?: string; customerName?: string; items: OrderItem[]; isPreOrder: boolean; isPaid: boolean; deliveryAddress?: string }) => {
         return new Promise<void>((resolve, reject) => {
             if (socket) {
                 socket.emit('new_order', order, (response: any) => {
@@ -89,7 +90,7 @@ const WaitstaffPage = () => {
     };
 
     const handleEditOrder = (orderId: string, data: {
-        tableNumber: number;
+        seatNumber?: string;
         customerName?: string;
         items: OrderItem[];
         isPreOrder: boolean;
@@ -178,7 +179,7 @@ const WaitstaffPage = () => {
 
     const handleCopyLink = () => {
         if (!currentEvent) return;
-        const url = `${window.location.origin}/menu/${currentEvent._id}`;
+        const url = `${window.location.origin}/menu/${currentEvent._id}${qrSeatLabel ? `/${qrSeatLabel}` : ''}`;
         navigator.clipboard.writeText(url).then(() => {
             toast.success('Menu link copied to clipboard!');
         });
@@ -186,7 +187,7 @@ const WaitstaffPage = () => {
 
     const sortedOrders = orders.filter(o => o.status !== 'Collected').sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const menuUrl = currentEvent ? `${window.location.origin}/menu/${currentEvent._id}` : '';
+    const menuUrl = currentEvent ? `${window.location.origin}/menu/${currentEvent._id}${qrSeatLabel ? `/${qrSeatLabel}` : ''}` : '';
 
     return (
         <div className="waitstaff-page">
@@ -228,6 +229,16 @@ const WaitstaffPage = () => {
                                 includeMargin={true}
                             />
                         </div>
+                        <div className="qr-seat-input" style={{ marginBottom: '1rem' }}>
+                            <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem', color: '#64748b' }}>Seat Label (Optional)</label>
+                            <input
+                                type="text"
+                                value={qrSeatLabel}
+                                onChange={e => setQrSeatLabel(e.target.value)}
+                                placeholder="e.g. C1"
+                                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #e2e8f0' }}
+                            />
+                        </div>
                         <div className="qr-actions">
                             <button onClick={handleCopyAsImage} className="copy-image-btn" title="Copy QR as Image">
                                 📋 Copy Image
@@ -259,6 +270,7 @@ const WaitstaffPage = () => {
                         <thead>
                             <tr>
                                 <th>Order Number</th>
+                                <th>Seat</th>
                                 <th>Customer</th>
                                 <th>Items</th>
                                 <th>Status</th>
@@ -270,6 +282,7 @@ const WaitstaffPage = () => {
                             {sortedOrders.map(order => (
                                 <tr key={order._id} className={`status-${order.status.toLowerCase().replace(' ', '-')}`}>
                                     <td data-label="Order Number">{order.orderNumber}</td>
+                                    <td data-label="Seat">{order.seatNumber || '—'}</td>
                                     <td data-label="Customer">{order.customerName || 'N/A'}</td>
                                     <td data-label="Items">
                                         <ul>
