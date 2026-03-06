@@ -234,7 +234,7 @@ const MainApp = () => {
                 </Route>
 
                 <Route path="/status/:eventId" element={<PublicStatusPage />} />
-                <Route path="/menu/:eventId" element={<QRMenuPage />} />
+                <Route path="/menu/:eventId/:seat?" element={<QRMenuPage />} />
                 <Route path="/orders/my/:eventId" element={<CustomerOrdersPage />} />
 
                 <Route path="*" element={<Navigate to={getHomeRoute()} />} />

@@ -9,7 +9,7 @@ import toast from 'react-hot-toast';
 import './OrderForm.css';
 
 interface OrderFormProps {
-    onSubmit: (order: { eventId: string; tableNumber: number; customerName?: string; items: OrderItem[]; isPreOrder: boolean; isPaid: boolean; deliveryAddress?: string; }) => Promise<void>;
+    onSubmit: (order: { eventId: string; seatNumber?: string; customerName?: string; items: OrderItem[]; isPreOrder: boolean; isPaid: boolean; deliveryAddress?: string; }) => Promise<void>;
 }
 
 const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
@@ -19,7 +19,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-    const [tableNumber, setTableNumber] = useState<number | ''>('');
+    const [seatNumber, setSeatNumber] = useState<string>('');
     const [customerName, setCustomerName] = useState<string>('');
     const [isPreOrder, setIsPreOrder] = useState<boolean>(false);
     const [isPaid, setIsPaid] = useState<boolean>(false);
@@ -106,7 +106,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
             setIsSubmitting(true);
             await onSubmit({
                 eventId: currentEvent._id,
-                tableNumber: tableNumber as number,
+                seatNumber,
                 customerName,
                 items: currentOrderItems,
                 isPreOrder,
@@ -116,7 +116,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
 
             // Reset form
             setCurrentOrderItems([]);
-            setTableNumber('');
+            setSeatNumber('');
             setCustomerName('');
             setIsPreOrder(false);
             setIsPaid(false);
@@ -143,7 +143,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                 <div className="of-header">
                     <div className="of-header-left">
                         <span className="of-title">New Order</span>
-                        {currentEvent && <span className="of-active-event">{currentEvent.name}</span>}
+                        {currentEvent && <span className="of-event-id">#{currentEvent._id.slice(-6)}</span>}
                     </div>
                 </div>
 
@@ -169,146 +169,151 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                     <div className="of-columns">
                         {/* ── Left / Details Panel ── */}
                         <div className={`of-panel of-panel-details ${activeTab === 'details' ? 'of-panel-active' : ''}`}>
-                            <section className="of-section">
-                                <h3 className="of-section-title">Customer Info</h3>
-                                <div className="of-field-row">
-                                    <div className="of-field of-field-sm">
-                                        <label className="of-label" htmlFor="of-table">Table</label>
-                                        <input
-                                            id="of-table"
-                                            className="of-input"
-                                            type="number"
-                                            value={tableNumber}
-                                            onChange={e => setTableNumber(e.target.value === '' ? '' : Number(e.target.value))}
-                                            placeholder="—"
-                                            min={0}
-                                        />
+                            <div className="of-panel-details-inner">
+                                {/* Customer Section */}
+                                <section className="of-section">
+                                    <h3 className="of-section-title">Customer Info</h3>
+                                    <div className="of-field-row">
+                                        <div className="of-field of-field-sm">
+                                            <label className="of-label" htmlFor="seat">Seat</label>
+                                            <input
+                                                id="seat"
+                                                className="of-input"
+                                                type="text"
+                                                value={seatNumber}
+                                                onChange={e => setSeatNumber(e.target.value)}
+                                                placeholder="—"
+                                            />
+                                        </div>
+                                        <div className="of-field of-field-grow">
+                                            <label className="of-label" htmlFor="customer">Name</label>
+                                            <input
+                                                id="customer"
+                                                className="of-input"
+                                                type="text"
+                                                value={customerName}
+                                                onChange={e => setCustomerName(e.target.value)}
+                                                placeholder="Optional"
+                                            />
+                                        </div>
                                     </div>
-                                    <div className="of-field of-field-grow">
-                                        <label className="of-label" htmlFor="of-customer">Name</label>
-                                        <input
-                                            id="of-customer"
-                                            className="of-input"
-                                            type="text"
-                                            value={customerName}
-                                            onChange={e => setCustomerName(e.target.value)}
-                                            placeholder="Optional"
-                                        />
-                                    </div>
-                                </div>
 
-                                <div className="of-toggles">
-                                    <label className="of-toggle-row" onClick={() => setIsPreOrder(v => !v)}>
-                                        <span className="of-toggle-label">
-                                            <span className="of-toggle-icon">📦</span>
-                                            Pre-Order
-                                        </span>
+                                    <div className="of-toggles">
+                                        <label className="of-toggle-row">
+                                            <span className="of-toggle-label">
+                                                <span className="of-toggle-icon">📦</span>
+                                                Pre-Order
+                                            </span>
+                                            <button
+                                                type="button"
+                                                role="switch"
+                                                aria-checked={isPreOrder}
+                                                className={`of-switch ${isPreOrder ? 'on' : ''}`}
+                                                onClick={() => setIsPreOrder(v => !v)}
+                                            >
+                                                <span className="of-switch-thumb" />
+                                            </button>
+                                        </label>
+                                        <label className="of-toggle-row">
+                                            <span className="of-toggle-label">
+                                                <span className="of-toggle-icon">💳</span>
+                                                Paid
+                                            </span>
+                                            <button
+                                                type="button"
+                                                role="switch"
+                                                aria-checked={isPaid}
+                                                className={`of-switch ${isPaid ? 'on' : ''}`}
+                                                onClick={() => setIsPaid(v => !v)}
+                                            >
+                                                <span className="of-switch-thumb" />
+                                            </button>
+                                        </label>
+                                    </div>
+
+                                    {isPreOrder && (
+                                        <div className="of-field of-field-full of-slide-in">
+                                            <label className="of-label" htmlFor="address">Delivery Address</label>
+                                            <input
+                                                id="address"
+                                                className="of-input"
+                                                type="text"
+                                                value={deliveryAddress}
+                                                onChange={e => setDeliveryAddress(e.target.value)}
+                                                placeholder="e.g., 123 Main St"
+                                            />
+                                        </div>
+                                    )}
+                                </section>
+
+                                {/* Order Items Section */}
+                                <section className="of-section of-items-section">
+                                    <div className="of-section-header">
+                                        <h3 className="of-section-title">Order Items</h3>
                                         <button
                                             type="button"
-                                            role="switch"
-                                            aria-checked={isPreOrder}
-                                            className={`of-switch ${isPreOrder ? 'on' : ''}`}
+                                            className="of-add-more-btn"
+                                            onClick={() => setActiveTab('menu')}
                                         >
-                                            <span className="of-switch-thumb" />
+                                            + Add Items
                                         </button>
-                                    </label>
-                                    <label className="of-toggle-row" onClick={() => setIsPaid(v => !v)}>
-                                        <span className="of-toggle-label">
-                                            <span className="of-toggle-icon">💳</span>
-                                            Paid
-                                        </span>
-                                        <button
-                                            type="button"
-                                            role="switch"
-                                            aria-checked={isPaid}
-                                            className={`of-switch ${isPaid ? 'on' : ''}`}
-                                        >
-                                            <span className="of-switch-thumb" />
-                                        </button>
-                                    </label>
-                                </div>
-
-                                {isPreOrder && (
-                                    <div className="of-field of-field-full of-slide-in">
-                                        <label className="of-label" htmlFor="of-address">Delivery Address</label>
-                                        <input
-                                            id="of-address"
-                                            className="of-input"
-                                            type="text"
-                                            value={deliveryAddress}
-                                            onChange={e => setDeliveryAddress(e.target.value)}
-                                            placeholder="e.g., 123 Main St"
-                                        />
                                     </div>
-                                )}
-                            </section>
 
-                            <section className="of-section">
-                                <div className="of-section-header">
-                                    <h3 className="of-section-title">Order Items</h3>
-                                    <button
-                                        type="button"
-                                        className="of-add-more-btn"
-                                        onClick={() => setActiveTab('menu')}
-                                    >
-                                        + Add Items
-                                    </button>
-                                </div>
-
-                                {currentOrderItems.length === 0 ? (
-                                    <div className="of-empty-items">
-                                        <span className="of-empty-icon">🛒</span>
-                                        <p>No items yet. Tap <strong>Add Items</strong> to start.</p>
-                                    </div>
-                                ) : (
-                                    <ul className="of-items-list">
-                                        {currentOrderItems.map((item, index) => {
-                                            const mi = getMenuItem(item.menuItem);
-                                            return (
-                                                <li key={index} className="of-item-card">
-                                                    <div className="of-item-top">
-                                                        <span className="of-item-name">{mi ? mi.name : 'Unknown Item'}</span>
-                                                        <div className="of-item-right">
-                                                            {mi && <span className="of-item-price">¥{(mi.price * item.quantity).toLocaleString()}</span>}
-                                                            <button
-                                                                type="button"
-                                                                className="of-remove-btn"
-                                                                onClick={() => handleRemoveItem(index)}
-                                                            >
-                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                                                </svg>
-                                                            </button>
+                                    {currentOrderItems.length === 0 ? (
+                                        <div className="of-empty-items">
+                                            <span className="of-empty-icon">🛒</span>
+                                            <p>No items yet. Tap <strong>Add Items</strong> to get started.</p>
+                                        </div>
+                                    ) : (
+                                        <ul className="of-items-list">
+                                            {currentOrderItems.map((item, index) => {
+                                                const mi = getMenuItem(item.menuItem);
+                                                return (
+                                                    <li key={index} className="of-item-card">
+                                                        <div className="of-item-top">
+                                                            <span className="of-item-name">{mi ? mi.name : 'Unknown Item'}</span>
+                                                            <div className="of-item-right">
+                                                                {mi && <span className="of-item-price">¥{(mi.price * item.quantity).toLocaleString()}</span>}
+                                                                <button
+                                                                    type="button"
+                                                                    className="of-remove-btn"
+                                                                    onClick={() => handleRemoveItem(index)}
+                                                                >
+                                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                    <div className="of-item-bottom">
-                                                        <div className="of-qty-control">
-                                                            <button type="button" className="of-qty-btn" onClick={() => handleQuantityChange(index, item.quantity - 1)}>−</button>
-                                                            <span className="of-qty-num">{item.quantity}</span>
-                                                            <button type="button" className="of-qty-btn" onClick={() => handleQuantityChange(index, item.quantity + 1)}>+</button>
+                                                        <div className="of-item-bottom">
+                                                            <div className="of-qty-control">
+                                                                <button type="button" className="of-qty-btn" onClick={() => handleQuantityChange(index, item.quantity - 1)}>−</button>
+                                                                <span className="of-qty-num">{item.quantity}</span>
+                                                                <button type="button" className="of-qty-btn" onClick={() => handleQuantityChange(index, item.quantity + 1)}>+</button>
+                                                            </div>
+                                                            <input
+                                                                type="text"
+                                                                className="of-remark-input"
+                                                                placeholder="Special request…"
+                                                                value={item.remarks}
+                                                                onChange={e => handleRemarkChange(index, e.target.value)}
+                                                            />
                                                         </div>
-                                                        <input
-                                                            type="text"
-                                                            className="of-remark-input"
-                                                            placeholder="Remarks..."
-                                                            value={item.remarks || ''}
-                                                            onChange={e => handleRemarkChange(index, e.target.value)}
-                                                        />
-                                                    </div>
-                                                </li>
-                                            );
-                                        })}
-                                    </ul>
-                                )}
+                                                    </li>
+                                                );
+                                            })}
+                                        </ul>
+                                    )}
 
-                                {currentOrderItems.length > 0 && (
-                                    <div className="of-total-row">
-                                        <span>Total</span>
-                                        <span className="of-total-amount">¥{calculateTotal().toLocaleString()}</span>
-                                    </div>
-                                )}
-                            </section>
+                                    {currentOrderItems.length > 0 && (
+                                        <div className="of-total-row">
+                                            <span>Total</span>
+                                            <span className="of-total-amount">¥{calculateTotal().toLocaleString()}</span>
+                                        </div>
+                                    )}
+                                </section>
+                            </div>
                         </div>
 
                         {/* ── Right / Menu Panel ── */}
@@ -332,21 +337,22 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                                 <div className="of-menu-grid">
                                     {filteredMenuItems.length === 0 ? (
                                         <p className="of-no-results">No items match "{menuSearch}"</p>
-                                    ) : filteredMenuItems.map(item => {
-                                        const inOrder = currentOrderItems.find(i => i.menuItem === item._id);
-                                        return (
-                                            <button
-                                                type="button"
-                                                key={item._id}
-                                                className={`of-menu-card ${inOrder ? 'in-order' : ''}`}
-                                                onClick={() => handleAddItem(item._id)}
-                                            >
-                                                {inOrder && <span className="of-menu-badge">{inOrder.quantity}</span>}
-                                                <span className="of-menu-name">{item.name}</span>
-                                                <span className="of-menu-price">¥{item.price.toLocaleString()}</span>
-                                            </button>
-                                        );
-                                    })}
+                                    ) : (
+                                        filteredMenuItems.map(item => {
+                                            const inOrder = currentOrderItems.find(i => i.menuItem === item._id);
+                                            return (
+                                                <button
+                                                    type="button"
+                                                    key={item._id}
+                                                    className={`of-menu-card ${inOrder ? 'in-order' : ''}`}
+                                                    onClick={() => handleAddItem(item._id)}
+                                                >
+                                                    {inOrder && <span className="of-menu-badge">{inOrder.quantity}</span>}
+                                                    <span className="of-menu-name">{item.name}</span>
+                                                    <span className="of-menu-price">¥{item.price.toLocaleString()}</span>
+                                                </button>
+                                            );
+                                        }))}
                                 </div>
                             </section>
                         </div>
@@ -354,16 +360,18 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
 
                     {/* ── Footer ── */}
                     <div className="of-footer">
+                        <button type="button" className="of-btn-cancel" onClick={() => navigate(-1)}>
+                            Cancel
+                        </button>
                         <button type="submit" className="of-btn-submit" disabled={isSubmitting}>
                             {isSubmitting ? (
                                 <><span className="of-spinner" /> Submitting…</>
                             ) : (
                                 <>
-                                    <span>Submit Order</span>
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                                        <polyline points="20 6 9 17 4 12" />
                                     </svg>
+                                    Submit Order
                                 </>
                             )}
                         </button>

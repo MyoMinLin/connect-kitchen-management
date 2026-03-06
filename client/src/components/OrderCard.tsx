@@ -59,7 +59,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onStatusUpdate, userRole }
                 <h4>Order #{order.orderNumber}</h4>
                 <span className="time-elapsed">{getTimestampForStatus()}</span>
             </div>
-            {order.tableNumber && <p className="table-number">Table: {order.tableNumber}</p>}
+            {order.seatNumber && <p className="seat-number">Seat: {order.seatNumber}</p>}
             {order.customerName && <p className="customer-name">Customer: {order.customerName}</p>}
             <ul className="item-list">
                 {order.items

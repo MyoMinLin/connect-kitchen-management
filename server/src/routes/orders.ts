@@ -44,15 +44,15 @@ router.get('/public/status/:eventId', async (req, res) => {
     }
 });
 
-// GET /api/orders/tab/:eventId/:customerName - Get unpaid orders for a customer tab
-router.get('/tab/:eventId/:customerName', async (req, res) => {
+// GET /api/orders/tab/:eventId/:identifier - Get unpaid orders for a customer tab (by name or seat)
+router.get('/tab/:eventId/:identifier', async (req, res) => {
     try {
         await dbConnect();
-        const { eventId, customerName } = req.params;
+        const { eventId, identifier } = req.params;
 
         const orders = await Order.find({
             eventId: eventId,
-            customerName: customerName,
+            $or: [{ customerName: identifier }, { seatNumber: identifier }],
             status: { $ne: 'Collected' },
             isActive: { $ne: false }
         }).populate('items.menuItem');
@@ -88,10 +88,15 @@ router.get('/public/tab/:tabId', async (req, res) => {
 router.post('/tab/settle', protect, authorize('Admin', 'Waiter'), async (req, res) => {
     try {
         await dbConnect();
-        const { eventId, customerName } = req.body;
+        const { eventId, identifier } = req.body;
 
         const result = await Order.updateMany(
-            { eventId, customerName, status: { $ne: 'Collected' }, isActive: { $ne: false } },
+            {
+                eventId,
+                $or: [{ customerName: identifier }, { seatNumber: identifier }],
+                status: { $ne: 'Collected' },
+                isActive: { $ne: false }
+            },
             { $set: { status: 'Collected', collectedAt: new Date() } }
         );
 

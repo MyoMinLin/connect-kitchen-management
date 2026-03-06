@@ -82,7 +82,7 @@ const AllOrdersPage: React.FC = () => {
     };
 
     const handleEditOrder = (orderId: string, data: {
-        tableNumber: number;
+        seatNumber?: string;
         customerName?: string;
         items: OrderItem[];
         isPreOrder: boolean;
@@ -153,7 +153,7 @@ const AllOrdersPage: React.FC = () => {
                         <thead>
                             <tr>
                                 <th>Order Number</th>
-                                <th>Table</th>
+                                <th>Seat</th>
                                 <th>Customer</th>
                                 <th>Item</th>
                                 <th>Total Amount</th>
@@ -169,7 +169,7 @@ const AllOrdersPage: React.FC = () => {
                                         {order.isPreOrder && <span className="pre-order-indicator">Pre</span>}
                                         {order.orderNumber}
                                     </td>
-                                    <td data-label="Table">{order.tableNumber || '-'}</td>
+                                    <td data-label="Seat">{order.seatNumber || '-'}</td>
                                     <td data-label="Customer">{order.customerName || '-'}</td>
                                     <td data-label="Item">
                                         <ul>
@@ -243,7 +243,7 @@ const AllOrdersPage: React.FC = () => {
                             <thead>
                                 <tr>
                                     <th>Order Number</th>
-                                    <th>Table</th>
+                                    <th>Seat</th>
                                     <th>Customer</th>
                                     <th>Item</th>
                                     <th>Ordered At</th>
@@ -259,7 +259,7 @@ const AllOrdersPage: React.FC = () => {
                                             {order.isPreOrder && <span className="pre-order-indicator">Pre</span>}
                                             {order.orderNumber}
                                         </td>
-                                        <td data-label="Table">{order.tableNumber || '-'}</td>
+                                        <td data-label="Seat">{order.seatNumber || '-'}</td>
                                         <td data-label="Customer">{order.customerName || '-'}</td>
                                         <td data-label="Item">
                                             <ul>
