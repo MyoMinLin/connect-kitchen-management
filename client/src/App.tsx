@@ -12,6 +12,7 @@ import ManageEvents from './pages/ManageEvents';
 import ManageUsers from './pages/ManageUsers';
 import PublicStatusPage from './pages/PublicStatusPage';
 import QRMenuPage from './pages/QRMenuPage';
+import ManageSeats from './pages/ManageSeats';
 import CustomerOrdersPage from './pages/CustomerOrdersPage';
 import CheckoutPage from './pages/CheckoutPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -120,7 +121,7 @@ const MainApp = () => {
         setIsAdminExpanded(false);
     };
 
-    const isPublicRoute = window.location.pathname.startsWith('/status/') || window.location.pathname.startsWith('/menu/');
+    const isPublicRoute = window.location.pathname.startsWith('/status/') || window.location.pathname.startsWith('/customer/order/');
 
     return (
         <div>
@@ -188,6 +189,7 @@ const MainApp = () => {
                                         <div className={`dropdown-content ${isAdminExpanded ? 'show' : ''}`}>
                                             <Link to="/admin/menu" className="nav-link" onClick={closeMenu}>Menus</Link>
                                             <Link to="/admin/events" className="nav-link" onClick={closeMenu}>Events</Link>
+                                            <Link to="/admin/seats" className="nav-link" onClick={closeMenu}>Seats</Link>
                                             <Link to="/admin/users" className="nav-link" onClick={closeMenu}>Users</Link>
                                         </div>
                                     </div>
@@ -228,13 +230,15 @@ const MainApp = () => {
 
                 <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
                     <Route path="/admin/events" element={<div className="container"><ManageEvents /></div>} />
+                    <Route path="/admin/seats" element={<div className="container"><ManageSeats /></div>} />
                     <Route path="/admin" element={<div className="container"><AdminPage /></div>} />
                     <Route path="/admin/menu" element={<div className="container"><MenuManagementPage /></div>} />
                     <Route path="/admin/users" element={<div className="container"><ManageUsers /></div>} />
                 </Route>
 
                 <Route path="/status/:eventId" element={<PublicStatusPage />} />
-                <Route path="/menu/:eventId/:seat?" element={<QRMenuPage />} />
+                <Route path="/status/:eventId" element={<PublicStatusPage />} />
+                <Route path="/customer/order/:seat" element={<QRMenuPage />} />
                 <Route path="/orders/my/:eventId" element={<CustomerOrdersPage />} />
 
                 <Route path="*" element={<Navigate to={getHomeRoute()} />} />

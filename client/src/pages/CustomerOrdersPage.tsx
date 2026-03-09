@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useSocket } from '../hooks/useSocket';
 import { Order, OrderItem } from '../types';
 import EditOrderModal from '../components/EditOrderModal';
@@ -7,7 +7,6 @@ import { API_BASE_URL } from '../utils/apiConfig';
 import './CustomerOrdersPage.css';
 
 const CustomerOrdersPage: React.FC = () => {
-    const { eventId } = useParams<{ eventId: string }>();
     const socket = useSocket();
     const [orders, setOrders] = useState<Order[]>([]);
     const [editingOrder, setEditingOrder] = useState<Order | null>(null);
@@ -94,7 +93,7 @@ const CustomerOrdersPage: React.FC = () => {
 
     return (
         <div className="customer-orders-container">
-            <Link to={currentSeat ? `/menu/${eventId}/${currentSeat}` : `/menu/${eventId}`} className="back-to-menu">
+            <Link to={currentSeat ? `/customer/order/${btoa(currentSeat)}` : `/customer/order/`} className="back-to-menu">
                 ← Back to Menu
             </Link>
 
@@ -107,7 +106,7 @@ const CustomerOrdersPage: React.FC = () => {
                 <div className="empty-orders">
                     <div className="empty-icon">📦</div>
                     <p>You haven't placed any orders yet.</p>
-                    <Link to={`/menu/${eventId}`} className="edit-order-btn" style={{ marginTop: '1rem' }}>
+                    <Link to={`/customer/order/`} className="edit-order-btn" style={{ marginTop: '1rem' }}>
                         Order Now
                     </Link>
                 </div>

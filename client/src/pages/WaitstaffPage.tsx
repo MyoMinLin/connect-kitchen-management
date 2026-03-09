@@ -179,7 +179,8 @@ const WaitstaffPage = () => {
 
     const handleCopyLink = () => {
         if (!currentEvent) return;
-        const url = `${window.location.origin}/menu/${currentEvent._id}${qrSeatLabel ? `/${qrSeatLabel}` : ''}`;
+        const encodedSeat = qrSeatLabel ? btoa(qrSeatLabel) : '';
+        const url = `${window.location.origin}/customer/order/${encodedSeat}`;
         navigator.clipboard.writeText(url).then(() => {
             toast.success('Menu link copied to clipboard!');
         });
@@ -187,7 +188,8 @@ const WaitstaffPage = () => {
 
     const sortedOrders = orders.filter(o => o.status !== 'Collected').sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const menuUrl = currentEvent ? `${window.location.origin}/menu/${currentEvent._id}${qrSeatLabel ? `/${qrSeatLabel}` : ''}` : '';
+    const encodedSeat = qrSeatLabel ? btoa(qrSeatLabel) : '';
+    const menuUrl = currentEvent ? `${window.location.origin}/customer/order/${encodedSeat}` : '';
 
     return (
         <div className="waitstaff-page">
@@ -196,7 +198,7 @@ const WaitstaffPage = () => {
             {currentEvent && (
                 <div className="waitstaff-actions">
                     <button
-                        onClick={() => window.open(`/menu/${currentEvent._id}`, '_blank')}
+                        onClick={() => window.open(`/customer/order/`, '_blank')}
                         className="action-btn open-menu-btn"
                     >
                         📱 Open Menu

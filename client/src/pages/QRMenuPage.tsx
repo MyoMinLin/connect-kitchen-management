@@ -5,11 +5,14 @@ import { MenuItem } from '../types';
 import { API_BASE_URL } from '../utils/apiConfig';
 import toast from 'react-hot-toast';
 import ItemDetailModal from '../components/ItemDetailModal';
+import { useLoader } from '../context/LoaderContext';
 import './QRMenuPage.css';
 
 const QRMenuPage: React.FC = () => {
-    const { eventId, seat } = useParams<{ eventId: string; seat?: string }>();
+    const { eventId: paramEventId, seat: encryptedSeat } = useParams<{ eventId?: string; seat?: string }>();
     const socket = useSocket();
+
+    const [eventId, setEventId] = useState<string | undefined>(paramEventId);
 
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
     const [cart, setCart] = useState<{ menuItem: MenuItem; quantity: number; selectedOptions?: { [key: string]: string } }[]>([]);
@@ -20,14 +23,23 @@ const QRMenuPage: React.FC = () => {
     // New states for UI
     const [activeCategory, setActiveCategory] = useState<string>('');
     const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const { showLoader, hideLoader } = useLoader();
     const [activeTab, setActiveTab] = useState<'order' | 'history'>('order');
     const [orders, setOrders] = useState<any[]>([]); // Changed to any for now to avoid complexity, usually Order[]
 
     const categoryRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
-    // Effective seat: use URL param first, fallback to localStorage
-    const effectiveSeat = seat || localStorage.getItem('currentSeat') || '';
+    // Effective seat: decrypt from param first, fallback to localStorage
+    const decryptedSeat = useMemo(() => {
+        if (!encryptedSeat) return '';
+        try {
+            return atob(encryptedSeat);
+        } catch {
+            return encryptedSeat; // Fallback if not base64
+        }
+    }, [encryptedSeat]);
+
+    const effectiveSeat = decryptedSeat || localStorage.getItem('currentSeat') || '';
 
     const [showNameModal, setShowNameModal] = useState(!customerName && !effectiveSeat);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -35,16 +47,32 @@ const QRMenuPage: React.FC = () => {
 
     // Persistence Effect
     useEffect(() => {
-        if (seat) {
-            localStorage.setItem('currentSeat', seat);
+        if (effectiveSeat) {
+            localStorage.setItem('currentSeat', effectiveSeat);
         }
-    }, [seat]);
+    }, [effectiveSeat]);
 
     useEffect(() => {
-        const fetchMenu = async () => {
+        const fetchEventAndMenu = async () => {
             try {
-                setIsLoading(true);
-                const res = await fetch(`${API_BASE_URL}/api/menu-items/public/event/${eventId}`);
+                showLoader();
+                let currentEventId = eventId;
+
+                // Discover active event if not provided in URL
+                if (!currentEventId) {
+                    const activeRes = await fetch(`${API_BASE_URL}/api/events/public/active`);
+                    if (activeRes.ok) {
+                        const activeData = await activeRes.json();
+                        currentEventId = activeData._id;
+                        setEventId(currentEventId);
+                    } else {
+                        throw new Error('No active event found.');
+                    }
+                }
+
+                if (!currentEventId) return;
+
+                const res = await fetch(`${API_BASE_URL}/api/menu-items/public/event/${currentEventId}`);
                 const data = await res.json();
                 if (data.message) throw new Error(data.message);
                 const filtered = data.filter((item: MenuItem) => !item.isDeleted);
@@ -56,11 +84,12 @@ const QRMenuPage: React.FC = () => {
                 console.error('Failed to fetch menu:', err);
                 toast.error('Failed to load menu items');
             } finally {
-                setIsLoading(false);
+                hideLoader();
             }
         };
-        if (eventId) fetchMenu();
-    }, [eventId, activeCategory]);
+        fetchEventAndMenu();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [eventId]);
 
     // Fetch orders for history tab
     useEffect(() => {
@@ -179,15 +208,6 @@ const QRMenuPage: React.FC = () => {
             element.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     };
-
-    if (isLoading) {
-        return (
-            <div className="qr-loading">
-                <div className="qr-spinner"></div>
-                <p>Loading menu items...</p>
-            </div>
-        );
-    }
 
     return (
         <div className="qr-menu-container">
