@@ -88,6 +88,7 @@ const QRMenuPage: React.FC = () => {
             }
         };
         fetchEventAndMenu();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [eventId]);
 
     // Fetch orders for history tab

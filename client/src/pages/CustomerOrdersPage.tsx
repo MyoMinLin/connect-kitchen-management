@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useSocket } from '../hooks/useSocket';
 import { Order, OrderItem } from '../types';
 import EditOrderModal from '../components/EditOrderModal';
@@ -7,7 +7,6 @@ import { API_BASE_URL } from '../utils/apiConfig';
 import './CustomerOrdersPage.css';
 
 const CustomerOrdersPage: React.FC = () => {
-    const { eventId } = useParams<{ eventId: string }>();
     const socket = useSocket();
     const [orders, setOrders] = useState<Order[]>([]);
     const [editingOrder, setEditingOrder] = useState<Order | null>(null);
