@@ -26,6 +26,20 @@ router.get('/active', protect, authorize('Admin', 'Waiter', 'Kitchen'), async (r
     }
 });
 
+// GET /api/events/public/active - Get the currently active event (Public)
+router.get('/public/active', async (req, res) => {
+    try {
+        await dbConnect();
+        const activeEvent = await Event.findOne({ IsCurrentEvent: true });
+        if (!activeEvent) {
+            return res.status(404).json({ message: 'No active event found' });
+        }
+        res.json(activeEvent);
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
 // Protect all other event routes, only for Admins
 router.use(protect, authorize('Admin'));
 
