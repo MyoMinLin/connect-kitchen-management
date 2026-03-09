@@ -134,13 +134,15 @@ const EventManagement = () => {
     };
 
     const handleCopyLink = () => {
-        const url = `${window.location.origin}/menu/${selectedQR?._id}${qrSeatLabel ? `/${qrSeatLabel}` : ''}`;
+        const encodedSeat = qrSeatLabel ? btoa(qrSeatLabel) : '';
+        const url = `${window.location.origin}/customer/order/${encodedSeat}`;
         navigator.clipboard.writeText(url).then(() => {
             toast.success('Menu link copied to clipboard!');
         });
     };
 
-    const menuUrl = selectedQR ? `${window.location.origin}/menu/${selectedQR._id}${qrSeatLabel ? `/${qrSeatLabel}` : ''}` : '';
+    const encodedSeat = qrSeatLabel ? btoa(qrSeatLabel) : '';
+    const menuUrl = selectedQR ? `${window.location.origin}/customer/order/${encodedSeat}` : '';
 
     return (
         <div className="user-management-container">

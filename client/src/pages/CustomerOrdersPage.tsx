@@ -94,7 +94,7 @@ const CustomerOrdersPage: React.FC = () => {
 
     return (
         <div className="customer-orders-container">
-            <Link to={currentSeat ? `/menu/${eventId}/${currentSeat}` : `/menu/${eventId}`} className="back-to-menu">
+            <Link to={currentSeat ? `/customer/order/${btoa(currentSeat)}` : `/customer/order/`} className="back-to-menu">
                 ← Back to Menu
             </Link>
 
@@ -107,7 +107,7 @@ const CustomerOrdersPage: React.FC = () => {
                 <div className="empty-orders">
                     <div className="empty-icon">📦</div>
                     <p>You haven't placed any orders yet.</p>
-                    <Link to={`/menu/${eventId}`} className="edit-order-btn" style={{ marginTop: '1rem' }}>
+                    <Link to={`/customer/order/`} className="edit-order-btn" style={{ marginTop: '1rem' }}>
                         Order Now
                     </Link>
                 </div>
