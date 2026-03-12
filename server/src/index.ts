@@ -58,6 +58,7 @@ import eventRoutes from './routes/events';
 import menuItemRoutes from './routes/menuItems';
 import orderRoutes from './routes/orders';
 import reportRoutes from './routes/reports';
+import uploadRoute from './routes/upload';
 
 // --- API Routes ---
 app.use('/api/auth', authRoutes);
@@ -66,6 +67,7 @@ app.use('/api/events', eventRoutes);
 app.use('/api/menu-items', menuItemRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/upload', uploadRoute);
 
 app.get('/api/orders/last', protect, authorize('Admin', 'Waiter'), async (req, res) => {
     try {

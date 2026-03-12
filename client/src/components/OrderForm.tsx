@@ -348,11 +348,23 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                                                     onClick={() => handleAddItem(item._id)}
                                                 >
                                                     {inOrder && <span className="of-menu-badge">{inOrder.quantity}</span>}
+                                                    <div className="of-menu-img-wrap">
+                                                        {item.imageUrl ? (
+                                                            <img
+                                                                src={item.imageUrl}
+                                                                alt={item.name}
+                                                                className="of-menu-img"
+                                                            />
+                                                        ) : (
+                                                            <span className="of-menu-img-placeholder">🍽️</span>
+                                                        )}
+                                                    </div>
                                                     <span className="of-menu-name">{item.name}</span>
                                                     <span className="of-menu-price">¥{item.price.toLocaleString()}</span>
                                                 </button>
                                             );
-                                        }))}
+                                        }))
+                                    }
                                 </div>
                             </section>
                         </div>
