@@ -11,7 +11,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import ManageEvents from './pages/ManageEvents';
 import ManageUsers from './pages/ManageUsers';
 import PublicStatusPage from './pages/PublicStatusPage';
-import QRMenuPage from './pages/QRMenuPage';
+import CustomerOrderPage from './pages/CustomerOrderPage';
 import ManageSeats from './pages/ManageSeats';
 import CustomerOrdersPage from './pages/CustomerOrdersPage';
 import CheckoutPage from './pages/CheckoutPage';
@@ -238,7 +238,7 @@ const MainApp = () => {
 
                 <Route path="/status/:eventId" element={<PublicStatusPage />} />
                 <Route path="/status/:eventId" element={<PublicStatusPage />} />
-                <Route path="/customer/order/:seat" element={<QRMenuPage />} />
+                <Route path="/customer/order/:seat" element={<CustomerOrderPage />} />
                 <Route path="/orders/my/:eventId" element={<CustomerOrdersPage />} />
 
                 <Route path="*" element={<Navigate to={getHomeRoute()} />} />
