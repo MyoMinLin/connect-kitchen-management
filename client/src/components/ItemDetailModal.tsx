@@ -5,12 +5,13 @@ import './ItemDetailModal.css';
 interface ItemDetailModalProps {
     item: MenuItem;
     onClose: () => void;
-    onAddToCart: (item: MenuItem, quantity: number, selectedOptions: { [key: string]: string }) => void;
+    onAddToCart: (item: MenuItem, quantity: number, selectedOptions: { [key: string]: string }, remarks: string) => void;
 }
 
 const ItemDetailModal: React.FC<ItemDetailModalProps> = ({ item, onClose, onAddToCart }) => {
     const [quantity, setQuantity] = useState(1);
     const [selectedOptions, setSelectedOptions] = useState<{ [key: string]: string }>({});
+    const [remarks, setRemarks] = useState('');
 
     const handleOptionChange = (optionName: string, choiceName: string) => {
         setSelectedOptions(prev => ({
@@ -20,7 +21,7 @@ const ItemDetailModal: React.FC<ItemDetailModalProps> = ({ item, onClose, onAddT
     };
 
     const handleAdd = () => {
-        onAddToCart(item, quantity, selectedOptions);
+        onAddToCart(item, quantity, selectedOptions, remarks);
         onClose();
     };
 
@@ -68,6 +69,16 @@ const ItemDetailModal: React.FC<ItemDetailModalProps> = ({ item, onClose, onAddT
                             </div>
                         </div>
                     ))}
+
+                    <div className="remarks-section">
+                        <h3 className="option-title">Remarks</h3>
+                        <textarea
+                            className="remarks-textarea"
+                            placeholder="Add special instructions (e.g. no onions, extra spicy)"
+                            value={remarks}
+                            onChange={(e) => setRemarks(e.target.value)}
+                        />
+                    </div>
                 </div>
 
                 <div className="bottom-actions">

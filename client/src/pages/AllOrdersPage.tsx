@@ -154,7 +154,6 @@ const AllOrdersPage: React.FC = () => {
                             <tr>
                                 <th>Order Number</th>
                                 <th>Seat</th>
-                                <th>Customer</th>
                                 <th>Item</th>
                                 <th>Total Amount</th>
                                 <th>Ordered At</th>
@@ -170,7 +169,6 @@ const AllOrdersPage: React.FC = () => {
                                         {order.orderNumber}
                                     </td>
                                     <td data-label="Seat">{order.seatNumber || '-'}</td>
-                                    <td data-label="Customer">{order.customerName || '-'}</td>
                                     <td data-label="Item">
                                         <ul>
                                             {aggregateItems(order.items).map((item, index) => (
@@ -244,7 +242,6 @@ const AllOrdersPage: React.FC = () => {
                                 <tr>
                                     <th>Order Number</th>
                                     <th>Seat</th>
-                                    <th>Customer</th>
                                     <th>Item</th>
                                     <th>Ordered At</th>
                                     <th>Total Amount</th>
@@ -260,7 +257,6 @@ const AllOrdersPage: React.FC = () => {
                                             {order.orderNumber}
                                         </td>
                                         <td data-label="Seat">{order.seatNumber || '-'}</td>
-                                        <td data-label="Customer">{order.customerName || '-'}</td>
                                         <td data-label="Item">
                                             <ul>
                                                 {aggregateItems(order.items).map((item, index) => (

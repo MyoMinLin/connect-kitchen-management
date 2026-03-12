@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { API_BASE_URL } from '../../utils/apiConfig';
 import { fetchWithLoader } from '../../utils/api';
 import './UserManagement.css'; // Reusing styles
+import './MenuEditor.css';
+import MenuEditModal from './MenuEditModal';
 
 // Interfaces
 interface IEvent {
@@ -16,6 +18,7 @@ interface IMenuItem {
     price: number;
     category: string;
     requiresPrep: boolean;
+    imageUrl?: string;
 }
 
 const MenuEditor = () => {
@@ -25,35 +28,47 @@ const MenuEditor = () => {
     const [error, setError] = useState('');
     const { token } = useAuth();
 
-    // Form state
+    // Form state (for creation)
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');
     const [category, setCategory] = useState('Main');
     const [requiresPrep, setRequiresPrep] = useState(true);
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string>('');
 
-    // Edit state
-    const [editingItemId, setEditingItemId] = useState<string | null>(null);
-    const [editedName, setEditedName] = useState('');
-    const [editedPrice, setEditedPrice] = useState('');
-    const [editedCategory, setEditedCategory] = useState('');
-    const [editedRequiresPrep, setEditedRequiresPrep] = useState(false);
+    // Edit Modal state
+    const [editingItem, setEditingItem] = useState<IMenuItem | null>(null);
+
+    const addImageInputRef = useRef<HTMLInputElement>(null);
 
     const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-        // Allow only digits and a single decimal point
-        if (/^\d*\.?\d*$/.test(value)) {
-            setPrice(value);
+        if (/^\d*\.?\d*$/.test(value)) setPrice(value);
+    };
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setImageFile(file);
+            setImagePreview(URL.createObjectURL(file));
         }
     };
 
-    const handleEditedPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        if (/^\d*\.?\d*$/.test(value)) {
-            setEditedPrice(value);
-        }
+    // Upload image to server → Cloudinary, returns CDN URL
+    const uploadImage = async (file: File): Promise<string> => {
+        const formData = new FormData();
+        formData.append('image', file);
+        const res = await fetch(`${API_BASE_URL}/api/upload`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData,
+        });
+        if (!res.ok) throw new Error('Image upload failed');
+        const data = await res.json();
+        return data.url;
     };
 
-    // Generic API handler
+    // Generic JSON API handler
     const api = useCallback((url: string, method: string, body?: any) => {
         return fetchWithLoader(`${API_BASE_URL}/api${url}`,
             {
@@ -77,9 +92,7 @@ const MenuEditor = () => {
     useEffect(() => {
         api('/events', 'GET').then(data => {
             setEvents(data);
-            if (data.length > 0) {
-                setSelectedEvent(data[0]._id);
-            }
+            if (data.length > 0) setSelectedEvent(data[0]._id);
         }).catch(err => setError(err.message));
     }, [api]);
 
@@ -95,53 +108,45 @@ const MenuEditor = () => {
         }
     }, [selectedEvent, api]);
 
-    const handleCreateItem = (e: React.FormEvent) => {
+    const handleCreateItem = async (e: React.FormEvent) => {
         e.preventDefault();
-        const newItem = { name, price: parseFloat(price), category, requiresPrep, eventId: selectedEvent };
-        api('/menu-items', 'POST', newItem).then(() => {
-            // Refresh list
-            api(`/menu-items/event/${selectedEvent}`, 'GET').then(setMenuItems);
-            // Reset form
+        try {
+            let imageUrl: string | undefined;
+            if (imageFile) imageUrl = await uploadImage(imageFile);
+
+            const newItem = { name, price: parseFloat(price), category, requiresPrep, eventId: selectedEvent, imageUrl };
+            await api('/menu-items', 'POST', newItem);
+
+            // Refresh list & reset form
+            const updated = await api(`/menu-items/event/${selectedEvent}`, 'GET');
+            setMenuItems(updated);
             setName(''); setPrice(''); setCategory('Main'); setRequiresPrep(true);
-        }).catch(err => setError(err.message));
+            setImageFile(null); setImagePreview('');
+            if (addImageInputRef.current) addImageInputRef.current.value = '';
+        } catch (err: any) {
+            setError(err.message);
+        }
     };
 
     const handleDeleteItem = (itemId: string) => {
         if (window.confirm('Are you sure you want to delete this item?')) {
             api(`/menu-items/${itemId}`, 'DELETE').then(() => {
-                // Refresh list
                 api(`/menu-items/event/${selectedEvent}`, 'GET').then(setMenuItems);
             }).catch(err => setError(err.message));
         }
     };
 
-    const handleEditItem = (item: IMenuItem) => {
-        setEditingItemId(item._id);
-        setEditedName(item.name);
-        setEditedPrice(item.price.toString());
-        setEditedCategory(item.category);
-        setEditedRequiresPrep(item.requiresPrep);
+    const handleUpdateItem = async (itemId: string, updatedData: any) => {
+        try {
+            await api(`/menu-items/${itemId}`, 'PUT', updatedData);
+            const updated = await api(`/menu-items/event/${selectedEvent}`, 'GET');
+            setMenuItems(updated);
+            setEditingItem(null);
+        } catch (err: any) {
+            setError(err.message);
+            throw err;
+        }
     };
-
-    const handleCancelEdit = () => {
-        setEditingItemId(null);
-    };
-
-    const handleUpdateItem = (itemId: string) => {
-        const updatedItem = {
-            name: editedName,
-            price: parseFloat(editedPrice),
-            category: editedCategory,
-            requiresPrep: editedRequiresPrep,
-        };
-        api(`/menu-items/${itemId}`, 'PUT', updatedItem).then(() => {
-            // Refresh list
-            api(`/menu-items/event/${selectedEvent}`, 'GET').then(setMenuItems);
-            // Exit editing mode
-            setEditingItemId(null);
-        }).catch(err => setError(err.message));
-    };
-
 
     return (
         <div className="user-management-container">
@@ -163,6 +168,37 @@ const MenuEditor = () => {
                 <input type="text" inputMode="decimal" placeholder="Price (¥)" value={price} onChange={handlePriceChange} required />
                 <input type="text" placeholder="Category" value={category} onChange={e => setCategory(e.target.value)} required />
                 <label><input type="checkbox" checked={requiresPrep} onChange={e => setRequiresPrep(e.target.checked)} /> Requires Prep?</label>
+
+                {/* Image Upload */}
+                <div className="menu-image-upload">
+                    <label className="menu-image-label">
+                        {imagePreview ? (
+                            <img src={imagePreview} alt="Preview" className="menu-image-preview" />
+                        ) : (
+                            <div className="menu-image-placeholder">
+                                <span className="menu-image-icon">📷</span>
+                                <span>Add Image</span>
+                            </div>
+                        )}
+                        <input
+                            type="file"
+                            accept="image/*"
+                            ref={addImageInputRef}
+                            onChange={handleImageChange}
+                            className="menu-image-input"
+                        />
+                    </label>
+                    {imagePreview && (
+                        <button
+                            type="button"
+                            className="menu-image-remove-btn"
+                            onClick={() => { setImageFile(null); setImagePreview(''); if (addImageInputRef.current) addImageInputRef.current.value = ''; }}
+                        >
+                            ✕ Remove
+                        </button>
+                    )}
+                </div>
+
                 <button type="submit">Add Item</button>
             </form>
 
@@ -170,39 +206,40 @@ const MenuEditor = () => {
 
             <h4>Existing Menu Items</h4>
             <div className="users-table-container">
-                <table className="users-table">
-                    <thead><tr><th>Name</th><th>Price</th><th>Category</th><th>Prep?</th><th>Actions</th></tr></thead>
+                <table className="users-table menu-editor-table">
+                    <thead><tr><th>Image</th><th>Name</th><th>Price</th><th>Category</th><th>Prep?</th><th>Actions</th></tr></thead>
                     <tbody>
                         {menuItems.map(item => (
                             <tr key={item._id}>
-                                {editingItemId === item._id ? (
-                                    <>
-                                        <td><input type="text" value={editedName} onChange={e => setEditedName(e.target.value)} /></td>
-                                        <td><input type="text" inputMode="decimal" value={editedPrice} onChange={handleEditedPriceChange} /></td>
-                                        <td><input type="text" value={editedCategory} onChange={e => setEditedCategory(e.target.value)} /></td>
-                                        <td><input type="checkbox" checked={editedRequiresPrep} onChange={e => setEditedRequiresPrep(e.target.checked)} /></td>
-                                        <td>
-                                            <button onClick={() => handleUpdateItem(item._id)} className="update-btn">Update</button>
-                                            <button onClick={handleCancelEdit} className="cancel-btn">Cancel</button>
-                                        </td>
-                                    </>
-                                ) : (
-                                    <>
-                                        <td>{item.name}</td>
-                                        <td>¥{item.price}</td>
-                                        <td>{item.category}</td>
-                                        <td>{item.requiresPrep ? 'Yes' : 'No'}</td>
-                                        <td>
-                                            <button onClick={() => handleEditItem(item)} className="edit-btn">Edit</button>
-                                            <button onClick={() => handleDeleteItem(item._id)} className="delete-btn">Delete</button>
-                                        </td>
-                                    </>
-                                )}
+                                <td>
+                                    {item.imageUrl ? (
+                                        <img src={item.imageUrl} alt={item.name} className="menu-table-thumb" />
+                                    ) : (
+                                        <div className="menu-table-thumb-placeholder">🍽️</div>
+                                    )}
+                                </td>
+                                <td>{item.name}</td>
+                                <td>¥{item.price}</td>
+                                <td>{item.category}</td>
+                                <td>{item.requiresPrep ? 'Yes' : 'No'}</td>
+                                <td>
+                                    <button onClick={() => setEditingItem(item)} className="edit-btn">Edit</button>
+                                    <button onClick={() => handleDeleteItem(item._id)} className="delete-btn">Delete</button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
+
+            {editingItem && (
+                <MenuEditModal
+                    item={editingItem}
+                    onClose={() => setEditingItem(null)}
+                    onUpdate={handleUpdateItem}
+                    uploadImage={uploadImage}
+                />
+            )}
         </div>
     );
 };
