@@ -60,31 +60,31 @@
     letter-spacing: 0.5px;
 }
 
-.status-new {
+.order-status-badge.status-new {
     background: var(--status-new-bg);
     color: var(--status-new-text);
     border-left-color: var(--status-new);
 }
 
-.status-preparing {
+.order-status-badge.status-preparing {
     background: var(--status-preparing-bg);
     color: var(--status-preparing-text);
     border-left-color: var(--status-preparing);
 }
 
-.status-ready {
+.order-status-badge.status-ready {
     background: var(--status-ready-bg);
     color: var(--status-ready-text);
     border-left-color: var(--status-ready);
 }
 
-.status-collected {
+.order-status-badge.status-collected {
     background: var(--status-collected-bg);
     color: var(--status-collected-text);
     border-left-color: var(--status-collected);
 }
 
-.status-cancelled {
+.order-status-badge.status-cancelled {
     background: var(--status-cancelled-bg);
     color: var(--status-cancelled-text);
     border-left-color: var(--status-cancelled);
