@@ -36,7 +36,7 @@
 .tab-btn {
     background: none;
     border: none;
-    font-size: 1.35rem;
+    font-size: 1.15rem;
     font-weight: 700;
     color: #999;
     cursor: pointer;
@@ -68,13 +68,13 @@
     background: none;
     border: none;
     width: 100%;
-    font-size: 1.1rem;
+    font-size: 1rem;
     outline: none;
 }
 
 .seat-info-fixed {
     margin-top: 10px;
-    font-size: 1.2rem;
+    font-size: 1.05rem;
     color: #444;
     font-weight: 600;
 }
@@ -99,7 +99,7 @@
     padding: 20px 5px;
     background: none;
     border: none;
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: #666;
     cursor: pointer;
     text-align: center;
@@ -133,7 +133,7 @@
 }
 
 .cat-title {
-    font-size: 1.35rem;
+    font-size: 1.2rem;
     font-weight: 700;
     margin-bottom: 15px;
     color: #333;
@@ -185,7 +185,7 @@
 }
 
 .item-name-v2 {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: #333;
     margin: 0;
@@ -201,7 +201,7 @@
 .item-price-v2 {
     font-weight: 700;
     color: #333;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
 }
 
 .add-plus-btn {
@@ -216,7 +216,7 @@
     align-items: center;
     cursor: pointer;
     padding: 0;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: bold;
     box-shadow: 0 2px 6px rgba(0, 224, 163, 0.4);
     transition: transform 0.1s active;
@@ -242,7 +242,7 @@
 }
 
 .cart-stats {
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
 }
 
@@ -277,7 +277,7 @@
 .order-status-badge {
     padding: 4px 10px;
     border-radius: 20px;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 600;
     text-transform: capitalize;
 }
@@ -305,7 +305,7 @@
 .history-item {
     display: flex;
     justify-content: space-between;
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: #666;
     margin-bottom: 5px;
 }
@@ -328,7 +328,7 @@
     padding: 12px 30px;
     border-radius: 25px;
     font-weight: 700;
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     cursor: pointer;
 }
 

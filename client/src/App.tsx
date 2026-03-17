@@ -122,9 +122,10 @@ const MainApp = () => {
     };
 
     const isPublicRoute = window.location.pathname.startsWith('/status/') || window.location.pathname.startsWith('/customer/order/');
+    const isDarkPage = window.location.pathname === '/kds';
 
     return (
-        <div>
+        <div className={isDarkPage ? 'dark-page' : ''}>
             <Toaster
                 position="top-right"
                 toastOptions={{

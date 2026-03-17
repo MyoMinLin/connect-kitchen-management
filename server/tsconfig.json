@@ -11,7 +11,7 @@
       "./node_modules/@types"
     ]
   },
-  "files": [
-    "./src/types/global.d.ts"
+  "include": [
+    "src/**/*"
   ]
 }
