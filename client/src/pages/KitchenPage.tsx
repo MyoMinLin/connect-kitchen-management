@@ -10,6 +10,7 @@ const KitchenPage = () => {
     const socket = useSocket();
     const { currentEvent } = useEvent();
     const [orders, setOrders] = useState<Order[]>([]);
+    const [activeTab, setActiveTab] = useState<Order['status']>('New');
 
     useEffect(() => {
         if (!currentEvent) {
@@ -84,6 +85,8 @@ const KitchenPage = () => {
             .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
     };
 
+    const statuses: Order['status'][] = ['New', 'Preparing', 'Ready'];
+
     return (
         <div className="kds-page">
             <header className="kds-header">
@@ -104,40 +107,31 @@ const KitchenPage = () => {
 
             {!currentEvent && <p className="kds-error">Please select an event in the Admin dashboard.</p>}
 
+            <nav className="kds-tabs">
+                {statuses.map(status => (
+                    <button
+                        key={status}
+                        className={`tab-item ${activeTab === status ? 'active' : ''} ${status.toLowerCase()}`}
+                        onClick={() => setActiveTab(status)}
+                    >
+                        <span className="tab-label">{status === 'Preparing' ? 'In Progress' : status === 'Ready' ? 'Ready' : 'New'}</span>
+                        <span className="tab-badge">{filterOrdersByStatus(status).length}</span>
+                    </button>
+                ))}
+            </nav>
+
             <div className="kds-board">
-                <section className="kds-lane">
-                    <div className="lane-header new">
-                        <h3>New Orders</h3>
-                        <span className="lane-count">{filterOrdersByStatus('New').length}</span>
-                    </div>
+                <section className={`kds-lane ${activeTab.toLowerCase()}`}>
                     <div className="lane-content">
-                        {filterOrdersByStatus('New').map(order => (
-                            <OrderCard key={order._id} order={order} onStatusUpdate={handleStatusUpdate} userRole="Kitchen" />
-                        ))}
-                    </div>
-                </section>
-
-                <section className="kds-lane">
-                    <div className="lane-header preparing">
-                        <h3>In Progress</h3>
-                        <span className="lane-count">{filterOrdersByStatus('Preparing').length}</span>
-                    </div>
-                    <div className="lane-content">
-                        {filterOrdersByStatus('Preparing').map(order => (
-                            <OrderCard key={order._id} order={order} onStatusUpdate={handleStatusUpdate} userRole="Kitchen" />
-                        ))}
-                    </div>
-                </section>
-
-                <section className="kds-lane">
-                    <div className="lane-header ready">
-                        <h3>Ready for Pickup</h3>
-                        <span className="lane-count">{filterOrdersByStatus('Ready').length}</span>
-                    </div>
-                    <div className="lane-content">
-                        {filterOrdersByStatus('Ready').map(order => (
-                            <OrderCard key={order._id} order={order} onStatusUpdate={handleStatusUpdate} userRole="Kitchen" />
-                        ))}
+                        {filterOrdersByStatus(activeTab).length > 0 ? (
+                            filterOrdersByStatus(activeTab).map(order => (
+                                <OrderCard key={order._id} order={order} onStatusUpdate={handleStatusUpdate} userRole="Kitchen" />
+                            ))
+                        ) : (
+                            <div className="empty-lane">
+                                <p>No {activeTab.toLowerCase()} orders at the moment.</p>
+                            </div>
+                        )}
                     </div>
                 </section>
             </div>

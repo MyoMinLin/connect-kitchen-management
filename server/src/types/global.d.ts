@@ -5,3 +5,5 @@ declare global {
       promise: Promise<typeof import('mongoose')> | null;
     };
 }
+
+export {};
