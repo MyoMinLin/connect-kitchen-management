@@ -26,6 +26,8 @@ export interface Order {
     isPreOrder: boolean;
     isPaid: boolean;
     deliveryAddress?: string;
+    deliveryType?: 'Yamato' | 'Letter Pack' | '';
+    paymentProof?: string;
     seatNumber?: string;
     customerName?: string;
     tabId?: string; // Unique ID to group orders by customer session

@@ -1,0 +1,208 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap');
+
+.pre-order-page.unified-experience {
+    min-height: 100vh;
+    background: radial-gradient(circle at top right, #f8fafc, #f1f5f9);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #1e293b;
+    padding: 0;
+}
+
+/* Premium Navigation Bar */
+.premium-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+    padding: 0.75rem 0;
+    transition: all 0.3s ease;
+}
+
+.nav-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    justify-content: center;
+}
+
+.nav-logo-link {
+    display: flex;
+    align-items: center;
+}
+
+.nav-small-logo {
+    height: 64px;
+    width: auto;
+    transition: transform 0.3s ease;
+}
+
+.nav-small-logo:hover {
+    transform: scale(1.05);
+}
+
+.pre-order-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 1rem 3rem;
+}
+
+/* Wide Brand Banner Section */
+.brand-banner-section {
+    margin-bottom: 2rem;
+    perspective: 1000px;
+}
+
+.brand-banner-card {
+    background: white;
+    border-radius: 28px;
+    padding: 1rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(226, 232, 240, 1);
+}
+
+.brand-banner-card:hover {
+    transform: translateY(-5px);
+}
+
+.brand-banner-img {
+    width: 100%;
+    height: auto;
+    max-height: 600px;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+/* Refined Hero Card Integration */
+.premium-hero-card {
+    background: white;
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: row;
+    min-height: 500px;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.hero-visual-side {
+    flex: 1.2;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-visual-side img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.premium-hero-card:hover .hero-visual-side img {
+    transform: scale(1.03);
+}
+
+.hero-content-side {
+    flex: 1;
+    padding: 2.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+}
+
+.hero-content-side h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 3rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+}
+
+.hero-content-side p {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: #475569;
+    margin-bottom: 2.5rem;
+}
+
+.cta-button {
+    align-self: flex-start;
+    background: #0f172a;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.2);
+}
+
+.cta-button:hover {
+    background: #1e293b;
+    transform: translateY(-2px);
+    box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.25);
+}
+
+.cta-button:active {
+    transform: translateY(0);
+}
+
+/* Form Styling Polish */
+.pre-order-form {
+    background: white !important;
+    border-radius: 24px;
+    padding: 1.5rem !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0 !important;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 968px) {
+    .premium-hero-card {
+        flex-direction: column;
+        min-height: auto;
+    }
+
+    .hero-visual-side {
+        height: 350px;
+    }
+
+    .hero-content-side {
+        padding: 2.5rem 1.5rem;
+        text-align: center;
+        align-items: center;
+    }
+
+    .hero-content-side h2 {
+        font-size: 2.25rem;
+    }
+
+    .cta-button {
+        align-self: center;
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .brand-banner-card {
+        padding: 1rem;
+        border-radius: 20px;
+    }
+
+    .hero-visual-side {
+        height: 250px;
+    }
+
+    .hero-content-side h2 {
+        font-size: 1.75rem;
+    }
+}
