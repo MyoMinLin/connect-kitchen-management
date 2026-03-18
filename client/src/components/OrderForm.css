@@ -5,21 +5,24 @@
 ───────────────────────────────────────────── */
 
 .order-form-container {
-    background: #f3f4f6;
-    /* Page background match */
     min-height: 100%;
     display: flex;
     justify-content: center;
-    padding: 20px;
+    width: 100%;
+}
+
+/* Specific override for Pre-Order page to avoid nesting issues */
+.pre-order-form.order-form-container {
+    background: transparent;
+    padding: 0;
 }
 
 /* ── Main Sheet / Card ── */
 .of-sheet {
     background: #ffffff;
     width: 100%;
-    max-width: 1000px;
-    /* Slightly wider for full page */
-    border-radius: 16px;
+    max-width: 100%;
+    border-radius: 20px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -164,7 +167,7 @@
 .of-panel {
     flex: 1;
     overflow-y: auto;
-    padding: 20px;
+    padding: 16px;
     display: none;
     /* hidden by default on mobile */
     flex-direction: column;
@@ -185,8 +188,9 @@
 
     .of-panel-details {
         border-right: 1px solid #f0f0f0;
-        flex: 1;
-        max-width: 450px;
+        flex: 0 0 40%;
+        min-width: 350px;
+        max-width: 500px;
     }
 
     .of-panel-menu {
@@ -596,33 +600,15 @@
 /* ── Menu Grid ── */
 .of-menu-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-    /* Increased gap */
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
     overflow-y: auto;
     flex: 1;
-    padding: 14px;
-    /* Added full padding to avoid clipping badges on edges */
+    padding: 16px;
     align-content: start;
 }
 
-@media (min-width: 500px) {
-    .of-menu-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media (min-width: 768px) {
-    .of-menu-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (min-width: 1024px) {
-    .of-menu-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
+/* Adaptive grid handles these now */
 
 .of-menu-card {
     position: relative;

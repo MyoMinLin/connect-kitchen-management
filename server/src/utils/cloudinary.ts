@@ -10,7 +10,12 @@ cloudinary.config({
 export const storage = new CloudinaryStorage({
     cloudinary,
     params: {
-        folder: 'menu-items',
+        folder: async (req: any, file: any) => {
+            if (req.query.type === 'payment') {
+                return process.env.CLOUDINARY_PAYMENT_FOLDER || 'payment-receipts';
+            }
+            return process.env.CLOUDINARY_MENU_FOLDER || 'menu-items';
+        },
         allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
         transformation: [{ width: 600, height: 600, crop: 'limit', quality: 'auto' }],
     } as any,

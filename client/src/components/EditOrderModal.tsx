@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useEvent } from '../context/EventContext';
 import { API_BASE_URL } from '../utils/apiConfig';
 import { fetchWithLoader } from '../utils/api';
+import ReceiptModal from './ReceiptModal';
 import toast from 'react-hot-toast';
 import './EditOrderModal.css';
 
@@ -49,6 +50,7 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({ order, onClose, onSubmi
     );
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [activeTab, setActiveTab] = useState<'details' | 'menu'>('details');
+    const [viewingReceipt, setViewingReceipt] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchMenu = async () => {
@@ -237,47 +239,69 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({ order, onClose, onSubmi
 
                                 <div className="eom-toggles">
                                     {token && (
-                                        <label className="of-toggle-row">
-                                            <span className="of-toggle-label">
-                                                <span className="of-toggle-icon">📦</span>
+                                        <label className="eom-toggle-row">
+                                            <span className="eom-toggle-label">
+                                                <span className="eom-toggle-icon">📦</span>
                                                 Pre-Order
                                             </span>
                                             <button
                                                 type="button"
                                                 role="switch"
                                                 aria-checked={isPreOrder}
-                                                className={`of-switch ${isPreOrder ? 'on' : ''}`}
+                                                className={`eom-switch ${isPreOrder ? 'on' : ''}`}
                                                 onClick={() => setIsPreOrder(v => !v)}
                                             >
-                                                <span className="of-switch-thumb" />
+                                                <span className="eom-switch-thumb" />
                                             </button>
                                         </label>
                                     )}
                                     {token && (
-                                        <label className="of-toggle-row">
-                                            <span className="of-toggle-label">
-                                                <span className="of-toggle-icon">💳</span>
+                                        <label className="eom-toggle-row">
+                                            <span className="eom-toggle-label">
+                                                <span className="eom-toggle-icon">💳</span>
                                                 Paid
                                             </span>
                                             <button
                                                 type="button"
                                                 role="switch"
                                                 aria-checked={isPaid}
-                                                className={`of-switch ${isPaid ? 'on' : ''}`}
+                                                className={`eom-switch ${isPaid ? 'on' : ''}`}
                                                 onClick={() => setIsPaid(v => !v)}
                                             >
-                                                <span className="of-switch-thumb" />
+                                                <span className="eom-switch-thumb" />
                                             </button>
                                         </label>
                                     )}
                                 </div>
 
+                                {order.paymentProof && (
+                                    <div className="eom-payment-proof">
+                                        <div className="eom-proof-header">
+                                            <h3 className="eom-section-title">Payment Proof</h3>
+                                            <div className="eom-proof-amount">
+                                                Total: ¥{calculateTotal().toLocaleString()}
+                                            </div>
+                                        </div>
+                                        <div className="eom-proof-container">
+                                            <img
+                                                src={order.paymentProof}
+                                                alt="Payment Proof"
+                                                className="eom-proof-img"
+                                                onClick={() => setViewingReceipt(order.paymentProof as string)}
+                                            />
+                                            <div className="eom-proof-overlay">
+                                                <span>Click to enlarge</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {isPreOrder && (
                                     <div className="eom-field eom-field-full eom-slide-in">
-                                        <label className="of-label" htmlFor="address">Delivery Address</label>
+                                        <label className="eom-label" htmlFor="address">Delivery Address</label>
                                         <input
                                             id="address"
-                                            className="of-input"
+                                            className="eom-input"
                                             type="text"
                                             value={deliveryAddress}
                                             onChange={e => setDeliveryAddress(e.target.value)}
@@ -290,10 +314,10 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({ order, onClose, onSubmi
                             {/* Order items */}
                             <section className="eom-section eom-items-section">
                                 <div className="eom-section-header">
-                                    <h3 className="of-section-title">Order Items</h3>
+                                    <h3 className="eom-section-title">Order Items</h3>
                                     <button
                                         type="button"
-                                        className="of-add-more-btn"
+                                        className="eom-add-more-btn"
                                         onClick={() => setActiveTab('menu')}
                                     >
                                         + Add Items
@@ -302,7 +326,7 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({ order, onClose, onSubmi
 
                                 {currentOrderItems.length === 0 ? (
                                     <div className="eom-empty-items">
-                                        <span className="of-empty-icon">🛒</span>
+                                        <span className="eom-empty-icon">🛒</span>
                                         <p>No items yet. Tap <strong>Add Items</strong> to get started.</p>
                                     </div>
                                 ) : (
@@ -312,8 +336,8 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({ order, onClose, onSubmi
                                             return (
                                                 <li key={index} className="eom-item-card">
                                                     <div className="eom-item-top">
-                                                        <span className="of-item-name">{mi ? mi.name : 'Unknown Item'}</span>
-                                                        <div className="of-item-right">
+                                                        <span className="eom-item-name">{mi ? mi.name : 'Unknown Item'}</span>
+                                                        <div className="eom-item-right">
                                                             {mi && <span className="eom-item-price">¥{(mi.price * item.quantity).toLocaleString()}</span>}
                                                             <button
                                                                 type="button"
@@ -399,12 +423,12 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({ order, onClose, onSubmi
 
                     {/* ── Footer ── */}
                     <div className="eom-footer">
-                        <button type="button" className="of-btn-cancel" onClick={onClose}>
+                        <button type="button" className="eom-btn-cancel" onClick={onClose}>
                             Cancel
                         </button>
-                        <button type="submit" className="of-btn-save" disabled={isSubmitting}>
+                        <button type="submit" className="eom-btn-save" disabled={isSubmitting}>
                             {isSubmitting ? (
-                                <><span className="of-spinner" /> Saving…</>
+                                <><span className="eom-spinner" /> Saving…</>
                             ) : (
                                 <>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -417,6 +441,19 @@ const EditOrderModal: React.FC<EditOrderModalProps> = ({ order, onClose, onSubmi
                     </div>
                 </form>
             </div>
+            {viewingReceipt && (
+                <ReceiptModal 
+                    imageUrl={viewingReceipt} 
+                    isPaid={isPaid}
+                    orderNumber={order.orderNumber.toString()}
+                    customerName={customerName}
+                    onVerify={() => new Promise<void>(resolve => {
+                        setIsPaid(true);
+                        setTimeout(resolve, 600);
+                    })}
+                    onClose={() => setViewingReceipt(null)} 
+                />
+            )}
         </div>
     );
 };

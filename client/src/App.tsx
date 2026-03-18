@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import WaitstaffPage from './pages/WaitstaffPage';
 import KitchenPage from './pages/KitchenPage';
-import LoginPage from './pages/LoginPage';
-import UnauthorizedPage from './pages/UnauthorizedPage';
 import AdminPage from './pages/AdminPage';
 import MenuManagementPage from './pages/MenuManagementPage';
 import AllOrdersPage from './pages/AllOrdersPage';
@@ -15,12 +13,14 @@ import CustomerOrderPage from './pages/CustomerOrderPage';
 import ManageSeats from './pages/ManageSeats';
 import CustomerOrdersPage from './pages/CustomerOrdersPage';
 import CheckoutPage from './pages/CheckoutPage';
+import PreOrderPage from './pages/PreOrderPage';
+import LoginPage from './pages/LoginPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import logo from './assets/logo.png';
 import { EventProvider } from './context/EventContext';
 import { NotificationProvider, useNotification } from './context/NotificationContext';
 import ReadyNotification from './components/ReadyNotification';
 import { useSocket } from './hooks/useSocket';
-import logo from './assets/logo.png';
 import './App.css';
 
 import { LoaderProvider, useLoader } from './context/LoaderContext';
@@ -93,7 +93,7 @@ const MainApp = () => {
             case 'Admin':
                 return '/admin';
             case 'Waiter':
-                return '/orders';
+                return '/new-order';
             case 'Kitchen':
                 return '/kds';
             default:
@@ -175,7 +175,7 @@ const MainApp = () => {
                                 </button>
                             </div>
                             <div className="nav-links-inner">
-                                {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/" className="nav-link" onClick={closeMenu}>အော်ဒါအသစ်</Link>}
+                                {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/new-order" className="nav-link" onClick={closeMenu}>အော်ဒါအသစ်</Link>}
                                 {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/orders" className="nav-link" onClick={closeMenu}>အော်ဒါများ</Link>}
                                 {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/checkout" className="nav-link" onClick={closeMenu}>ငွေရှင်းရန်</Link>}
                                 {(user.role === 'Admin' || user.role === 'Kitchen') && <Link to="/kds" className="nav-link" onClick={closeMenu}>မီးဖိုချောင်</Link>}
@@ -213,14 +213,10 @@ const MainApp = () => {
             )}
 
             <Routes>
-                <Route
-                    path="/login"
-                    element={user ? <Navigate to={getHomeRoute()} replace /> : <LoginPage />}
-                />
-                <Route path="/unauthorized" element={<div className="container"><UnauthorizedPage /></div>} />
+                <Route path="/" element={<Navigate to={getHomeRoute()} replace />} />
 
                 <Route element={<ProtectedRoute allowedRoles={['Admin', 'Waiter']} />}>
-                    <Route path="/" element={<div className="container"><WaitstaffPage /></div>} />
+                    <Route path="/new-order" element={<div className="container"><WaitstaffPage /></div>} />
                     <Route path="/orders" element={<div className="container"><AllOrdersPage /></div>} />
                     <Route path="/checkout" element={<div className="container"><CheckoutPage /></div>} />
                 </Route>
@@ -241,6 +237,8 @@ const MainApp = () => {
                 <Route path="/status/:eventId" element={<PublicStatusPage />} />
                 <Route path="/customer/order/:seat" element={<CustomerOrderPage />} />
                 <Route path="/orders/my/:eventId" element={<CustomerOrdersPage />} />
+                <Route path="/customer/pre-order/:eventId?" element={<PreOrderPage />} />
+                <Route path="/login" element={<LoginPage />} />
 
                 <Route path="*" element={<Navigate to={getHomeRoute()} />} />
             </Routes>
