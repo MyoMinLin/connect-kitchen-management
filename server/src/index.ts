@@ -205,7 +205,8 @@ io.on('connection', async (socket) => {
                 ...orderData,
                 orderNumber,
                 status: 'New',
-                isPaid: false, // Customers pay later
+                // isPaid should be passed in for pre-orders if paid, otherwise default to false
+                isPaid: orderData.isPaid || false,
             });
 
             console.log('New public order:', newOrder.orderNumber, 'by', newOrder.customerName || `Seat ${newOrder.seatNumber}`);
@@ -230,7 +231,7 @@ io.on('connection', async (socket) => {
     // Listen for an order edit
     socket.on('edit_order', async (editData, callback) => {
         const user = (socket as any).user;
-        const { orderId, seatNumber, customerName, items, isPreOrder, isPaid, deliveryAddress, tabId } = editData;
+        const { orderId, seatNumber, customerName, items, isPreOrder, isPaid, deliveryAddress, deliveryType, paymentProof, tabId } = editData;
 
         try {
             await dbConnect();
@@ -270,7 +271,7 @@ io.on('connection', async (socket) => {
 
             const updatedOrder = await Order.findByIdAndUpdate(
                 orderId,
-                { seatNumber, customerName, items, isPreOrder, isPaid, deliveryAddress },
+                { seatNumber, customerName, items, isPreOrder, isPaid, deliveryAddress, deliveryType, paymentProof },
                 { new: true }
             ).populate('items.menuItem');
 
@@ -337,6 +338,30 @@ io.on('connection', async (socket) => {
         } catch (error) {
             console.error('Error updating order status:', error);
             socket.emit('error', { message: 'Failed to update order status' });
+        }
+    });
+
+    // Listen for a payment status update
+    socket.on('update_payment_status', async ({ orderId, isPaid }) => {
+        const user = (socket as any).user;
+        if (user.role !== 'Admin' && user.role !== 'Waiter') {
+            return socket.emit('error', { message: 'Unauthorized' });
+        }
+
+        try {
+            await dbConnect();
+            const updatedOrder = await Order.findByIdAndUpdate(
+                orderId,
+                { isPaid },
+                { new: true }
+            ).populate('items.menuItem');
+
+            if (updatedOrder) {
+                io.emit('order_update', updatedOrder);
+            }
+        } catch (error) {
+            console.error('Error updating payment status:', error);
+            socket.emit('error', { message: 'Failed to update payment status' });
         }
     });
 

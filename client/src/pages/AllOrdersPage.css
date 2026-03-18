@@ -1,108 +1,115 @@
+.all-orders-page {
+    padding: var(--space-4);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
 .all-orders-page h1,
 .all-orders-page h2 {
     color: var(--color-neutral-800);
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-6);
+    font-weight: var(--font-extrabold);
+    letter-spacing: -0.025em;
 }
 
 .collected-orders-title {
-    margin-top: var(--space-8);
+    margin-top: var(--space-12);
+    padding-top: var(--space-8);
+    border-top: 1px dashed var(--color-neutral-200);
 }
 
 .orders-list-container {
-    background-color: var(--color-white);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
     padding: var(--space-6);
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-sm);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow-x: auto;
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 
-.pre-order-indicator {
-    display: inline-block;
-    background-color: var(--color-info);
-    color: var(--color-white);
-    padding: 0.3rem 0.6rem;
-    border-radius: var(--radius-full);
-    font-size: var(--text-sm);
-    font-weight: var(--font-bold);
-    margin-right: var(--space-2);
+.orders-list-container:hover {
+    box-shadow: var(--shadow-lg);
 }
 
-@media (max-width: 768px) {
-    .orders-list-container {
-        padding: var(--space-4);
-    }
-
-    .orders-table th,
-    .orders-table td {
-        padding: 0.8rem;
-        font-size: 0.9rem;
-    }
-
-    .action-btn {
-        padding: var(--space-2) 0.8rem;
-        font-size: var(--text-sm);
-    }
-
-    /* Cards/Stacked Layout for Mobile */
-    .orders-table {
-        border: 0;
-    }
-
-    .orders-table thead {
-        border: none;
-        clip: rect(0 0 0 0);
-        height: 1px;
-        margin: -1px;
-        overflow: hidden;
-        padding: 0;
-        position: absolute;
-        width: 1px;
-    }
-
-    .orders-table tr {
-        border-bottom: 3px solid var(--color-neutral-300);
-        display: block;
-        margin-bottom: .625em;
-        background-color: var(--color-white);
-        border-radius: var(--radius-sm);
-        box-shadow: var(--shadow-sm);
-        padding: var(--space-4);
-    }
-
-    .orders-table td {
-        border-bottom: 1px solid var(--color-neutral-200);
-        display: block;
-        font-size: .8em;
-        text-align: right;
-    }
-
-    .orders-table td::before {
-        content: attr(data-label);
-        float: left;
-        font-weight: var(--font-bold);
-        text-transform: uppercase;
-        margin-right: var(--space-4);
-    }
-
-    .orders-table td:last-child {
-        border-bottom: 0;
-    }
-}
+/* ──────────────── Table Styling ──────────────── */
 
 .orders-table {
     width: 100%;
-    border-collapse: collapse;
-}
-
-.orders-table th,
-.orders-table td {
-    padding: var(--space-4);
-    text-align: left;
-    border-bottom: 1px solid var(--color-neutral-200);
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
 .orders-table th {
-    background-color: var(--color-background);
+    background-color: var(--color-neutral-50);
+    color: var(--color-neutral-600);
+    font-size: var(--text-xs);
+    font-weight: var(--font-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: var(--space-4) var(--space-6);
+    text-align: left;
+    border-bottom: 2px solid var(--color-neutral-100);
 }
+
+.orders-table td {
+    padding: var(--space-5) var(--space-6);
+    vertical-align: middle;
+    border-bottom: 1px solid var(--color-neutral-50);
+    color: var(--color-neutral-700);
+    font-size: var(--text-sm);
+    transition: background-color var(--transition-fast);
+}
+
+.orders-table tr:hover td {
+    background-color: var(--color-neutral-50);
+}
+
+.orders-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* ──────────────── Order Type Badges ──────────────── */
+
+.order-type-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.order-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius-full);
+    font-size: 0.65rem;
+    font-weight: var(--font-extrabold);
+    text-transform: uppercase;
+    width: fit-content;
+    white-space: nowrap;
+}
+
+.type-pre {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+}
+
+.type-seat {
+    background-color: var(--status-ready-bg);
+    color: var(--status-ready);
+}
+
+.order-number-text {
+    font-family: var(--font-mono);
+    font-weight: var(--font-bold);
+    color: var(--color-neutral-900);
+    font-size: var(--text-base);
+}
+
+/* ──────────────── Item List Styling ──────────────── */
 
 .orders-table td ul {
     list-style: none;
@@ -110,70 +117,70 @@
     margin: 0;
 }
 
+.orders-table td li {
+    margin-bottom: var(--space-1);
+    line-height: 1.4;
+}
+
+.item-remarks {
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--color-neutral-500);
+    font-style: italic;
+    margin-top: 2px;
+}
+
+/* ──────────────── Status Badges ──────────────── */
+
 .status-badge {
-    padding: 0.3rem 0.6rem;
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
     border-radius: var(--radius-md);
-    font-weight: var(--font-semibold);
-    color: var(--color-white);
-    font-size: 0.9rem;
+    font-weight: var(--font-bold);
+    font-size: 0.75rem;
+    text-transform: capitalize;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .status-new .status-badge {
-    background-color: var(--status-new);
+    background-color: var(--status-new-bg);
+    color: var(--status-new-text);
 }
 
 .status-preparing .status-badge {
-    background-color: var(--status-preparing);
+    background-color: var(--status-preparing-bg);
+    color: var(--status-preparing-text);
 }
 
 .status-ready .status-badge {
-    background-color: var(--status-ready);
-    animation: pulse 1.5s infinite;
+    background-color: var(--status-ready-bg);
+    color: var(--status-ready-text);
+    animation: pulse 2s infinite;
 }
 
 .status-collected .status-badge {
-    background-color: var(--status-collected);
+    background-color: var(--status-collected-bg);
+    color: var(--status-collected-text);
 }
 
 .status-cancelled .status-badge {
-    background-color: var(--status-cancelled);
+    background-color: var(--status-cancelled-bg);
+    color: var(--status-cancelled-text);
 }
 
 @keyframes pulse {
     0% {
-        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+        box-shadow: 0 0 0 0 rgba(4, 120, 87, 0.4);
     }
-
     70% {
-        box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+        box-shadow: 0 0 0 10px rgba(4, 120, 87, 0);
     }
-
     100% {
-        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+        box-shadow: 0 0 0 0 rgba(4, 120, 87, 0);
     }
 }
 
-.action-btn {
-    border: none;
-    padding: 0.6rem var(--space-4);
-    border-radius: var(--radius-sm);
-    color: var(--color-white);
-    font-weight: var(--font-bold);
-    cursor: pointer;
-    transition: opacity var(--transition-base);
-}
-
-.action-btn:hover {
-    opacity: 0.85;
-}
-
-.action-btn:active {
-    opacity: 0.7;
-}
-
-.collected-btn {
-    background-color: var(--color-primary);
-}
+/* ──────────────── Action Buttons ──────────────── */
 
 .action-buttons-wrapper {
     display: flex;
@@ -183,37 +190,222 @@
 }
 
 .icon-action-btn {
-    width: 36px;
-    height: 36px;
-    padding: 0;
+    width: 38px;
+    height: 38px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--radius-sm);
-    border: none;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-neutral-200);
+    background-color: var(--color-white);
+    color: var(--color-neutral-600);
     cursor: pointer;
-    transition: all var(--transition-base);
-    background-color: transparent;
+    transition: all var(--transition-fast);
 }
 
-.edit-btn {
-    background-color: var(--color-secondary);
-    color: var(--color-white);
-    border: none;
+.icon-action-btn:hover {
+    background-color: var(--color-neutral-50);
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
 }
 
 .edit-btn:hover {
-    background-color: var(--color-secondary-hover);
-    opacity: 0.9;
-}
-
-.address-btn {
-    background-color: var(--color-info);
-    color: var(--color-white);
-    border: none;
+    color: var(--color-secondary);
+    border-color: var(--color-secondary);
 }
 
 .address-btn:hover {
-    background-color: var(--color-info-hover);
-    opacity: 0.9;
+    color: var(--color-info);
+    border-color: var(--color-info);
+}
+
+.collected-btn {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    border: none;
+    padding: 0.5rem var(--space-4);
+    border-radius: var(--radius-md);
+    font-weight: var(--font-bold);
+    font-size: var(--text-sm);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-fast);
+}
+
+.collected-btn:hover {
+    background-color: var(--color-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+/* ──────────────── Responsive Design ──────────────── */
+
+@media (max-width: 1024px) {
+    .orders-list-container {
+        padding: var(--space-4);
+    }
+    
+    .orders-table th,
+    .orders-table td {
+        padding: var(--space-4);
+    }
+}
+
+@media (max-width: 768px) {
+    .all-orders-page h1 {
+        font-size: var(--text-2xl);
+    }
+
+    .orders-list-container {
+        background: transparent;
+        border: none;
+        padding: 0;
+        box-shadow: none;
+    }
+
+    .orders-table, 
+    .orders-table thead, 
+    .orders-table tbody, 
+    .orders-table th, 
+    .orders-table td, 
+    .orders-table tr {
+        display: block;
+    }
+
+    .orders-table thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    .orders-table tr {
+        background: var(--color-white);
+        margin-bottom: var(--space-4);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        padding: var(--space-4);
+        border: 1px solid var(--color-neutral-100);
+    }
+
+    .orders-table td {
+        border: none;
+        border-bottom: 1px solid var(--color-neutral-50);
+        position: relative;
+        padding-left: 50%;
+        text-align: right;
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .orders-table td:last-child {
+        border-bottom: none;
+        padding-top: var(--space-4);
+    }
+
+    .orders-table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: var(--font-bold);
+        color: var(--color-neutral-500);
+        font-size: var(--text-xs);
+        text-transform: uppercase;
+    }
+
+    .order-type-wrapper {
+        align-items: flex-end;
+    }
+}
+.seat-badge {
+    background-color: var(--color-neutral-100);
+    color: var(--color-neutral-700);
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-sm);
+    font-weight: var(--font-bold);
+    font-family: var(--font-mono);
+}
+
+.no-seat {
+    color: var(--color-neutral-400);
+    font-style: italic;
+}
+
+.amount-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.total-amount-text {
+    font-weight: var(--font-extrabold);
+    color: var(--color-neutral-900);
+}
+
+.payment-badge {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.65rem;
+    font-weight: var(--font-bold);
+    text-transform: uppercase;
+    width: fit-content;
+}
+
+.payment-badge.paid {
+    background-color: var(--status-ready-bg);
+    color: var(--status-ready);
+}
+
+.payment-badge.pending {
+    background-color: var(--color-danger-light);
+    color: var(--color-danger);
+}
+
+.receipt-btn:hover {
+    color: var(--status-new);
+    border-color: var(--status-new);
+}
+
+.verify-btn {
+    color: var(--status-ready);
+    border-color: rgba(16, 185, 129, 0.2);
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.verify-btn:hover {
+    background: var(--status-ready-bg);
+    color: white;
+    border-color: var(--status-ready);
+}
+
+.order-type-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2px;
+}
+
+.order-customer-name {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
+    padding-left: 2px;
+}
+
+@media (max-width: 768px) {
+    .order-customer-name {
+        font-size: 0.95rem;
+        margin-top: 6px;
+        padding: 4px 8px;
+        background: rgba(0, 0, 0, 0.03);
+        border-radius: 6px;
+    }
 }

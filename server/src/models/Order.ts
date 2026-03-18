@@ -11,6 +11,8 @@ export interface IOrder extends Document {
     isPreOrder: boolean;
     isPaid: boolean;
     deliveryAddress: string;
+    deliveryType?: 'Yamato' | 'Letter Pack' | '';
+    paymentProof?: string;
     items: { menuItem: IMenuItem['_id']; quantity: number; remarks?: string }[];
     status: 'New' | 'Preparing' | 'Ready' | 'Collected' | 'Cancelled';
     preparingStartedAt?: Date;
@@ -29,6 +31,8 @@ const OrderSchema: Schema = new Schema({
     isPreOrder: { type: Boolean, default: false },
     isPaid: { type: Boolean, default: false },
     deliveryAddress: { type: String, default: '' },
+    deliveryType: { type: String, enum: ['Yamato', 'Letter Pack', ''], default: '' },
+    paymentProof: { type: String },
     items: [{
         menuItem: { type: Schema.Types.ObjectId, ref: 'MenuItem', required: true },
         quantity: { type: Number, required: true },
