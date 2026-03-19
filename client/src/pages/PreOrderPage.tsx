@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useSocket } from '../hooks/useSocket';
 import { API_BASE_URL } from '../utils/apiConfig';
 import PreOrderForm from '../components/PreOrderForm';
@@ -7,6 +8,7 @@ import { OrderItem } from '../types';
 import toast from 'react-hot-toast';
 import heroImage from '../assets/preorder-hero.png';
 import smallLogo from '../assets/logo.png';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 import './PreOrderPage.css';
 
 const PreOrderPage: React.FC = () => {
@@ -14,6 +16,7 @@ const PreOrderPage: React.FC = () => {
     const socket = useSocket();
     const [eventId, setEventId] = useState<string | undefined>(paramEventId);
     const [showForm, setShowForm] = useState<boolean>(false);
+    const { t } = useTranslation();
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -54,7 +57,7 @@ const PreOrderPage: React.FC = () => {
             if (socket) {
                 socket.emit('new_public_order', order, (response: any) => {
                     if (response?.status === 'ok') {
-                        toast.success('Pre-order received! We will process it soon.');
+                        toast.success(t('preOrder.preOrderReceived'));
                         setShowForm(false); // Return to landing page
                         resolve();
                     } else {
@@ -75,6 +78,7 @@ const PreOrderPage: React.FC = () => {
                     <div className="nav-logo-link">
                         <img src={smallLogo} alt="Connect Logo" className="nav-small-logo" />
                     </div>
+                    <LanguageSwitcher />
                 </div>
             </nav>
 
@@ -101,13 +105,12 @@ const PreOrderPage: React.FC = () => {
                                 />
                             </div>
                             <div className="hero-content-side">
-                                <h2>Ready to start your order?</h2>
+                                <h2>{t('preOrder.readyToOrder')}</h2>
                                 <p>
-                                    Experience gourmet flavors crafted with passion. 
-                                    Secure your favorites in advance and enjoy a seamless dining experience.
+                                    {t('preOrder.heroDescription')}
                                 </p>
                                 <button className="cta-button" onClick={() => setShowForm(true)}>
-                                    Start Order Now
+                                    {t('preOrder.startOrderNow')}
                                 </button>
                             </div>
                         </section>
@@ -122,7 +125,7 @@ const PreOrderPage: React.FC = () => {
                             />
                         ) : (
                             <div className="no-event-message card-styled">
-                                <p>No active event found for pre-ordering. Please check back later.</p>
+                                <p>{t('preOrder.noActiveEvent')}</p>
                             </div>
                         )}
                     </div>

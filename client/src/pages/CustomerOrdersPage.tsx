@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useSocket } from '../hooks/useSocket';
 import { Order, OrderItem } from '../types';
 import EditOrderModal from '../components/EditOrderModal';
@@ -11,6 +12,7 @@ const CustomerOrdersPage: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [editingOrder, setEditingOrder] = useState<Order | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { t } = useTranslation();
 
     const tabId = localStorage.getItem('tabId');
     const currentSeat = localStorage.getItem('currentSeat');
@@ -88,26 +90,26 @@ const CustomerOrdersPage: React.FC = () => {
     };
 
     if (isLoading) {
-        return <div className="customer-orders-container"><div className="orders-header"><h1>Loading...</h1></div></div>;
+        return <div className="customer-orders-container"><div className="orders-header"><h1>{t('common.loading')}</h1></div></div>;
     }
 
     return (
         <div className="customer-orders-container">
             <Link to={currentSeat ? `/customer/order/${btoa(currentSeat)}` : `/customer/order/`} className="back-to-menu">
-                ← Back to Menu
+                {t('customerOrders.backToMenu')}
             </Link>
 
             <header className="orders-header">
-                <h1>My Orders</h1>
-                <p>Track your orders and their status</p>
+                <h1>{t('customerOrders.myOrders')}</h1>
+                <p>{t('customerOrders.trackOrders')}</p>
             </header>
 
             {orders.length === 0 ? (
                 <div className="empty-orders">
                     <div className="empty-icon">📦</div>
-                    <p>You haven't placed any orders yet.</p>
+                    <p>{t('customerOrders.noOrdersYet')}</p>
                     <Link to={`/customer/order/`} className="edit-order-btn" style={{ marginTop: '1rem' }}>
-                        Order Now
+                        {t('customerOrders.orderNow')}
                     </Link>
                 </div>
             ) : (
@@ -115,7 +117,7 @@ const CustomerOrdersPage: React.FC = () => {
                     {orders.map(order => (
                         <div key={order._id} className="order-history-card">
                             <div className="order-history-header">
-                                <span className="order-number">Order #{order.orderNumber}</span>
+                                <span className="order-number">{t('common.order')} #{order.orderNumber}</span>
                                 <span className={`order-status-badge status-${order.status.toLowerCase()}`}>
                                     {order.status}
                                 </span>
@@ -133,7 +135,7 @@ const CustomerOrdersPage: React.FC = () => {
                                     className="edit-order-btn"
                                     onClick={() => setEditingOrder(order)}
                                 >
-                                    ✏️ Edit Order
+                                    {t('customerOrders.editOrder')}
                                 </button>
                             )}
                         </div>

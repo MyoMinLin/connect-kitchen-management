@@ -165,3 +165,11 @@
         border-radius: 18px;
     }
 }
+
+/* Language switcher positioned at top-right of login page */
+.login-lang-switcher {
+    position: absolute;
+    top: var(--space-6, 1.5rem);
+    right: var(--space-6, 1.5rem);
+    z-index: 10;
+}

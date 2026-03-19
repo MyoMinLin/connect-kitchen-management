@@ -4,6 +4,7 @@ import { useEvent } from '../context/EventContext';
 import { Order } from '../types';
 import { API_BASE_URL } from '../utils/apiConfig';
 import { fetchWithLoader } from '../utils/api';
+import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import './CheckoutPage.css';
 
@@ -12,6 +13,7 @@ const CheckoutPage: React.FC = () => {
     const socket = useSocket();
     const [orders, setOrders] = useState<Order[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const { t } = useTranslation();
 
     const fetchOrders = async () => {
         if (!currentEvent) return;
@@ -52,7 +54,7 @@ const CheckoutPage: React.FC = () => {
         const tabGroups: { [key: string]: Order[] } = {};
 
         activeOrders.forEach(order => {
-            const identifier = order.seatNumber ? `Seat ${order.seatNumber}` : (order.customerName || 'Walk-in / Unknown');
+            const identifier = order.seatNumber ? `${t('common.seat')} ${order.seatNumber}` : (order.customerName || 'Walk-in / Unknown');
             if (!tabGroups[identifier]) tabGroups[identifier] = [];
             tabGroups[identifier].push(order);
         });
@@ -63,14 +65,15 @@ const CheckoutPage: React.FC = () => {
             }, 0);
             return { identifier, orders, total };
         }).filter(tab => tab.identifier.toLowerCase().includes(searchTerm.toLowerCase()));
-    }, [orders, searchTerm]);
+    }, [orders, searchTerm, t]);
 
     const handleSettleTab = async (identifier: string) => {
-        if (!window.confirm(`Settle all orders for ${identifier}?`)) return;
+        if (!window.confirm(t('checkout.settleConfirm', { identifier }))) return;
 
         try {
-            // Clean up identifier (remove 'Seat ' prefix if present)
-            const cleanIdentifier = identifier.startsWith('Seat ') ? identifier.replace('Seat ', '') : identifier;
+            // Clean up identifier (remove translated 'Seat ' prefix if present)
+            const seatPrefix = `${t('common.seat')} `;
+            const cleanIdentifier = identifier.startsWith(seatPrefix) ? identifier.replace(seatPrefix, '') : identifier;
 
             const response = await fetchWithLoader(`${API_BASE_URL}/api/orders/tab/settle`, {
                 method: 'POST',
@@ -85,10 +88,10 @@ const CheckoutPage: React.FC = () => {
             });
 
             if (response.ok) {
-                toast.success('Tab settled successfully!');
+                toast.success(t('checkout.settleSuccess'));
                 fetchOrders(); // Refresh local data
             } else {
-                toast.error('Failed to settle tab.');
+                toast.error(t('checkout.settleFailed'));
             }
         } catch (error) {
             console.error('Error settling tab:', error);
@@ -98,18 +101,18 @@ const CheckoutPage: React.FC = () => {
     return (
         <div className="checkout-container">
             <header className="checkout-header">
-                <h2>Checkout & Tab Settlement</h2>
+                <h2>{t('checkout.title')}</h2>
                 <div className="search-box">
                     <input
                         type="text"
-                        placeholder="Search by Name or Seat..."
+                        placeholder={t('checkout.searchPlaceholder')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
             </header>
 
-            {!currentEvent && <p>Please select an event in admin settings.</p>}
+            {!currentEvent && <p>{t('checkout.selectEventPrompt')}</p>}
 
             <div className="tabs-grid">
                 {tabs.length > 0 ? (
@@ -117,7 +120,7 @@ const CheckoutPage: React.FC = () => {
                         <div key={tab.identifier} className="tab-card">
                             <div className="tab-top">
                                 <h3>{tab.identifier}</h3>
-                                <span className="order-count">{tab.orders.length} Order(s)</span>
+                                <span className="order-count">{t('checkout.orderCount', { count: tab.orders.length })}</span>
                             </div>
                             <div className="tab-details">
                                 {tab.orders.map(o => (
@@ -134,17 +137,17 @@ const CheckoutPage: React.FC = () => {
                             </div>
                             <div className="tab-footer">
                                 <div className="total-amount">
-                                    <span>Total:</span>
+                                    <span>{t('common.total')}:</span>
                                     <strong>¥{tab.total}</strong>
                                 </div>
                                 <button className="settle-btn" onClick={() => handleSettleTab(tab.identifier)}>
-                                    Pay & Close Tab
+                                    {t('checkout.payAndClose')}
                                 </button>
                             </div>
                         </div>
                     ))
                 ) : (
-                    <p className="no-tabs">No active tabs found.</p>
+                    <p className="no-tabs">{t('checkout.noActiveTabs')}</p>
                 )}
             </div>
         </div>

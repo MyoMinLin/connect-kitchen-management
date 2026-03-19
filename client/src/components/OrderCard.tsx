@@ -1,5 +1,6 @@
 import React from 'react';
 import { Order } from '../types'; // Import Order from types.ts
+import { useTranslation } from 'react-i18next';
 import './OrderCard.css';
 import { format } from 'date-fns-tz';
 
@@ -10,6 +11,7 @@ interface OrderCardProps {
 }
 
 const OrderCard: React.FC<OrderCardProps> = ({ order, onStatusUpdate, userRole }) => {
+    const { t } = useTranslation();
 
     const getTimeElapsed = (startTime?: string) => {
         if (!startTime) return '';
@@ -56,11 +58,11 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onStatusUpdate, userRole }
     return (
         <div className={`order-card status-${order.status.toLowerCase().replace(' ', '-')}`}>
             <div className="card-header">
-                <h4>Order #{order.orderNumber}</h4>
+                <h4>{t('orderCard.orderNumber', { number: order.orderNumber })}</h4>
                 <span className="time-elapsed">{getTimestampForStatus()}</span>
             </div>
-            {order.seatNumber && <p className="seat-number">Seat: {order.seatNumber}</p>}
-            {order.customerName && <p className="customer-name">Customer: {order.customerName}</p>}
+            {order.seatNumber && <p className="seat-number">{t('orderCard.seatLabel', { seat: order.seatNumber })}</p>}
+            {order.customerName && <p className="customer-name">{t('orderCard.customerLabel', { name: order.customerName })}</p>}
             <ul className="item-list">
                 {order.items
                     .filter(item => item.menuItem && item.menuItem.requiresPrep)
@@ -74,29 +76,29 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onStatusUpdate, userRole }
             <div className="card-actions">
                 {userRole === 'Kitchen' && order.status === 'New' && (
                     <button onClick={() => onStatusUpdate(order._id, 'Preparing')} className="action-btn progress-btn">
-                        Start Cooking
+                        {t('orderCard.startCooking')}
                     </button>
                 )}
                 {userRole === 'Kitchen' && order.status === 'Preparing' && (
                     <button onClick={() => onStatusUpdate(order._id, 'Ready')} className="action-btn ready-btn">
-                        Mark as Ready
+                        {t('orderCard.markAsReady')}
                     </button>
                 )}
                 {userRole === 'Waiter' && order.status === 'Ready' && (
                     <button onClick={() => onStatusUpdate(order._id, 'Collected')} className="action-btn collected-btn">
-                        Mark as Collected
+                        {t('orderCard.markAsCollected')}
                     </button>
                 )}
                 {(userRole === 'Kitchen' || userRole === 'Admin') && (order.status === 'New' || order.status === 'Preparing') && (
                     <button
                         onClick={() => {
-                            if (window.confirm('Are you sure you want to cancel this order?')) {
+                            if (window.confirm(t('orderCard.cancelConfirm'))) {
                                 onStatusUpdate(order._id, 'Cancelled');
                             }
                         }}
                         className="action-btn cancel-btn"
                     >
-                        Cancel
+                        {t('orderCard.cancel')}
                     </button>
                 )}
             </div>

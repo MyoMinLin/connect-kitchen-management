@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { MenuItem, OrderItem } from '../types'; // Import from types.ts
 import { useAuth } from '../context/AuthContext';
 import { useEvent } from '../context/EventContext'; // Import useEvent
@@ -16,6 +17,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
     const { token, logout } = useAuth();
     const { currentEvent } = useEvent();
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -142,7 +144,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                 {/* ── Header ── */}
                 <div className="of-header">
                     <div className="of-header-left">
-                        <span className="of-title">New Order</span>
+                        <span className="of-title">{t('orderForm.newOrder')}</span>
                         {currentEvent && <span className="of-event-id">#{currentEvent._id.slice(-6)}</span>}
                     </div>
                 </div>
@@ -153,14 +155,14 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                         className={`of-tab ${activeTab === 'details' ? 'active' : ''}`}
                         onClick={() => setActiveTab('details')}
                     >
-                        Order Details
+                        {t('orderForm.orderDetails')}
                         {totalItems > 0 && <span className="of-tab-badge">{totalItems}</span>}
                     </button>
                     <button
                         className={`of-tab ${activeTab === 'menu' ? 'active' : ''}`}
                         onClick={() => setActiveTab('menu')}
                     >
-                        Add Items
+                        {t('orderForm.addItems')}
                     </button>
                 </div>
 
@@ -172,10 +174,10 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                             <div className="of-panel-details-inner">
                                 {/* Customer Section */}
                                 <section className="of-section">
-                                    <h3 className="of-section-title">Customer Info</h3>
+                                    <h3 className="of-section-title">{t('orderForm.customerInfo')}</h3>
                                     <div className="of-field-row">
                                         <div className="of-field of-field-sm">
-                                            <label className="of-label" htmlFor="seat">Seat</label>
+                                            <label className="of-label" htmlFor="seat">{t('common.seat')}</label>
                                             <input
                                                 id="seat"
                                                 className="of-input"
@@ -186,14 +188,14 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                                             />
                                         </div>
                                         <div className="of-field of-field-grow">
-                                            <label className="of-label" htmlFor="customer">Name</label>
+                                            <label className="of-label" htmlFor="customer">{t('orderForm.name')}</label>
                                             <input
                                                 id="customer"
                                                 className="of-input"
                                                 type="text"
                                                 value={customerName}
                                                 onChange={e => setCustomerName(e.target.value)}
-                                                placeholder="Optional"
+                                                placeholder={t('common.optional')}
                                             />
                                         </div>
                                     </div>
@@ -202,7 +204,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                                         <label className="of-toggle-row">
                                             <span className="of-toggle-label">
                                                 <span className="of-toggle-icon">📦</span>
-                                                Pre-Order
+                                                {t('orderForm.preOrder')}
                                             </span>
                                             <button
                                                 type="button"
@@ -217,7 +219,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                                         <label className="of-toggle-row">
                                             <span className="of-toggle-label">
                                                 <span className="of-toggle-icon">💳</span>
-                                                Paid
+                                                {t('common.paid')}
                                             </span>
                                             <button
                                                 type="button"
@@ -233,14 +235,14 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
 
                                     {isPreOrder && (
                                         <div className="of-field of-field-full of-slide-in">
-                                            <label className="of-label" htmlFor="address">Delivery Address</label>
+                                            <label className="of-label" htmlFor="address">{t('orderForm.deliveryAddress')}</label>
                                             <input
                                                 id="address"
                                                 className="of-input"
                                                 type="text"
                                                 value={deliveryAddress}
                                                 onChange={e => setDeliveryAddress(e.target.value)}
-                                                placeholder="e.g., 123 Main St"
+                                                placeholder={t('orderForm.addressPlaceholder')}
                                             />
                                         </div>
                                     )}
@@ -249,20 +251,20 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                                 {/* Order Items Section */}
                                 <section className="of-section of-items-section">
                                     <div className="of-section-header">
-                                        <h3 className="of-section-title">Order Items</h3>
+                                        <h3 className="of-section-title">{t('orderForm.orderItems')}</h3>
                                         <button
                                             type="button"
                                             className="of-add-more-btn"
                                             onClick={() => setActiveTab('menu')}
                                         >
-                                            + Add Items
+                                            {t('orderForm.addItems')}
                                         </button>
                                     </div>
 
                                     {currentOrderItems.length === 0 ? (
                                         <div className="of-empty-items">
                                             <span className="of-empty-icon">🛒</span>
-                                            <p>No items yet. Tap <strong>Add Items</strong> to get started.</p>
+                                            <p dangerouslySetInnerHTML={{ __html: t('orderForm.noItemsYet') }}></p>
                                         </div>
                                     ) : (
                                         <ul className="of-items-list">
@@ -271,7 +273,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                                                 return (
                                                     <li key={index} className="of-item-card">
                                                         <div className="of-item-top">
-                                                            <span className="of-item-name">{mi ? mi.name : 'Unknown Item'}</span>
+                                                            <span className="of-item-name">{mi ? mi.name : t('orderForm.unknownItem')}</span>
                                                             <div className="of-item-right">
                                                                 {mi && <span className="of-item-price">¥{(mi.price * item.quantity).toLocaleString()}</span>}
                                                                 <button
@@ -295,7 +297,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                                                             <input
                                                                 type="text"
                                                                 className="of-remark-input"
-                                                                placeholder="Special request…"
+                                                                placeholder={t('orderForm.specialRequest')}
                                                                 value={item.remarks}
                                                                 onChange={e => handleRemarkChange(index, e.target.value)}
                                                             />
@@ -308,7 +310,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
 
                                     {currentOrderItems.length > 0 && (
                                         <div className="of-total-row">
-                                            <span>Total</span>
+                                            <span>{t('common.total')}</span>
                                             <span className="of-total-amount">¥{calculateTotal().toLocaleString()}</span>
                                         </div>
                                     )}
@@ -326,7 +328,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                                     <input
                                         className="of-menu-search"
                                         type="text"
-                                        placeholder="Search menu…"
+                                        placeholder={t('orderForm.searchMenu')}
                                         value={menuSearch}
                                         onChange={e => setMenuSearch(e.target.value)}
                                     />
@@ -336,7 +338,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                                 </div>
                                 <div className="of-menu-grid">
                                     {filteredMenuItems.length === 0 ? (
-                                        <p className="of-no-results">No items match "{menuSearch}"</p>
+                                        <p className="of-no-results">{t('orderForm.noItemsMatch')} "{menuSearch}"</p>
                                     ) : (
                                         filteredMenuItems.map(item => {
                                             const inOrder = currentOrderItems.find(i => i.menuItem === item._id);
@@ -373,17 +375,17 @@ const OrderForm: React.FC<OrderFormProps> = ({ onSubmit }) => {
                     {/* ── Footer ── */}
                     <div className="of-footer">
                         <button type="button" className="of-btn-cancel" onClick={() => navigate(-1)}>
-                            Cancel
+                            {t('common.cancel')}
                         </button>
                         <button type="submit" className="of-btn-submit" disabled={isSubmitting}>
                             {isSubmitting ? (
-                                <><span className="of-spinner" /> Submitting…</>
+                                <><span className="of-spinner" /> {t('orderForm.submitting')}</>
                             ) : (
                                 <>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                                         <polyline points="20 6 9 17 4 12" />
                                     </svg>
-                                    Submit Order
+                                    {t('orderForm.submitOrder')}
                                 </>
                             )}
                         </button>
