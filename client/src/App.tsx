@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import WaitstaffPage from './pages/WaitstaffPage';
 import KitchenPage from './pages/KitchenPage';
@@ -20,6 +21,7 @@ import logo from './assets/logo.png';
 import { EventProvider } from './context/EventContext';
 import { NotificationProvider, useNotification } from './context/NotificationContext';
 import ReadyNotification from './components/ReadyNotification';
+import LanguageSwitcher from './components/LanguageSwitcher';
 import { useSocket } from './hooks/useSocket';
 import './App.css';
 
@@ -45,6 +47,7 @@ const App = () => {
 
 const MainApp = () => {
     const { user, logout } = useAuth();
+    const { t } = useTranslation();
 
     const { readyOrder, setReadyOrder } = useNotification();
     const { isLoading, showLoader, hideLoader } = useLoader();
@@ -158,47 +161,51 @@ const MainApp = () => {
                     <div className="container">
                         <Link to={getHomeRoute()} className="nav-brand" onClick={closeMenu}>
                             <img src={logo} alt="Logo" className="navbar-logo" />
-                            ကွန်နက် မီးဖိုချောင်
+                            {t('common.appName')}
                         </Link>
-                        <button className={`hamburger-menu ${isMobileMenuOpen ? 'active hidden' : ''}`} onClick={toggleMobileMenu}>
-                            <span className="bar"></span>
-                            <span className="bar"></span>
-                            <span className="bar"></span>
-                        </button>
+                        <div className="nav-right-controls">
+                            <LanguageSwitcher />
+                            <button className={`hamburger-menu ${isMobileMenuOpen ? 'active hidden' : ''}`} onClick={toggleMobileMenu}>
+                                <span className="bar"></span>
+                                <span className="bar"></span>
+                                <span className="bar"></span>
+                            </button>
+                        </div>
                         <div className={`nav-links ${isMobileMenuOpen ? 'open' : ''}`}>
                             <div className="mobile-menu-header">
                                 <Link to={getHomeRoute()} className="nav-brand" onClick={closeMenu}>
                                     <img src={logo} alt="Logo" className="navbar-logo" />
                                 </Link>
+                                <LanguageSwitcher />
                                 <button className="close-menu-btn" onClick={closeMenu}>
                                     &times;
                                 </button>
                             </div>
                             <div className="nav-links-inner">
-                                {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/new-order" className="nav-link" onClick={closeMenu}>အော်ဒါအသစ်</Link>}
-                                {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/orders" className="nav-link" onClick={closeMenu}>အော်ဒါများ</Link>}
-                                {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/checkout" className="nav-link" onClick={closeMenu}>ငွေရှင်းရန်</Link>}
-                                {(user.role === 'Admin' || user.role === 'Kitchen') && <Link to="/kds" className="nav-link" onClick={closeMenu}>မီးဖိုချောင်</Link>}
+                                {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/new-order" className="nav-link" onClick={closeMenu}>{t('nav.newOrder')}</Link>}
+                                {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/orders" className="nav-link" onClick={closeMenu}>{t('nav.orders')}</Link>}
+                                {(user.role === 'Admin' || user.role === 'Waiter') && <Link to="/checkout" className="nav-link" onClick={closeMenu}>{t('nav.checkout')}</Link>}
+                                {(user.role === 'Admin' || user.role === 'Kitchen') && <Link to="/kds" className="nav-link" onClick={closeMenu}>{t('nav.kitchen')}</Link>}
                                 {user.role === 'Admin' && (
                                     <div className={`dropdown ${isAdminExpanded ? 'expanded' : ''}`}>
                                         <div className="dropdown-trigger" onClick={toggleAdminMenu}>
-                                            <span className="nav-link">Admin</span>
+                                            <span className="nav-link">{t('nav.admin')}</span>
                                             <div className="chevron-icon-container">
                                                 <span className="chevron-icon"></span>
                                             </div>
                                         </div>
                                         <div className={`dropdown-content ${isAdminExpanded ? 'show' : ''}`}>
-                                            <Link to="/admin/menu" className="nav-link" onClick={closeMenu}>Menus</Link>
-                                            <Link to="/admin/events" className="nav-link" onClick={closeMenu}>Events</Link>
-                                            <Link to="/admin/seats" className="nav-link" onClick={closeMenu}>Seats</Link>
-                                            <Link to="/admin/users" className="nav-link" onClick={closeMenu}>Users</Link>
+                                            <Link to="/admin/menu" className="nav-link" onClick={closeMenu}>{t('nav.menus')}</Link>
+                                            <Link to="/admin/events" className="nav-link" onClick={closeMenu}>{t('nav.events')}</Link>
+                                            <Link to="/admin/seats" className="nav-link" onClick={closeMenu}>{t('nav.seats')}</Link>
+                                            <Link to="/admin/users" className="nav-link" onClick={closeMenu}>{t('nav.users')}</Link>
                                         </div>
                                     </div>
                                 )}
                             </div>
                             <div className="nav-footer">
                                 <span className="username-tag">{user.username}</span>
-                                <button onClick={logout} className="nav-link logout-btn">Logout</button>
+                                <button onClick={logout} className="nav-link logout-btn">{t('common.logout')}</button>
                             </div>
                         </div>
                     </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { useSocket } from '../hooks/useSocket';
 import { MenuItem, Order } from '../types';
@@ -13,6 +14,7 @@ import CartSummary from '../components/qr/CartSummary';
 import OrderHistoryList from '../components/qr/OrderHistoryList';
 import IdentityModal from '../components/qr/IdentityModal';
 import { QRIcon } from '../components/icons/QRIcon';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 import './CustomerOrderPage.css';
 
 interface SocketResponse {
@@ -39,6 +41,7 @@ const CustomerOrderPage: React.FC = () => {
     const { showLoader, hideLoader } = useLoader();
     const [activeTab, setActiveTab] = useState<'order' | 'history'>('order');
     const [orders, setOrders] = useState<Order[]>([]);
+    const { t } = useTranslation();
 
     const categoryRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
@@ -96,7 +99,7 @@ const CustomerOrderPage: React.FC = () => {
                 }
             } catch (err) {
                 console.error('Failed to fetch menu:', err);
-                toast.error('Failed to load menu items');
+                toast.error(t('customerOrder.failedToLoad'));
             } finally {
                 hideLoader();
             }
@@ -173,7 +176,7 @@ const CustomerOrderPage: React.FC = () => {
             }
             return [...prev, { menuItem: item, quantity, selectedOptions, remarks }];
         });
-        toast.success(`${item.name} added to cart!`);
+        toast.success(t('customerOrder.addedToCart', { name: item.name }));
     };
 
     const handlePlaceOrder = () => {
@@ -217,7 +220,7 @@ const CustomerOrderPage: React.FC = () => {
                     setShowSuccessModal(true);
                     setCart([]);
                 } else {
-                    toast.error(response?.message || 'Failed to send order.');
+                    toast.error(response?.message || t('customerOrder.failedToSend'));
                 }
             });
         }
@@ -245,18 +248,19 @@ const CustomerOrderPage: React.FC = () => {
                     <div className="qr-logo">
                         <QRIcon />
                     </div>
+                    <LanguageSwitcher />
                     <div className="header-tabs">
                         <button
                             className={`tab-btn ${activeTab === 'order' ? 'active' : ''}`}
                             onClick={() => setActiveTab('order')}
                         >
-                            Order
+                            {t('customerOrder.order')}
                         </button>
                         <button
                             className={`tab-btn ${activeTab === 'history' ? 'active' : ''}`}
                             onClick={() => setActiveTab('history')}
                         >
-                            Order History
+                            {t('customerOrder.orderHistory')}
                         </button>
                     </div>
                 </div>
@@ -265,7 +269,7 @@ const CustomerOrderPage: React.FC = () => {
                     <div className="search-name-bar">
                         <input
                             type="text"
-                            placeholder="Please enter your name."
+                            placeholder={t('customerOrder.enterName')}
                             value={customerName}
                             onChange={(e) => setCustomerName(e.target.value)}
                             className="name-input-field"
@@ -274,7 +278,7 @@ const CustomerOrderPage: React.FC = () => {
                 )}
 
                 {effectiveSeat && (
-                    <div className="seat-info-fixed">💺 Seat {effectiveSeat}</div>
+                    <div className="seat-info-fixed">{t('customerOrder.seatInfo', { seat: effectiveSeat })}</div>
                 )}
             </header>
 
@@ -327,13 +331,13 @@ const CustomerOrderPage: React.FC = () => {
                 <div className="success-modal-overlay">
                     <div className="success-modal">
                         <div className="success-icon">✅</div>
-                        <h2>Order Complete!</h2>
-                        <p>Your order has reached the kitchen.</p>
+                        <h2>{t('customerOrder.orderComplete')}</h2>
+                        <p>{t('customerOrder.orderReachedKitchen')}</p>
                         <div className="order-num-box">
-                            <span>Order Number</span>
+                            <span>{t('customerOrder.orderNumberLabel')}</span>
                             <strong>{lastOrderNumber}</strong>
                         </div>
-                        <button className="done-btn" onClick={() => setShowSuccessModal(false)}>Close</button>
+                        <button className="done-btn" onClick={() => setShowSuccessModal(false)}>{t('common.close')}</button>
                     </div>
                 </div>
             )}
