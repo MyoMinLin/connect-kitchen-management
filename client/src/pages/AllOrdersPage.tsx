@@ -5,6 +5,7 @@ import { useSocket } from '../hooks/useSocket';
 import { useEvent } from '../context/EventContext';
 import { useAuth } from '../context/AuthContext';
 import { API_BASE_URL } from '../utils/apiConfig';
+import { useTranslation } from 'react-i18next';
 import EditOrderModal from '../components/EditOrderModal';
 import AddressModal from '../components/AddressModal';
 import ReceiptModal from '../components/ReceiptModal';
@@ -18,6 +19,7 @@ const AllOrdersPage: React.FC = () => {
     const { currentEvent } = useEvent();
     const socket = useSocket();
     const { user } = useAuth();
+    const { t } = useTranslation();
     interface AddressViewData {
         address: string;
         customerName: string;
@@ -159,20 +161,20 @@ const AllOrdersPage: React.FC = () => {
 
     return (
         <div className="all-orders-page">
-            <h1>လက်ရှိအော်ဒါများ {currentEvent ? `(${currentEvent.name})` : ''}</h1>
-            {!currentEvent && <p>Please select an event from the Admin menu to view orders.</p>}
+            <h1>{t('allOrders.currentOrders')} {currentEvent ? `(${currentEvent.name})` : ''}</h1>
+            {!currentEvent && <p>{t('allOrders.selectEventPrompt')}</p>}
             {currentEvent && (
                 <div className="orders-list-container">
                     <table className="orders-table">
                         <thead>
                             <tr>
-                                <th>Type & ID</th>
-                                <th>Seat</th>
-                                <th>Item</th>
-                                <th>Total Amount</th>
-                                <th>Ordered At</th>
-                                <th>Status</th>
-                                <th>Action</th>
+                                <th>{t('allOrders.typeAndId')}</th>
+                                <th>{t('common.seat')}</th>
+                                <th>{t('allOrders.item')}</th>
+                                <th>{t('allOrders.totalAmount')}</th>
+                                <th>{t('allOrders.orderedAt')}</th>
+                                <th>{t('common.status')}</th>
+                                <th>{t('common.action')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -183,9 +185,9 @@ const AllOrdersPage: React.FC = () => {
                                             <div className="order-type-header">
                                                 <span className={`order-type-badge ${order.isPreOrder ? 'type-pre' : 'type-seat'}`}>
                                                     {order.isPreOrder ? (
-                                                        <><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg> Pre-Order</>
+                                                        <><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg> {t('allOrders.preOrder')}</>
                                                     ) : (
-                                                        <><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 18V5"></path><path d="M12 5v13"></path><path d="M17 12h-5"></path><path d="M17 5v7"></path><path d="M7 12h5"></path></svg> Seat Order</>
+                                                        <><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 18V5"></path><path d="M12 5v13"></path><path d="M17 12h-5"></path><path d="M17 5v7"></path><path d="M7 12h5"></path></svg> {t('allOrders.seatOrder')}</>
                                                     )}
                                                 </span>
                                                 <span className="order-number-text">#{order.orderNumber}</span>
@@ -216,7 +218,7 @@ const AllOrdersPage: React.FC = () => {
                                         <div className="amount-wrapper">
                                             <span className="total-amount-text">{calculateOrderTotal(order)}</span>
                                             <span className={`payment-badge ${order.isPaid ? 'paid' : 'pending'}`}>
-                                                {order.isPaid ? 'Paid' : 'Pending'}
+                                                {order.isPaid ? t('common.paid') : t('common.pending')}
                                             </span>
                                         </div>
                                     </td>
@@ -286,7 +288,7 @@ const AllOrdersPage: React.FC = () => {
                                                     className="action-btn collected-btn"
                                                     onClick={() => handleMarkAsCollected(order._id)}
                                                 >
-                                                    Mark as Collected
+                                                    {t('allOrders.markAsCollected')}
                                                 </button>
                                             )}
                                         </div>
@@ -300,18 +302,18 @@ const AllOrdersPage: React.FC = () => {
 
             {currentEvent && collectedOrders.length > 0 && (
                 <>
-                    <h2 className="collected-orders-title">Collected Orders</h2>
+                    <h2 className="collected-orders-title">{t('allOrders.collectedOrders')}</h2>
                     <div className="orders-list-container">
                         <table className="orders-table">
                             <thead>
                                 <tr>
-                                    <th>Type & ID</th>
-                                    <th>Seat</th>
-                                    <th>Item</th>
-                                    <th>Ordered At</th>
-                                    <th>Total Amount</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
+                                    <th>{t('allOrders.typeAndId')}</th>
+                                    <th>{t('common.seat')}</th>
+                                    <th>{t('allOrders.item')}</th>
+                                    <th>{t('allOrders.orderedAt')}</th>
+                                    <th>{t('allOrders.totalAmount')}</th>
+                                    <th>{t('common.status')}</th>
+                                    <th>{t('common.action')}</th>
                                 </tr>
                             </thead>
                             <tbody>

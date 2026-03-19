@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { MenuItem, OrderItem } from '../types';
 import { API_BASE_URL } from '../utils/apiConfig';
 import toast from 'react-hot-toast';
@@ -22,6 +23,7 @@ interface PreOrderFormProps {
 
 const PreOrderForm: React.FC<PreOrderFormProps> = ({ eventId, onSubmit, onBack }) => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -205,7 +207,7 @@ const PreOrderForm: React.FC<PreOrderFormProps> = ({ eventId, onSubmit, onBack }
             <div className="of-sheet">
                 <div className="of-header">
                     <div className="of-header-left">
-                        <span className="of-title">Customer Pre-Order</span>
+                        <span className="of-title">{t('preOrderForm.title')}</span>
                     </div>
                 </div>
 
@@ -214,14 +216,14 @@ const PreOrderForm: React.FC<PreOrderFormProps> = ({ eventId, onSubmit, onBack }
                         className={`of-tab ${activeTab === 'details' ? 'active' : ''}`}
                         onClick={() => setActiveTab('details')}
                     >
-                        Your Details
+                        {t('orderForm.yourDetails')}
                         {totalItems > 0 && <span className="of-tab-badge">{totalItems}</span>}
                     </button>
                     <button
                         className={`of-tab ${activeTab === 'menu' ? 'active' : ''}`}
                         onClick={() => setActiveTab('menu')}
                     >
-                        Select Items
+                        {t('orderForm.selectItems')}
                     </button>
                 </div>
 
@@ -230,16 +232,16 @@ const PreOrderForm: React.FC<PreOrderFormProps> = ({ eventId, onSubmit, onBack }
                         <div className={`of-panel of-panel-details ${activeTab === 'details' ? 'of-panel-active' : ''}`}>
                             <div className="of-panel-details-inner">
                                 <section className="of-section">
-                                    <h3 className="of-section-title">Contact Information</h3>
+                                    <h3 className="of-section-title">{t('orderForm.contactInfo')}</h3>
                                     <div className="of-field of-field-full">
-                                        <label className="of-label" htmlFor="customer">Full Name</label>
+                                        <label className="of-label" htmlFor="customer">{t('orderForm.fullName')}</label>
                                         <input
                                             id="customer"
                                             className="of-input"
                                             type="text"
                                             value={customerName}
                                             onChange={e => setCustomerName(e.target.value)}
-                                            placeholder="Enter your name"
+                                            placeholder={t('orderForm.enterName')}
                                             ref={nameRef}
                                         />
                                     </div>
@@ -248,7 +250,7 @@ const PreOrderForm: React.FC<PreOrderFormProps> = ({ eventId, onSubmit, onBack }
                                         <label className="of-toggle-row">
                                             <span className="of-toggle-label">
                                                 <span className="of-toggle-icon">🚚</span>
-                                                Delivery
+                                                {t('orderForm.delivery')}
                                             </span>
                                             <button
                                                 type="button"
@@ -265,28 +267,28 @@ const PreOrderForm: React.FC<PreOrderFormProps> = ({ eventId, onSubmit, onBack }
                                     {isDelivery && (
                                         <div className="of-slide-in">
                                             <div className="of-field of-field-full" style={{ marginTop: '1rem' }}>
-                                                <label className="of-label" htmlFor="address">Delivery Address</label>
+                                                <label className="of-label" htmlFor="address">{t('orderForm.deliveryAddress')}</label>
                                                 <textarea
                                                     id="address"
                                                     className="of-input"
                                                     value={deliveryAddress}
                                                     onChange={e => setDeliveryAddress(e.target.value)}
                                                     ref={addressRef}
-                                                    placeholder="Full address for delivery"
+                                                    placeholder={t('orderForm.fullAddress')}
                                                     style={{ height: '80px', paddingTop: '8px' }}
                                                 />
                                             </div>
                                             <div className="of-field of-field-full">
-                                                <label className="of-label">Delivery Type</label>
+                                                <label className="of-label">{t('orderForm.deliveryType')}</label>
                                                 <select 
                                                     className="of-input" 
                                                     ref={typeRef}
                                                     value={deliveryType} 
                                                     onChange={e => setDeliveryType(e.target.value as any)}
                                                 >
-                                                    <option value="">Select Type</option>
-                                                    <option value="Yamato">Yamato</option>
-                                                    <option value="Letter Pack">Letter Pack</option>
+                                                    <option value="">{t('orderForm.selectType')}</option>
+                                                    <option value="Yamato">{t('orderForm.yamato')}</option>
+                                                    <option value="Letter Pack">{t('orderForm.letterPack')}</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -295,10 +297,10 @@ const PreOrderForm: React.FC<PreOrderFormProps> = ({ eventId, onSubmit, onBack }
                                     <div className="of-field of-field-full" style={{ marginTop: '1.5rem', padding: '16px', background: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1' }}>
                                         <label className="of-label" style={{ marginBottom: '8px' }}>
                                             <span style={{ marginRight: '6px' }}>💳</span>
-                                            Payment Proof (Screenshot/Photo)
+                                            {t('orderForm.paymentProof')}
                                         </label>
                                         <p style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '12px' }}>
-                                            If you have already paid, please upload your receipt for verification.
+                                            {t('orderForm.paymentProofHelp')}
                                         </p>
                                         <input 
                                             type="file" 
@@ -308,7 +310,7 @@ const PreOrderForm: React.FC<PreOrderFormProps> = ({ eventId, onSubmit, onBack }
                                             className="of-input"
                                             style={{ padding: '8px' }}
                                         />
-                                        {isUploading && <p className="upload-hint">Uploading proof...</p>}
+                                        {isUploading && <p className="upload-hint">{t('orderForm.uploadingProof')}</p>}
                                         {(previewUrl || paymentProof) && (
                                             <div className="proof-preview" style={{ marginTop: '12px' }}>
                                                 <img src={previewUrl || paymentProof} alt="Proof" style={{ width: '100%', maxWidth: '200px', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
@@ -319,14 +321,14 @@ const PreOrderForm: React.FC<PreOrderFormProps> = ({ eventId, onSubmit, onBack }
 
                                 <section className="of-section of-items-section">
                                     <div className="of-section-header">
-                                        <h3 className="of-section-title">Selected Items</h3>
-                                        <button type="button" className="of-add-more-btn" onClick={() => setActiveTab('menu')}>+ Add Items</button>
+                                        <h3 className="of-section-title">{t('orderForm.selectedItems')}</h3>
+                                        <button type="button" className="of-add-more-btn" onClick={() => setActiveTab('menu')}>{t('orderForm.addItems')}</button>
                                     </div>
 
                                     {currentOrderItems.length === 0 ? (
                                         <div className="of-empty-items">
                                             <span className="of-empty-icon">🛒</span>
-                                            <p>Your cart is empty.</p>
+                                            <p>{t('orderForm.cartEmpty')}</p>
                                         </div>
                                     ) : (
                                         <ul className="of-items-list">
@@ -335,7 +337,7 @@ const PreOrderForm: React.FC<PreOrderFormProps> = ({ eventId, onSubmit, onBack }
                                                 return (
                                                     <li key={index} className="of-item-card">
                                                         <div className="of-item-top">
-                                                            <span className="of-item-name">{mi ? mi.name : 'Unknown Item'}</span>
+                                                            <span className="of-item-name">{mi ? mi.name : t('orderForm.unknownItem')}</span>
                                                             <div className="of-item-right">
                                                                 {mi && <span className="of-item-price">¥{(mi.price * item.quantity).toLocaleString()}</span>}
                                                                 <button type="button" className="of-remove-btn" onClick={() => handleRemoveItem(index)}>✕</button>
@@ -350,7 +352,7 @@ const PreOrderForm: React.FC<PreOrderFormProps> = ({ eventId, onSubmit, onBack }
                                                             <input
                                                                 type="text"
                                                                 className="of-remark-input"
-                                                                placeholder="Note to kitchen…"
+                                                                placeholder={t('orderForm.noteToKitchen')}
                                                                 value={item.remarks}
                                                                 onChange={e => handleRemarkChange(index, e.target.value)}
                                                             />
@@ -363,7 +365,7 @@ const PreOrderForm: React.FC<PreOrderFormProps> = ({ eventId, onSubmit, onBack }
 
                                     {currentOrderItems.length > 0 && (
                                         <div className="of-total-row">
-                                            <span>Total</span>
+                                            <span>{t('common.total')}</span>
                                             <span className="of-total-amount">¥{calculateTotal().toLocaleString()}</span>
                                         </div>
                                     )}
@@ -377,7 +379,7 @@ const PreOrderForm: React.FC<PreOrderFormProps> = ({ eventId, onSubmit, onBack }
                                     <input
                                         className="of-menu-search"
                                         type="text"
-                                        placeholder="Search products…"
+                                        placeholder={t('orderForm.searchProducts')}
                                         value={menuSearch}
                                         onChange={e => setMenuSearch(e.target.value)}
                                     />
@@ -412,10 +414,10 @@ const PreOrderForm: React.FC<PreOrderFormProps> = ({ eventId, onSubmit, onBack }
                             className="of-btn-cancel" 
                             onClick={onBack ? onBack : () => navigate(-1)}
                         >
-                            Back
+                            {t('common.back')}
                         </button>
                         <button type="submit" className="of-btn-submit" disabled={isSubmitting || isUploading}>
-                            {isSubmitting ? 'Submitting...' : 'Submit Pre-Order'}
+                            {isSubmitting ? t('orderForm.submitting') : t('preOrderForm.submit')}
                         </button>
                     </div>
                 </form>

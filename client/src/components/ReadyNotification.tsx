@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import './ReadyNotification.css';
 
 interface ReadyNotificationProps {
@@ -7,6 +8,8 @@ interface ReadyNotificationProps {
 }
 
 const ReadyNotification: React.FC<ReadyNotificationProps> = ({ orderNumber, onClear }) => {
+    const { t } = useTranslation();
+
     const handleClear = () => {
         const audio = new Audio('/notification-sounds/alert_high-intensity.wav');
         audio.play();
@@ -16,9 +19,9 @@ const ReadyNotification: React.FC<ReadyNotificationProps> = ({ orderNumber, onCl
     return (
         <div className="notification-overlay">
             <div className="notification-modal">
-                <h2>Order Ready!</h2>
-                <p>The order for <strong>{orderNumber}</strong> is ready for pickup.</p>
-                <button onClick={handleClear} className="clear-btn">Clear Notification</button>
+                <h2>{t('notification.orderReady')}</h2>
+                <p dangerouslySetInnerHTML={{ __html: t('notification.orderReadyMessage', { orderNumber }) }} />
+                <button onClick={handleClear} className="clear-btn">{t('notification.clearNotification')}</button>
             </div>
         </div>
     );

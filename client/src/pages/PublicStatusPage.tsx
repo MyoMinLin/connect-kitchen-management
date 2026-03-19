@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useLocation, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useSocket } from '../hooks/useSocket';
 import { Order } from '../types';
 import { API_BASE_URL } from '../utils/apiConfig';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 import './PublicStatusPage.css';
 
 const PublicStatusPage: React.FC = () => {
@@ -11,6 +13,7 @@ const PublicStatusPage: React.FC = () => {
     const socket = useSocket();
     const [orders, setOrders] = useState<Order[]>([]);
     const [lastReadyOrder, setLastReadyOrder] = useState<string | null>(null);
+    const { t } = useTranslation();
 
     const queryParams = new URLSearchParams(location.search);
     const viewAll = queryParams.get('view') === 'all';
@@ -74,63 +77,64 @@ const PublicStatusPage: React.FC = () => {
     return (
         <div className="public-status-container">
             <header className="status-header">
-                <h1>🍳 {isFiltered ? 'My Order Status' : 'Connect Kitchen Order Status'}</h1>
+                <h1>🍳 {isFiltered ? t('publicStatus.myOrderStatus') : t('publicStatus.orderStatus')}</h1>
+                <LanguageSwitcher />
                 {isFiltered && (
                     <Link to={`/status/${eventId}?view=all`} className="view-all-link">
-                        View All Orders
+                        {t('publicStatus.viewAllOrders')}
                     </Link>
                 )}
                 {!isFiltered && customerTabId && (
                     <Link to={`/status/${eventId}`} className="view-all-link">
-                        View My Orders Only
+                        {t('publicStatus.viewMyOrders')}
                     </Link>
                 )}
                 {lastReadyOrder && (
                     <div className="announcement-banner">
-                        🔔 {lastReadyOrder} - Your order is READY!
+                        🔔 {t('publicStatus.orderReady', { name: lastReadyOrder })}
                     </div>
                 )}
             </header>
 
             <main className="status-grid">
                 <section className="status-column preparing">
-                    <h2>Currently Cooking</h2>
+                    <h2>{t('publicStatus.currentlyCooking')}</h2>
                     <div className="name-list">
                         {preparingOrders.length > 0 ? (
                             preparingOrders.map(order => (
                                 <div key={order._id} className="name-card">
-                                    <span className="order-name">{order.seatNumber ? `Seat ${order.seatNumber}` : (order.customerName || `#${order.orderNumber}`)}</span>
-                                    <span className="prep-indicator">Preparing...</span>
+                                    <span className="order-name">{order.seatNumber ? `${t('common.seat')} ${order.seatNumber}` : (order.customerName || `#${order.orderNumber}`)}</span>
+                                    <span className="prep-indicator">{t('publicStatus.preparing')}</span>
                                 </div>
                             ))
                         ) : (
-                            <p className="empty-msg">Waiting for more orders...</p>
+                            <p className="empty-msg">{t('publicStatus.waitingForOrders')}</p>
                         )}
                     </div>
                 </section>
 
                 <section className="status-column ready">
-                    <h2>Ready to Collect</h2>
+                    <h2>{t('publicStatus.readyToCollect')}</h2>
                     <div className="name-list">
                         {readyOrders.length > 0 ? (
                             readyOrders.map(order => {
-                                const displayName = order.seatNumber ? `Seat ${order.seatNumber}` : (order.customerName || `#${order.orderNumber}`);
+                                const displayName = order.seatNumber ? `${t('common.seat')} ${order.seatNumber}` : (order.customerName || `#${order.orderNumber}`);
                                 return (
                                     <div key={order._id} className={`name-card ready-card ${lastReadyOrder === displayName ? 'highlight' : ''}`}>
                                         <span className="order-name">{displayName}</span>
-                                        <span className="ready-indicator">READY ✅</span>
+                                        <span className="ready-indicator">{t('publicStatus.readyIndicator')}</span>
                                     </div>
                                 );
                             })
                         ) : (
-                            <p className="empty-msg">Fresh food on the way!</p>
+                            <p className="empty-msg">{t('publicStatus.freshFood')}</p>
                         )}
                     </div>
                 </section>
             </main>
 
             <footer className="status-footer">
-                <p>Please come to the counter when your name appears in the Ready list.</p>
+                <p>{t('publicStatus.footerMessage')}</p>
             </footer>
         </div>
     );

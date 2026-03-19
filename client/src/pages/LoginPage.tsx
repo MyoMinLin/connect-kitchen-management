@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { API_BASE_URL } from '../utils/apiConfig';
 import logo from '../assets/logo.png';
 import { fetchWithLoader } from '../utils/api';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 import './LoginPage.css';
 
 const LoginPage = () => {
@@ -12,6 +14,7 @@ const LoginPage = () => {
     const [error, setError] = useState('');
     const { user, login } = useAuth();
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     useEffect(() => {
         if (user) {
@@ -26,7 +29,7 @@ const LoginPage = () => {
                     navigate('/kds');
                     break;
                 default:
-                    navigate('/'); // Fallback for unknown roles or general user
+                    navigate('/');
                     break;
             }
         }
@@ -46,11 +49,11 @@ const LoginPage = () => {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.message || 'Failed to login');
+                throw new Error(data.message || t('login.failedToLogin'));
             }
 
             login(data.token);
-            navigate('/'); // Redirect to home page after login
+            navigate('/');
 
         } catch (err: any) {
             setError(err.message);
@@ -59,12 +62,15 @@ const LoginPage = () => {
 
     return (
         <div className="login-container">
+            <div className="login-lang-switcher">
+                <LanguageSwitcher />
+            </div>
             <form onSubmit={handleSubmit} className="login-form">
                 <img src={logo} alt="Logo" className="login-logo" />
-                <h2>Login</h2>
+                <h2>{t('login.title')}</h2>
                 {error && <p className="error-message">{error}</p>}
                 <div className="form-group">
-                    <label htmlFor="username">Username</label>
+                    <label htmlFor="username">{t('login.username')}</label>
                     <input
                         id="username"
                         type="text"
@@ -74,7 +80,7 @@ const LoginPage = () => {
                     />
                 </div>
                 <div className="form-group">
-                    <label htmlFor="password">Password</label>
+                    <label htmlFor="password">{t('login.password')}</label>
                     <input
                         id="password"
                         type="password"
@@ -83,7 +89,7 @@ const LoginPage = () => {
                         required
                     />
                 </div>
-                <button type="submit" className="login-btn">Login</button>
+                <button type="submit" className="login-btn">{t('login.loginBtn')}</button>
             </form>
         </div>
     );

@@ -88,6 +88,13 @@
     color: var(--color-danger-hover);
 }
 
+/* ──────────────── Nav Right Controls ──────────────── */
+.nav-right-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3, 0.75rem);
+}
+
 /* ──────────────── Hamburger Menu ──────────────── */
 .hamburger-menu {
     display: none;

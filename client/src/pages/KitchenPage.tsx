@@ -3,6 +3,7 @@ import { useSocket } from '../hooks/useSocket';
 import { useEvent } from '../context/EventContext';
 import { Order } from '../types';
 import { API_BASE_URL } from '../utils/apiConfig';
+import { useTranslation } from 'react-i18next';
 import OrderCard from '../components/OrderCard';
 import './KitchenPage.css';
 
@@ -11,6 +12,7 @@ const KitchenPage = () => {
     const { currentEvent } = useEvent();
     const [orders, setOrders] = useState<Order[]>([]);
     const [activeTab, setActiveTab] = useState<Order['status']>('New');
+    const { t } = useTranslation();
 
     useEffect(() => {
         if (!currentEvent) {
@@ -87,10 +89,19 @@ const KitchenPage = () => {
 
     const statuses: Order['status'][] = ['New', 'Preparing', 'Ready'];
 
+    const getTabLabel = (status: Order['status']) => {
+        switch (status) {
+            case 'New': return t('kitchen.new');
+            case 'Preparing': return t('kitchen.inProgress');
+            case 'Ready': return t('kitchen.ready');
+            default: return status;
+        }
+    };
+
     return (
         <div className="kds-page">
             <header className="kds-header">
-                <h2>Chef's Console {currentEvent ? `(${currentEvent.name})` : ''}</h2>
+                <h2>{t('kitchen.chefsConsole')} {currentEvent ? `(${currentEvent.name})` : ''}</h2>
                 <div className="batch-summary-bar">
                     {batchSummary.length > 0 ? (
                         batchSummary.map(([name, qty]) => (
@@ -100,12 +111,12 @@ const KitchenPage = () => {
                             </div>
                         ))
                     ) : (
-                        <span className="no-batch">No active prep items</span>
+                        <span className="no-batch">{t('kitchen.noActivePrepItems')}</span>
                     )}
                 </div>
             </header>
 
-            {!currentEvent && <p className="kds-error">Please select an event in the Admin dashboard.</p>}
+            {!currentEvent && <p className="kds-error">{t('kitchen.selectEvent')}</p>}
 
             <nav className="kds-tabs">
                 {statuses.map(status => (
@@ -114,7 +125,7 @@ const KitchenPage = () => {
                         className={`tab-item ${activeTab === status ? 'active' : ''} ${status.toLowerCase()}`}
                         onClick={() => setActiveTab(status)}
                     >
-                        <span className="tab-label">{status === 'Preparing' ? 'In Progress' : status === 'Ready' ? 'Ready' : 'New'}</span>
+                        <span className="tab-label">{getTabLabel(status)}</span>
                         <span className="tab-badge">{filterOrdersByStatus(status).length}</span>
                     </button>
                 ))}
@@ -129,7 +140,7 @@ const KitchenPage = () => {
                             ))
                         ) : (
                             <div className="empty-lane">
-                                <p>No {activeTab.toLowerCase()} orders at the moment.</p>
+                                <p>{t('kitchen.noOrdersAtMoment', { status: activeTab.toLowerCase() })}</p>
                             </div>
                         )}
                     </div>

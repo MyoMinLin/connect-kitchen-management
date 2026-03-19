@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import EventSalesChart from '../components/admin/EventSalesChart';
 import PopularDishesChart from '../components/admin/PopularDishesChart';
@@ -36,6 +37,7 @@ const AdminPage = () => {
     const [reportData, setReportData] = useState<ReportData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const { t } = useTranslation();
 
     useEffect(() => {
         const fetchReports = async () => {
@@ -54,23 +56,23 @@ const AdminPage = () => {
                 setError(null);
             } catch (err) {
                 console.error('Error fetching reports:', err);
-                setError('Failed to load reports. Please try again later.');
+                setError(t('admin.failedToLoad'));
             } finally {
                 setLoading(false);
             }
         };
 
         fetchReports();
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <div>
-            <h1>Admin Dashboard</h1>
+            <h1>{t('admin.dashboard')}</h1>
 
             {/* Reports Section */}
             <div className="reports-section">
-                <h2 className="section-title">Reports & Analytics</h2>
-                {loading && <p className="loading-message">Loading reports...</p>}
+                <h2 className="section-title">{t('admin.reportsAndAnalytics')}</h2>
+                {loading && <p className="loading-message">{t('admin.loadingReports')}</p>}
                 {error && <p className="error-message">{error}</p>}
                 {!loading && !error && reportData && (
                     <div className="reports-grid">
