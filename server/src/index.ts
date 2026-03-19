@@ -1,6 +1,7 @@
 
 import express from 'express';
 import http from 'http';
+import https from 'https';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import mongoose from 'mongoose';
@@ -61,6 +62,7 @@ import reportRoutes from './routes/reports';
 import uploadRoute from './routes/upload';
 
 // --- API Routes ---
+app.get('/api/health', (req, res) => res.status(200).send('OK'));
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
@@ -401,6 +403,23 @@ const runMigration = async () => {
 };
 
 server.listen(PORT, async () => {
+    // Prevent Render Free tier from sleeping
+    const pingUrl = process.env.RENDER_EXTERNAL_URL || process.env.BACKEND_URL;
+    if (pingUrl) {
+        console.log(`Starting self-ping service for ${pingUrl}`);
+        setInterval(() => {
+            const get = pingUrl.startsWith('https') ? https.get : http.get;
+            get(`${pingUrl}/api/health`, (resp) => {
+                if (resp.statusCode === 200) {
+                    console.log('Self-ping successful to keep Render awake');
+                } else {
+                    console.error('Self-ping failed with status code:', resp.statusCode);
+                }
+            }).on('error', (err) => {
+                console.error('Self-ping error:', err.message);
+            });
+        }, 14 * 60 * 1000); // 14 minutes
+    }
     console.log(`Server is running on http://localhost:${PORT}`);
     await runMigration();
 });
