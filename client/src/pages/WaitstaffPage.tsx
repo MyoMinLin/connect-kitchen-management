@@ -9,7 +9,7 @@ import { fetchWithLoader } from '../utils/api';
 import { OrderItem, Order } from '../types'; // Import from types.ts
 import { useEvent } from '../context/EventContext'; // Import useEvent
 
-import toast from 'react-hot-toast';
+
 import { useTranslation } from 'react-i18next';
 import '../pages/WaitstaffPage.css';
 
